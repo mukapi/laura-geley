@@ -147,20 +147,18 @@
       }
     });
 
-    // Hook AU DÉBUT de la transition - cacher les horloges
-    barba.hooks.before((data) => {
-      // Cacher temporairement les horloges pendant la transition
-      document.querySelectorAll(".js-clock").forEach((el) => {
+    // Hook AVANT l'affichage - cacher, mettre à jour et montrer les horloges
+    barba.hooks.beforeEnter((data) => {
+      // Cacher immédiatement les horloges de la NOUVELLE page
+      const newContainer = data.next.container;
+      newContainer.querySelectorAll(".js-clock").forEach((el) => {
         el.style.visibility = "hidden";
       });
-    });
 
-    // Hook AVANT l'affichage - mettre à jour et montrer les horloges
-    barba.hooks.beforeEnter((data) => {
       // Fonction d'initialisation de l'horloge avec affichage
       function initClockAndShow() {
         function updateClocks() {
-          document.querySelectorAll(".js-clock").forEach((el) => {
+          newContainer.querySelectorAll(".js-clock").forEach((el) => {
             const tz = el.dataset.tz;
             const now = new Date();
             const formatter = new Intl.DateTimeFormat("en-US", {
@@ -184,8 +182,21 @@
           clearInterval(window.clockInterval);
         }
 
-        // Nouveau interval
-        window.clockInterval = setInterval(updateClocks, 1000);
+        // Nouveau interval (sur toutes les horloges du site)
+        window.clockInterval = setInterval(() => {
+          document.querySelectorAll(".js-clock").forEach((el) => {
+            const tz = el.dataset.tz;
+            const now = new Date();
+            const formatter = new Intl.DateTimeFormat("en-US", {
+              timeZone: tz,
+              hour: "numeric",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true,
+            });
+            el.textContent = formatter.format(now);
+          });
+        }, 1000);
       }
 
       // Petit délai pour s'assurer que le DOM est prêt
