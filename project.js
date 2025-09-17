@@ -1,12 +1,14 @@
 // Animation curseur projets - Style Laura Geley
-// Basé sur l'animation originale du site de référence
+// Compatible avec BarbaJS - PAS de DOMContentLoaded !
+
+// Fonction de nettoyage globale
+if (window.projectCursorCleanup) {
+  window.projectCursorCleanup();
+}
 
 function initProjectCursorAnimation() {
   // Vérifier que GSAP est disponible
   if (typeof gsap === "undefined") {
-    console.error(
-      "GSAP n'est pas chargé. Assurez-vous d'inclure GSAP avant ce script."
-    );
     return;
   }
 
@@ -25,7 +27,6 @@ function initProjectCursorAnimation() {
     !cursorItems.length ||
     !projectItems.length
   ) {
-    console.warn("Éléments requis pour l'animation curseur non trouvés");
     return;
   }
 
@@ -188,28 +189,12 @@ function initProjectCursorAnimation() {
     }
   }
 
+  // Stocker la fonction de cleanup globalement pour BarbaJS
+  window.projectCursorCleanup = cleanup;
+
   // Retourner la fonction de cleanup pour pouvoir l'utiliser si nécessaire
   return cleanup;
 }
 
-// Initialisation au chargement de la page
-document.addEventListener("DOMContentLoaded", function () {
-  // Attendre un peu pour s'assurer que tout est chargé
-  setTimeout(() => {
-    initProjectCursorAnimation();
-  }, 100);
-});
-
-// Support pour les navigateurs plus anciens
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", function () {
-    setTimeout(() => {
-      initProjectCursorAnimation();
-    }, 100);
-  });
-} else {
-  // Le DOM est déjà chargé
-  setTimeout(() => {
-    initProjectCursorAnimation();
-  }, 100);
-}
+// ⚠️ DÉSACTIVÉ - Maintenant géré par barba.js
+// initProjectCursorAnimation();

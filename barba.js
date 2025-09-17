@@ -147,6 +147,51 @@
       }
     });
 
+    // Hook AU DÉBUT de la transition - cacher les horloges
+    barba.hooks.before((data) => {
+      // Cacher temporairement les horloges pendant la transition
+      document.querySelectorAll(".js-clock").forEach((el) => {
+        el.style.visibility = "hidden";
+      });
+    });
+
+    // Hook AVANT l'affichage - mettre à jour et montrer les horloges
+    barba.hooks.beforeEnter((data) => {
+      // Fonction d'initialisation de l'horloge avec affichage
+      function initClockAndShow() {
+        function updateClocks() {
+          document.querySelectorAll(".js-clock").forEach((el) => {
+            const tz = el.dataset.tz;
+            const now = new Date();
+            const formatter = new Intl.DateTimeFormat("en-US", {
+              timeZone: tz,
+              hour: "numeric",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true,
+            });
+            el.textContent = formatter.format(now);
+            // Montrer l'horloge maintenant qu'elle a la bonne heure
+            el.style.visibility = "visible";
+          });
+        }
+
+        // Mise à jour immédiate
+        updateClocks();
+
+        // Nettoyer l'ancien interval s'il existe
+        if (window.clockInterval) {
+          clearInterval(window.clockInterval);
+        }
+
+        // Nouveau interval
+        window.clockInterval = setInterval(updateClocks, 1000);
+      }
+
+      // Petit délai pour s'assurer que le DOM est prêt
+      setTimeout(initClockAndShow, 50);
+    });
+
     // Solution communautaire : hooks séparés pour les scripts custom
     barba.hooks.afterEnter((data) => {
       // Fonction d'initialisation des cursors (appelée à chaque page)
@@ -243,9 +288,297 @@
         });
       }
 
-      // Exécuter les initialisations
+      // Fonction d'initialisation des projets cursor
+      function initProjectCursor() {
+        // Nettoyer les anciens event listeners
+        if (window.projectCursorCleanup) {
+          window.projectCursorCleanup();
+        }
+
+        // Vérifier que GSAP est disponible
+        if (typeof gsap === "undefined") {
+          return;
+        }
+
+        // Sélecteurs pour votre structure HTML
+        const cursorContainer = document.querySelector(
+          ".past_projects_cursor_list"
+        );
+        const cursorItems = document.querySelectorAll(
+          ".past_projects_cursor_list_item"
+        );
+        const projectsWrapper = document.querySelector(
+          ".past_projects_list_wrap"
+        );
+        const projectItems = document.querySelectorAll(".past_project_item");
+
+        // Vérifications de sécurité
+        if (
+          !cursorContainer ||
+          !projectsWrapper ||
+          !cursorItems.length ||
+          !projectItems.length
+        ) {
+          return;
+        }
+
+        // Variables d'état
+        let currentImageIndex = -1;
+        let isActive = false;
+
+        // Configuration initiale du curseur
+        gsap.set(cursorContainer, {
+          opacity: 0,
+          scale: 0,
+          rotation: -45,
+        });
+
+        // Configuration initiale des items du curseur
+        gsap.set(cursorItems, {
+          yPercent: 100,
+        });
+
+        // Fonction de suivi de la souris
+        function followMouse(event) {
+          if (!cursorContainer) return;
+          gsap.to(cursorContainer, {
+            x: event.clientX,
+            y: event.clientY,
+            duration: 1,
+            ease: "power1.out",
+          });
+        }
+
+        // Fonction d'apparition du curseur
+        function showCursor() {
+          if (!cursorContainer || isActive) return;
+          isActive = true;
+          gsap.to(cursorContainer, {
+            opacity: 1,
+            scale: 1,
+            rotation: 0,
+            duration: 0.5,
+            ease: "power2.inOut",
+          });
+        }
+
+        // Fonction de disparition du curseur
+        function hideCursor() {
+          if (!cursorContainer) return;
+          isActive = false;
+          gsap.to(cursorContainer, {
+            opacity: 0,
+            scale: 0,
+            rotation: -45,
+            duration: 0.4,
+            ease: "power2.inOut",
+          });
+          currentImageIndex = -1;
+        }
+
+        // Fonction de changement d'image
+        function switchToImage(index) {
+          if (!cursorItems || !cursorItems[index]) return;
+          const direction = index > currentImageIndex ? 1 : -1;
+          const newItem = cursorItems[index];
+          const timeline = gsap.timeline({
+            defaults: {
+              duration: 1.6,
+              ease: "expo.out",
+            },
+          });
+
+          if (currentImageIndex >= 0 && cursorItems[currentImageIndex]) {
+            const currentItem = cursorItems[currentImageIndex];
+            gsap.set(newItem, { yPercent: 100 * direction });
+            timeline
+              .to(currentItem, { yPercent: -100 * direction })
+              .to(newItem, { yPercent: 0 }, "<");
+          } else {
+            timeline.fromTo(
+              newItem,
+              { yPercent: 100 * direction },
+              { yPercent: 0 }
+            );
+          }
+          currentImageIndex = index;
+        }
+
+        // Event listeners
+        document.addEventListener("mousemove", followMouse);
+
+        if (projectsWrapper) {
+          projectsWrapper.addEventListener("mouseenter", showCursor);
+          projectsWrapper.addEventListener("mouseleave", hideCursor);
+        }
+
+        projectItems.forEach((projectItem, index) => {
+          if (projectItem) {
+            const projectTitle = projectItem.querySelector(
+              ".past_project_title"
+            );
+
+            const hoverHandler = () => {
+              switchToImage(index);
+              if (projectTitle) {
+                projectTitle.style.color = "#ff641e";
+              }
+            };
+
+            const leaveHandler = () => {
+              if (projectTitle) {
+                projectTitle.style.color = "";
+              }
+            };
+
+            projectItem.addEventListener("mouseenter", hoverHandler);
+            projectItem.addEventListener("mouseleave", leaveHandler);
+
+            projectItem._hoverHandler = hoverHandler;
+            projectItem._leaveHandler = leaveHandler;
+          }
+        });
+
+        // Fonction de nettoyage
+        function cleanup() {
+          document.removeEventListener("mousemove", followMouse);
+
+          if (projectsWrapper) {
+            projectsWrapper.removeEventListener("mouseenter", showCursor);
+            projectsWrapper.removeEventListener("mouseleave", hideCursor);
+          }
+
+          projectItems.forEach((projectItem) => {
+            if (projectItem && projectItem._hoverHandler) {
+              projectItem.removeEventListener(
+                "mouseenter",
+                projectItem._hoverHandler
+              );
+              delete projectItem._hoverHandler;
+            }
+            if (projectItem && projectItem._leaveHandler) {
+              projectItem.removeEventListener(
+                "mouseleave",
+                projectItem._leaveHandler
+              );
+              delete projectItem._leaveHandler;
+            }
+          });
+
+          if (document.body) {
+            document.body.style.cursor = "auto";
+          }
+        }
+
+        // Stocker la fonction de cleanup globalement
+        window.projectCursorCleanup = cleanup;
+      }
+
+      // Fonction d'initialisation de la copie d'email
+      function initCopy() {
+        // Nettoyer les anciens event listeners
+        if (window.copyCleanup) {
+          window.copyCleanup();
+        }
+
+        function handleCopyClick(e) {
+          const copyElement = e.target.closest("[data-copy-trigger]");
+          if (!copyElement) return;
+
+          const sourceSelector = copyElement.getAttribute("data-copy-trigger");
+          const sourceElement = document.querySelector(sourceSelector);
+
+          if (!sourceElement) {
+            return;
+          }
+
+          const emailText = sourceElement.textContent.trim();
+          const successMessage =
+            copyElement.getAttribute("data-copy-success") || "Copied!";
+
+          if (navigator.clipboard) {
+            navigator.clipboard
+              .writeText(emailText)
+              .then(() => {
+                updateCopyText(copyElement, successMessage);
+              })
+              .catch((err) => {
+                fallbackCopy(emailText, copyElement, successMessage);
+              });
+          } else {
+            fallbackCopy(emailText, copyElement, successMessage);
+          }
+        }
+
+        function updateCopyText(element, successMessage) {
+          const originalText = element.textContent;
+          element.textContent = successMessage;
+          setTimeout(() => {
+            element.textContent = originalText;
+          }, 2000);
+        }
+
+        function fallbackCopy(text, element, successMessage) {
+          const textArea = document.createElement("textarea");
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+
+          try {
+            document.execCommand("copy");
+            updateCopyText(element, successMessage);
+          } catch (err) {
+            // Échec silencieux
+          }
+
+          document.body.removeChild(textArea);
+        }
+
+        document.addEventListener("click", handleCopyClick);
+        window.copyCleanup = function () {
+          document.removeEventListener("click", handleCopyClick);
+        };
+      }
+
+      // Fonction d'initialisation des Swipers
+      function initSwiper() {
+        // Nettoyer les anciennes instances
+        if (window.swiperInstances) {
+          window.swiperInstances.forEach((swiper) => {
+            if (swiper && swiper.destroy) {
+              swiper.destroy(true, true);
+            }
+          });
+          window.swiperInstances = [];
+        }
+
+        window.swiperInstances = [];
+
+        const swiperElements = document.querySelectorAll(".swiper");
+        swiperElements.forEach(function (swiperEl) {
+          let config = {
+            slidesPerView: "auto",
+            spaceBetween: 0,
+            loop: false,
+            allowTouchMove: true,
+            grabCursor: true,
+          };
+
+          if (swiperEl.querySelector(".challenges_grid")) {
+            config.mousewheel = true;
+          }
+
+          const swiperInstance = new Swiper(swiperEl, config);
+          window.swiperInstances.push(swiperInstance);
+        });
+      }
+
+      // Exécuter les initialisations (clock maintenant géré dans beforeEnter)
       initCursor();
       initParallax();
+      initProjectCursor();
+      initCopy();
+      initSwiper();
     });
   });
 })();
