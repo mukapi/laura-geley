@@ -72,7 +72,16 @@ document.querySelectorAll(".project_single_card").forEach((card) => {
 // Initialiser le curseur pour le slider testimonials
 const testimonialsGrid = document.querySelector(".testimonials_grid");
 if (testimonialsGrid) {
-  const cursor = testimonialsGrid.querySelector(".project_cursor");
+  // Chercher le curseur dans le parent (swiper) ou dans testimonials_grid
+  let cursor = testimonialsGrid.querySelector(".project_cursor");
+  if (!cursor) {
+    // Si pas trouvé dans testimonials_grid, chercher dans le parent swiper
+    const swiperContainer = testimonialsGrid.closest(".swiper");
+    if (swiperContainer) {
+      cursor = swiperContainer.querySelector(".project_cursor");
+    }
+  }
+
   if (cursor) {
     initializeCursor(testimonialsGrid, cursor);
   }
