@@ -132,8 +132,6 @@
     barba.hooks.afterEnter((data) => {
       // 🎯 SCRIPT 1 : Cursors personnalisés
       function initCursor() {
-        console.log("🔄 Initialisation cursors...");
-
         // Nettoyer les anciens event listeners
         if (window.cursorCleanup) window.cursorCleanup();
 
@@ -151,14 +149,10 @@
             // ... votre code cursor
           }
         });
-
-        console.log("✅ Cursors initialisés !");
       }
 
       // 🎯 SCRIPT 2 : Parallax
       function initParallax() {
-        console.log("🔄 Initialisation parallax...");
-
         gsap.registerPlugin(ScrollTrigger);
 
         document.querySelectorAll(".project_visual").forEach((container) => {
@@ -167,20 +161,14 @@
             // ... votre code parallax
           }
         });
-
-        console.log("✅ Parallax initialisé !");
       }
 
       // 🎯 SCRIPT 3 : Ajoutez vos autres scripts ici
       function initAutreScript() {
-        console.log("🔄 Initialisation autre script...");
-
         // Nettoyer si nécessaire
         if (window.autreCleanup) window.autreCleanup();
 
         // Votre logique
-
-        console.log("✅ Autre script initialisé !");
       }
 
       // ========================================
@@ -200,7 +188,6 @@
 //
 // ✅ Copier ce template
 // ✅ Remplacer les fonctions init* par vos scripts
-// ✅ Tester avec console.log pour voir les exécutions
 // ✅ NE PAS utiliser data-barba-script dans Webflow
 // ✅ NE PAS utiliser DOMContentLoaded dans vos scripts
 // ✅ Toujours nettoyer les event listeners

@@ -151,8 +151,6 @@
     barba.hooks.afterEnter((data) => {
       // Fonction d'initialisation des cursors (appelée à chaque page)
       function initCursor() {
-        console.log("🔄 Initialisation cursors...");
-
         // Nettoyer les anciens event listeners
         if (window.cursorCleanup) {
           window.cursorCleanup();
@@ -215,14 +213,10 @@
             card.addEventListener("mousemove", handleMouseMove);
           }
         });
-
-        console.log("✅ Cursors initialisés !");
       }
 
       // Fonction d'initialisation du parallax
       function initParallax() {
-        console.log("🔄 Initialisation parallax...");
-
         gsap.registerPlugin(ScrollTrigger);
 
         document.querySelectorAll(".project_visual").forEach((container) => {
@@ -247,8 +241,6 @@
             );
           }
         });
-
-        console.log("✅ Parallax initialisé !");
       }
 
       // Exécuter les initialisations
