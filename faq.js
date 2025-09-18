@@ -84,5 +84,47 @@ function attemptFAQInit(retries = 3) {
   }
 }
 
+// Fonction pour gérer le dernier dropdown visible
+function updateLastVisibleDropdown() {
+  const menu = document.querySelector(".cs_sticky_menu");
+  if (!menu) return;
+
+  // Sélectionner tous les dropdowns visibles
+  const visibleDropdowns = menu.querySelectorAll(
+    ".cs_sticky_dropdown:not(.w-condition-invisible)"
+  );
+
+  // D'abord, enlever la classe de tous les dropdowns
+  menu.querySelectorAll(".cs_sticky_dropdown").forEach((dropdown) => {
+    dropdown.classList.remove("is-last");
+  });
+
+  // Ajouter la classe au dernier dropdown visible
+  if (visibleDropdowns.length > 0) {
+    const lastVisible = visibleDropdowns[visibleDropdowns.length - 1];
+    lastVisible.classList.add("is-last");
+  }
+}
+
+// Fonction pour observer les changements de classes
+function initLastVisibleObserver() {
+  const menu = document.querySelector(".cs_sticky_menu");
+  if (!menu) return;
+
+  // Exécuter une première fois
+  updateLastVisibleDropdown();
+
+  // Observer les changements de classes (compatible BarbaJS)
+  const observer = new MutationObserver(updateLastVisibleDropdown);
+  observer.observe(menu, {
+    attributes: true,
+    subtree: true,
+    attributeFilter: ["class"],
+  });
+}
+
 // Démarrer l'initialisation avec retry - compatible BarbaJS
 attemptFAQInit();
+
+// Initialiser l'observateur pour le dernier dropdown visible
+initLastVisibleObserver();
