@@ -163,7 +163,7 @@
         window.Webflow.destroy();
         window.Webflow.ready();
         if (window.Webflow.require) window.Webflow.require("ix2").init();
-        
+
         // FAQ doit être initialisé ICI, juste après Webflow
         setTimeout(() => {
           // Fonction FAQ simplifiée pour ce contexte
@@ -176,12 +176,12 @@
             try {
               // Webflow est maintenant prêt, on peut utiliser ses modules
               const dropdown = window.Webflow.require("dropdown");
-              
+
               if (dropdown && dropdown.ready) {
                 dropdown.ready();
               }
 
-              // Simuler le clic directement
+              // Simuler le clic directement (plus rapide)
               setTimeout(() => {
                 firstToggle.dispatchEvent(
                   new MouseEvent("mousedown", {
@@ -204,23 +204,24 @@
                     })
                   );
 
-                  // Force l'ouverture
+                  // Force l'ouverture (plus rapide)
                   setTimeout(() => {
-                    const dropdown_list = document.querySelector("#w-dropdown-list-0");
+                    const dropdown_list =
+                      document.querySelector("#w-dropdown-list-0");
                     if (dropdown_list) {
                       firstToggle.setAttribute("aria-expanded", "true");
                       dropdown_list.style.height = "auto";
                       dropdown_list.style.display = "block";
                       parentDropdown.classList.add("w--open");
                     }
-                  }, 50);
-                }, 10);
-              }, 100);
+                  }, 20);
+                }, 5);
+              }, 50);
             } catch (e) {
               // Erreur silencieuse
             }
           }
-        }, 200);
+        }, 100);
       }
     });
 
