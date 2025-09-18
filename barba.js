@@ -504,6 +504,99 @@
         window.projectCursorCleanup = cleanup;
       }
 
+      // Fonction d'initialisation du FAQ dropdown
+      function initFAQ() {
+        // Nettoyer les anciens event listeners
+        if (window.faqCleanup) {
+          window.faqCleanup();
+        }
+
+        const firstToggle = document.querySelector(
+          ".cs_sticky_menu .cs_sticky_dropdown:first-child .cs_sticky_toggle"
+        );
+        const parentDropdown = firstToggle?.closest(".w-dropdown");
+
+        if (firstToggle && parentDropdown) {
+          try {
+            // Attendre que Webflow soit prêt (important après les transitions)
+            setTimeout(() => {
+              // Récupérer le module dropdown de Webflow
+              const dropdown = window.Webflow?.require("dropdown");
+
+              if (dropdown) {
+                // Appeler ready() pour initialiser
+                if (dropdown.ready) {
+                  dropdown.ready();
+                }
+
+                // Essayer design() et preview()
+                if (dropdown.design) {
+                  dropdown.design();
+                }
+
+                if (dropdown.preview) {
+                  dropdown.preview();
+                }
+              }
+
+              // Simuler mousedown + mouseup en séquence
+              firstToggle.dispatchEvent(
+                new MouseEvent("mousedown", {
+                  view: window,
+                  bubbles: true,
+                  cancelable: true,
+                  button: 0,
+                  buttons: 1,
+                })
+              );
+
+              setTimeout(() => {
+                firstToggle.dispatchEvent(
+                  new MouseEvent("mouseup", {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true,
+                    button: 0,
+                    buttons: 0,
+                  })
+                );
+              }, 10);
+
+              // Force l'ouverture en manipulant directement le DOM comme Webflow le fait
+              const dropdown_list =
+                document.querySelector("#w-dropdown-list-0");
+              if (dropdown_list) {
+                firstToggle.setAttribute("aria-expanded", "true");
+                dropdown_list.style.height = "auto";
+                dropdown_list.style.display = "block";
+                parentDropdown.classList.add("w--open");
+              }
+            }, 100); // Délai pour s'assurer que Webflow est initialisé
+          } catch (e) {
+            // Erreur silencieuse
+          }
+        }
+
+        // Fonction de nettoyage (pour l'instant basique, peut être étendue si besoin)
+        window.faqCleanup = function () {
+          const dropdown_list = document.querySelector("#w-dropdown-list-0");
+          const parentDropdown = document.querySelector(
+            ".cs_sticky_menu .cs_sticky_dropdown:first-child .w-dropdown"
+          );
+
+          if (dropdown_list && parentDropdown) {
+            parentDropdown.classList.remove("w--open");
+            dropdown_list.style.display = "";
+            dropdown_list.style.height = "";
+
+            const toggle = parentDropdown.querySelector(".cs_sticky_toggle");
+            if (toggle) {
+              toggle.setAttribute("aria-expanded", "false");
+            }
+          }
+        };
+      }
+
       // Fonction d'initialisation de la copie d'email
       function initCopy() {
         // Nettoyer les anciens event listeners
@@ -615,6 +708,7 @@
       initCursor();
       initParallax();
       initProjectCursor();
+      initFAQ();
       initCopy();
       initSwiper();
       initHorizontalScroll();
