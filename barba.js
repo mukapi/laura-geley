@@ -163,6 +163,64 @@
         window.Webflow.destroy();
         window.Webflow.ready();
         if (window.Webflow.require) window.Webflow.require("ix2").init();
+        
+        // FAQ doit être initialisé ICI, juste après Webflow
+        setTimeout(() => {
+          // Fonction FAQ simplifiée pour ce contexte
+          const firstToggle = document.querySelector(
+            ".cs_sticky_menu .cs_sticky_dropdown:first-child .cs_sticky_toggle"
+          );
+          const parentDropdown = firstToggle?.closest(".w-dropdown");
+
+          if (firstToggle && parentDropdown) {
+            try {
+              // Webflow est maintenant prêt, on peut utiliser ses modules
+              const dropdown = window.Webflow.require("dropdown");
+              
+              if (dropdown && dropdown.ready) {
+                dropdown.ready();
+              }
+
+              // Simuler le clic directement
+              setTimeout(() => {
+                firstToggle.dispatchEvent(
+                  new MouseEvent("mousedown", {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true,
+                    button: 0,
+                    buttons: 1,
+                  })
+                );
+
+                setTimeout(() => {
+                  firstToggle.dispatchEvent(
+                    new MouseEvent("mouseup", {
+                      view: window,
+                      bubbles: true,
+                      cancelable: true,
+                      button: 0,
+                      buttons: 0,
+                    })
+                  );
+
+                  // Force l'ouverture
+                  setTimeout(() => {
+                    const dropdown_list = document.querySelector("#w-dropdown-list-0");
+                    if (dropdown_list) {
+                      firstToggle.setAttribute("aria-expanded", "true");
+                      dropdown_list.style.height = "auto";
+                      dropdown_list.style.display = "block";
+                      parentDropdown.classList.add("w--open");
+                    }
+                  }, 50);
+                }, 10);
+              }, 100);
+            } catch (e) {
+              // Erreur silencieuse
+            }
+          }
+        }, 200);
       }
     });
 
@@ -734,10 +792,7 @@
       initSwiper();
       initHorizontalScroll();
 
-      // FAQ doit être initialisé APRÈS Webflow pour éviter les problèmes de timing
-      setTimeout(() => {
-        initFAQ();
-      }, 300);
+      // FAQ maintenant géré dans le hook enter, juste après Webflow
 
       // Refresh final de Lenis après toutes les initialisations
       setTimeout(() => {
