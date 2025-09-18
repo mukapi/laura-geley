@@ -94,10 +94,12 @@ function updateLastVisibleDropdown() {
     ".cs_sticky_dropdown:not(.w-condition-invisible)"
   );
 
-  // D'abord, enlever la classe de tous les dropdowns
-  menu.querySelectorAll(".cs_sticky_dropdown").forEach((dropdown) => {
-    dropdown.classList.remove("is-last");
-  });
+  // D'abord, enlever la classe de tous les dropdowns VISIBLES seulement
+  menu
+    .querySelectorAll(".cs_sticky_dropdown:not(.w-condition-invisible)")
+    .forEach((dropdown) => {
+      dropdown.classList.remove("is-last");
+    });
 
   // Ajouter la classe au dernier dropdown visible
   if (visibleDropdowns.length > 0) {
