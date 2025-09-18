@@ -122,8 +122,36 @@ function initLastVisibleObserver() {
   // Exécuter une première fois
   updateLastVisibleDropdown();
 
-  // Observer les changements de classes (compatible BarbaJS)
-  const observer = new MutationObserver(updateLastVisibleDropdown);
+  // Observer les changements de classes (compatible BarbaJS) avec protection contre les boucles
+  let isUpdating = false;
+  const observer = new MutationObserver((mutations) => {
+    if (isUpdating) return;
+
+    // Vérifier si c'est un changement de w-condition-invisible (pas is-last)
+    const hasRelevantChange = mutations.some((mutation) => {
+      if (
+        mutation.type === "attributes" &&
+        mutation.attributeName === "class"
+      ) {
+        const target = mutation.target;
+        return (
+          target.classList.contains("cs_sticky_dropdown") &&
+          (target.classList.contains("w-condition-invisible") ||
+            !target.classList.contains("w-condition-invisible"))
+        );
+      }
+      return false;
+    });
+
+    if (hasRelevantChange) {
+      isUpdating = true;
+      updateLastVisibleDropdown();
+      setTimeout(() => {
+        isUpdating = false;
+      }, 100);
+    }
+  });
+
   observer.observe(menu, {
     attributes: true,
     subtree: true,
