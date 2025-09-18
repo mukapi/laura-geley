@@ -89,22 +89,28 @@ function updateLastVisibleDropdown() {
   const menu = document.querySelector(".cs_sticky_menu");
   if (!menu) return;
 
-  // Sélectionner tous les dropdowns visibles
-  const visibleDropdowns = menu.querySelectorAll(
-    ".cs_sticky_dropdown:not(.w-condition-invisible)"
+  const allDropdowns = menu.querySelectorAll(".cs_sticky_dropdown");
+  if (allDropdowns.length === 0) return;
+
+  // Vérifier si le dernier élément a la classe w-condition-invisible
+  const lastDropdown = allDropdowns[allDropdowns.length - 1];
+  const hasInvisibleLast = lastDropdown.classList.contains(
+    "w-condition-invisible"
   );
 
-  // D'abord, enlever la classe de tous les dropdowns VISIBLES seulement
+  // Enlever la classe is-last de tous les dropdowns visibles
   menu
     .querySelectorAll(".cs_sticky_dropdown:not(.w-condition-invisible)")
     .forEach((dropdown) => {
       dropdown.classList.remove("is-last");
     });
 
-  // Ajouter la classe au dernier dropdown visible
-  if (visibleDropdowns.length > 0) {
-    const lastVisible = visibleDropdowns[visibleDropdowns.length - 1];
-    lastVisible.classList.add("is-last");
+  // Si le dernier a w-condition-invisible, ajouter is-last à l'avant-dernier
+  if (hasInvisibleLast && allDropdowns.length >= 2) {
+    const secondToLast = allDropdowns[allDropdowns.length - 2];
+    if (!secondToLast.classList.contains("w-condition-invisible")) {
+      secondToLast.classList.add("is-last");
+    }
   }
 }
 
