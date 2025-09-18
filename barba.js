@@ -511,73 +511,95 @@
           window.faqCleanup();
         }
 
-        const firstToggle = document.querySelector(
-          ".cs_sticky_menu .cs_sticky_dropdown:first-child .cs_sticky_toggle"
-        );
-        const parentDropdown = firstToggle?.closest(".w-dropdown");
+        // Fonction qui tente d'initialiser le FAQ avec retry
+        function attemptFAQInit(retries = 3) {
+          const firstToggle = document.querySelector(
+            ".cs_sticky_menu .cs_sticky_dropdown:first-child .cs_sticky_toggle"
+          );
+          const parentDropdown = firstToggle?.closest(".w-dropdown");
 
-        if (firstToggle && parentDropdown) {
+          if (!firstToggle || !parentDropdown) {
+            // Si les éléments n'existent pas sur cette page, pas de problème
+            return;
+          }
+
           try {
-            // Attendre que Webflow soit prêt (important après les transitions)
-            setTimeout(() => {
-              // Récupérer le module dropdown de Webflow
-              const dropdown = window.Webflow?.require("dropdown");
+            // Vérifier que Webflow est disponible et initialisé
+            if (!window.Webflow || !window.Webflow.require) {
+              if (retries > 0) {
+                setTimeout(() => attemptFAQInit(retries - 1), 200);
+              }
+              return;
+            }
 
-              if (dropdown) {
-                // Appeler ready() pour initialiser
-                if (dropdown.ready) {
-                  dropdown.ready();
-                }
+            // Récupérer le module dropdown de Webflow
+            const dropdown = window.Webflow.require("dropdown");
 
-                // Essayer design() et preview()
-                if (dropdown.design) {
-                  dropdown.design();
-                }
-
-                if (dropdown.preview) {
-                  dropdown.preview();
-                }
+            if (dropdown) {
+              // Réinitialiser Webflow dropdowns
+              if (dropdown.ready) {
+                dropdown.ready();
+              }
+              if (dropdown.design) {
+                dropdown.design();
+              }
+              if (dropdown.preview) {
+                dropdown.preview();
               }
 
-              // Simuler mousedown + mouseup en séquence
-              firstToggle.dispatchEvent(
-                new MouseEvent("mousedown", {
-                  view: window,
-                  bubbles: true,
-                  cancelable: true,
-                  button: 0,
-                  buttons: 1,
-                })
-              );
-
+              // Petit délai supplémentaire pour s'assurer que tout est prêt
               setTimeout(() => {
+                // Simuler mousedown + mouseup en séquence
                 firstToggle.dispatchEvent(
-                  new MouseEvent("mouseup", {
+                  new MouseEvent("mousedown", {
                     view: window,
                     bubbles: true,
                     cancelable: true,
                     button: 0,
-                    buttons: 0,
+                    buttons: 1,
                   })
                 );
-              }, 10);
 
-              // Force l'ouverture en manipulant directement le DOM comme Webflow le fait
-              const dropdown_list =
-                document.querySelector("#w-dropdown-list-0");
-              if (dropdown_list) {
-                firstToggle.setAttribute("aria-expanded", "true");
-                dropdown_list.style.height = "auto";
-                dropdown_list.style.display = "block";
-                parentDropdown.classList.add("w--open");
-              }
-            }, 100); // Délai pour s'assurer que Webflow est initialisé
+                setTimeout(() => {
+                  firstToggle.dispatchEvent(
+                    new MouseEvent("mouseup", {
+                      view: window,
+                      bubbles: true,
+                      cancelable: true,
+                      button: 0,
+                      buttons: 0,
+                    })
+                  );
+
+                  // Force l'ouverture en manipulant directement le DOM comme Webflow le fait
+                  setTimeout(() => {
+                    const dropdown_list =
+                      document.querySelector("#w-dropdown-list-0");
+                    if (dropdown_list) {
+                      firstToggle.setAttribute("aria-expanded", "true");
+                      dropdown_list.style.height = "auto";
+                      dropdown_list.style.display = "block";
+                      parentDropdown.classList.add("w--open");
+                    }
+                  }, 50);
+                }, 10);
+              }, 100);
+            } else if (retries > 0) {
+              // Si dropdown n'est pas encore disponible, réessayer
+              setTimeout(() => attemptFAQInit(retries - 1), 200);
+            }
           } catch (e) {
-            // Erreur silencieuse
+            // En cas d'erreur, réessayer si possible
+            if (retries > 0) {
+              setTimeout(() => attemptFAQInit(retries - 1), 200);
+            }
           }
         }
 
-        // Fonction de nettoyage (pour l'instant basique, peut être étendue si besoin)
+        // Démarrer l'initialisation avec retry
+        attemptFAQInit();
+
+        // Fonction de nettoyage
         window.faqCleanup = function () {
           const dropdown_list = document.querySelector("#w-dropdown-list-0");
           const parentDropdown = document.querySelector(
@@ -708,10 +730,14 @@
       initCursor();
       initParallax();
       initProjectCursor();
-      initFAQ();
       initCopy();
       initSwiper();
       initHorizontalScroll();
+
+      // FAQ doit être initialisé APRÈS Webflow pour éviter les problèmes de timing
+      setTimeout(() => {
+        initFAQ();
+      }, 300);
 
       // Refresh final de Lenis après toutes les initialisations
       setTimeout(() => {
