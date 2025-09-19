@@ -786,7 +786,7 @@
       }
 
       // Exécuter les initialisations (clock maintenant géré dans beforeEnter)
-      initCursor();
+      // initCursor(); // Désactivé - géré par cursor.js
       initParallax();
       initProjectCursor();
       initCopy();
