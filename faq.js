@@ -34,6 +34,7 @@ function attemptFAQInit(retries = 3) {
       }
       if (dropdown.preview) {
         dropdown.preview();
+        dropdown.preview();
       }
 
       // Petit délai supplémentaire pour s'assurer que tout est prêt
