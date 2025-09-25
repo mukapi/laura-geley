@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flying Secoya - Homepage (MCP Officiel Figma)</title>
+    <style>
+      /* Variables CSS basées sur le design Figma */
+      :root {
+        --dark-blue: #152d44;
+        --blue-seco: #3e5fff;
+        --seco2: #b3abf9;
+        --secoset: #f5bebc;
+        --secoboard: #fffa87;
+        --green: #c1ffa1;
+        --grey-premier: #ebeef7;
+        --grey-second: #99acc6;
+        --white: #ffffff;
+        --black: #000000;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Milligram", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        background-color: var(--white);
+        color: var(--dark-blue);
+        line-height: 1.1;
+      }
+
+      /* Layout utilities */
+      .content-stretch {
+        width: 100%;
+      }
+      .flex {
+        display: flex;
+      }
+      .flex-col {
+        flex-direction: column;
+      }
+      .items-start {
+        align-items: flex-start;
+      }
+      .items-center {
+        align-items: center;
+      }
+      .items-end {
+        align-items: flex-end;
+      }
+      .justify-center {
+        justify-content: center;
+      }
+      .justify-between {
+        justify-content: space-between;
+      }
+      .relative {
+        position: relative;
+      }
+      .absolute {
+        position: absolute;
+      }
+      .inset-0 {
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+      .size-full {
+        width: 100%;
+        height: 100%;
+      }
+      .shrink-0 {
+        flex-shrink: 0;
+      }
+      .grow {
+        flex-grow: 1;
+      }
+      .basis-0 {
+        flex-basis: 0;
+      }
+      .w-full {
+        width: 100%;
+      }
+      .h-full {
+        height: 100%;
+      }
+      .min-h-px {
+        min-height: 1px;
+      }
+      .min-w-px {
+        min-width: 1px;
+      }
+      .pointer-events-none {
+        pointer-events: none;
+      }
+      .overflow-clip {
+        overflow: clip;
+      }
+      .overflow-hidden {
+        overflow: hidden;
+      }
+
+      /* Spacing */
+      .gap-8 {
+        gap: 8px;
+      }
+      .gap-10 {
+        gap: 10px;
+      }
+      .gap-16 {
+        gap: 16px;
+      }
+      .gap-24 {
+        gap: 24px;
+      }
+      .gap-32 {
+        gap: 32px;
+      }
+      .gap-48 {
+        gap: 48px;
+      }
+      .gap-72 {
+        gap: 72px;
+      }
+      .gap-100 {
+        gap: 100px;
+      }
+      .gap-150 {
+        gap: 150px;
+      }
+
+      /* Padding */
+      .p-0 {
+        padding: 0;
+      }
+      .px-0 {
+        padding-left: 0;
+        padding-right: 0;
+      }
+      .py-0 {
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+      .px-8 {
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+      .py-8 {
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+      .px-10 {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .py-10 {
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+      .px-16 {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      .py-16 {
+        padding-top: 16px;
+        padding-bottom: 16px;
+      }
+      .px-20 {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+      .py-20 {
+        padding-top: 20px;
+        padding-bottom: 20px;
+      }
+      .px-32 {
+        padding-left: 32px;
+        padding-right: 32px;
+      }
+      .py-32 {
+        padding-top: 32px;
+        padding-bottom: 32px;
+      }
+      .px-40 {
+        padding-left: 40px;
+        padding-right: 40px;
+      }
+      .py-40 {
+        padding-top: 40px;
+        padding-bottom: 40px;
+      }
+      .px-48 {
+        padding-left: 48px;
+        padding-right: 48px;
+      }
+      .py-48 {
+        padding-top: 48px;
+        padding-bottom: 48px;
+      }
+      .px-50 {
+        padding-left: 50px;
+        padding-right: 50px;
+      }
+      .py-50 {
+        padding-top: 50px;
+        padding-bottom: 50px;
+      }
+      .px-72 {
+        padding-left: 72px;
+        padding-right: 72px;
+      }
+      .py-72 {
+        padding-top: 72px;
+        padding-bottom: 72px;
+      }
+      .px-144 {
+        padding-left: 144px;
+        padding-right: 144px;
+      }
+      .py-144 {
+        padding-top: 144px;
+        padding-bottom: 144px;
+      }
+
+      /* Margin */
+      .mb-0 {
+        margin-bottom: 0;
+      }
+      .mt-0 {
+        margin-top: 0;
+      }
+
+      /* Border radius */
+      .rounded-8 {
+        border-radius: 8px;
+      }
+      .rounded-16 {
+        border-radius: 16px;
+      }
+      .rounded-20 {
+        border-radius: 20px;
+      }
+      .rounded-24 {
+        border-radius: 24px;
+      }
+      .rounded-25 {
+        border-radius: 25px;
+      }
+      .rounded-32 {
+        border-radius: 32px;
+      }
+      .rounded-40 {
+        border-radius: 40px;
+      }
+      .rounded-50 {
+        border-radius: 50px;
+      }
+      .rounded-60 {
+        border-radius: 60px;
+      }
+      .rounded-100 {
+        border-radius: 100px;
+      }
+      .rounded-105 {
+        border-radius: 105px;
+      }
+
+      /* Border */
+      .border {
+        border-width: 1px;
+      }
+      .border-5 {
+        border-width: 5px;
+      }
+      .border-solid {
+        border-style: solid;
+      }
+      .border-white {
+        border-color: white;
+      }
+      .border-blue-seco {
+        border-color: var(--blue-seco);
+      }
+
+      /* Background */
+      .bg-white {
+        background-color: var(--white);
+      }
+      .bg-dark-blue {
+        background-color: var(--dark-blue);
+      }
+      .bg-blue-seco {
+        background-color: var(--blue-seco);
+      }
+      .bg-seco2 {
+        background-color: var(--seco2);
+      }
+      .bg-green {
+        background-color: var(--green);
+      }
+      .bg-grey-premier {
+        background-color: var(--grey-premier);
+      }
+
+      /* Text colors */
+      .text-white {
+        color: var(--white);
+      }
+      .text-dark-blue {
+        color: var(--dark-blue);
+      }
+      .text-blue-seco {
+        color: var(--blue-seco);
+      }
+      .text-seco2 {
+        color: var(--seco2);
+      }
+      .text-green {
+        color: var(--green);
+      }
+      .text-grey-second {
+        color: var(--grey-second);
+      }
+
+      /* Text sizes */
+      .text-12 {
+        font-size: 12px;
+      }
+      .text-14 {
+        font-size: 14px;
+      }
+      .text-15 {
+        font-size: 15px;
+      }
+      .text-16 {
+        font-size: 16px;
+      }
+      .text-18 {
+        font-size: 18px;
+      }
+      .text-20 {
+        font-size: 20px;
+      }
+      .text-24 {
+        font-size: 24px;
+      }
+      .text-25 {
+        font-size: 25px;
+      }
+      .text-36 {
+        font-size: 36px;
+      }
+      .text-40 {
+        font-size: 40px;
+      }
+      .text-48 {
+        font-size: 48px;
+      }
+      .text-64 {
+        font-size: 64px;
+      }
+      .text-96 {
+        font-size: 96px;
+      }
+
+      /* Font weights */
+      .font-normal {
+        font-weight: normal;
+      }
+      .font-bold {
+        font-weight: bold;
+      }
+      .font-extrabold {
+        font-weight: 800;
+      }
+
+      /* Line heights */
+      .leading-none {
+        line-height: 1;
+      }
+      .leading-normal {
+        line-height: normal;
+      }
+      .leading-30 {
+        line-height: 30px;
+      }
+      .leading-50 {
+        line-height: 50px;
+      }
+
+      /* Text align */
+      .text-center {
+        text-align: center;
+      }
+      .text-left {
+        text-align: left;
+      }
+      .text-right {
+        text-align: right;
+      }
+
+      /* Font families */
+      .font-milligram {
+        font-family: "Milligram", sans-serif;
+      }
+      .font-roboto {
+        font-family: "Roboto", sans-serif;
+      }
+
+      /* Specific utilities */
+      .whitespace-pre {
+        white-space: pre;
+      }
+      .text-nowrap {
+        white-space: nowrap;
+      }
+      .not-italic {
+        font-style: normal;
+      }
+
+      /* Shadows */
+      .shadow-lg {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      /* Transforms */
+      .rotate-270 {
+        transform: rotate(270deg);
+      }
+      .rotate-345 {
+        transform: rotate(345deg);
+      }
+      .rotate-350 {
+        transform: rotate(350deg);
+      }
+      .rotate-357 {
+        transform: rotate(357deg);
+      }
+
+      /* Object fit */
+      .object-cover {
+        object-fit: cover;
+      }
+      .object-50-50 {
+        object-position: 50% 50%;
+      }
+
+      /* Max width */
+      .max-w-none {
+        max-width: none;
+      }
+
+      /* Block display */
+      .block {
+        display: block;
+      }
+
+      /* Flex none */
+      .flex-none {
+        flex: none;
+      }
+
+      /* Specific sizes */
+      .w-304 {
+        width: 304px;
+      }
+      .w-438 {
+        width: 438px;
+      }
+      .w-630 {
+        width: 630px;
+      }
+      .w-879 {
+        width: 879px;
+      }
+      .w-1016 {
+        width: 1016px;
+      }
+      .w-1440 {
+        width: 1440px;
+      }
+
+      .h-126 {
+        height: 126px;
+      }
+      .h-221 {
+        height: 221px;
+      }
+      .h-750 {
+        height: 750px;
+      }
+
+      .size-35 {
+        width: 35px;
+        height: 35px;
+      }
+      .size-40 {
+        width: 40px;
+        height: 40px;
+      }
+      .size-60 {
+        width: 60px;
+        height: 60px;
+      }
+      .size-124 {
+        width: 124px;
+        height: 124px;
+      }
+
+      /* Box sizing */
+      .box-border {
+        box-sizing: border-box;
+      }
+
+      /* Additional specific styles */
+      .bg-gradient-to-t {
+        background-image: linear-gradient(
+          to top,
+          var(--green) 25.733%,
+          rgba(17, 36, 54, 0) 50%
+        );
+      }
+
+      .from-green {
+        --tw-gradient-from: var(--green);
+      }
+      .to-50 {
+        --tw-gradient-to: rgba(17, 36, 54, 0);
+      }
+
+      /* Custom positioning */
+      .left-1143px {
+        left: 1143px;
+      }
+      .right-1143px {
+        right: 1143px;
+      }
+      .bottom-2px {
+        bottom: -2px;
+      }
+
+      /* Custom gradients */
+      .gradient-dark-blue {
+        background-image: linear-gradient(
+            90deg,
+            rgba(0, 0, 0, 0.2) 0%,
+            rgba(0, 0, 0, 0.2) 100%
+          ),
+          linear-gradient(90deg, rgb(21, 45, 68) 0%, rgb(21, 45, 68) 100%);
+      }
+
+      /* Responsive */
+      @media (max-width: 1200px) {
+        .px-144 {
+          padding-left: 40px;
+          padding-right: 40px;
+        }
+        .px-72 {
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+        .text-64 {
+          font-size: 48px;
+        }
+        .text-48 {
+          font-size: 36px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .px-144 {
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+        .px-72 {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+        .text-64 {
+          font-size: 36px;
+        }
+        .text-48 {
+          font-size: 28px;
+        }
+        .text-40 {
+          font-size: 28px;
+        }
+        .flex-col {
+          flex-direction: column;
+        }
+        .gap-48 {
+          gap: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Main Landing Page Container -->
+    <div
+      class="content-stretch flex flex-col items-start relative size-full gradient-dark-blue"
+    >
+      <!-- Hero Section -->
+      <div class="content-stretch flex flex-col items-start relative shrink-0">
+        <div
+          class="box-border content-stretch flex flex-col gap-48 items-center pb-72 pt-144 px-0 relative shrink-0 w-1440"
+        >
+          <div class="absolute inset-0 pointer-events-none">
+            <img
+              alt=""
+              class="absolute max-w-none object-50-50 object-cover size-full"
+              src="http://localhost:3845/assets/9afed261044286a3ecee65d7be21865fbfdbac15.png"
+            />
+            <div
+              class="absolute inset-0"
+              style="
+                background-image: linear-gradient(
+                    179.991deg,
+                    rgba(17, 36, 54, 0) 30.492%,
+                    rgb(17, 36, 54) 81.655%
+                  ),
+                  linear-gradient(
+                    -90deg,
+                    rgba(17, 36, 54, 0) 0%,
+                    rgb(17, 36, 54) 87.5%
+                  );
+              "
+            ></div>
+          </div>
+
+          <div
+            class="content-stretch flex flex-col gap-48 items-center relative shrink-0 w-full"
+          >
+            <div
+              class="box-border content-stretch flex flex-col gap-48 items-center justify-center px-144 py-0 relative shrink-0 w-full"
+            >
+              <div
+                class="box-border content-stretch flex gap-10 items-center justify-center px-8 py-0 relative rounded-100 shrink-0 gradient-dark-blue"
+              >
+                <div
+                  class="font-milligram font-bold leading-0 text-white text-16 text-center text-nowrap"
+                >
+                  <p class="leading-30">
+                    <span>Find your </span>
+                    <span class="text-green">easy</span>
+                    <span> way</span>
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="content-stretch flex flex-col gap-24 items-center relative shrink-0 w-1016"
+              >
+                <div
+                  class="font-milligram font-extrabold leading-0 text-white text-center w-full"
+                >
+                  <p class="leading-none mb-0 text-64">
+                    Un parcours complet vers
+                  </p>
+                  <p class="leading-none mb-0 text-64">
+                    <span>la </span>
+                    <span class="text-green">production responsable</span>
+                  </p>
+                  <p class="leading-none mb-0 text-64">
+                    pour les professionnels
+                  </p>
+                  <p class="leading-none text-64">de l'Entertainment</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonials Images -->
+          <div
+            class="content-stretch flex gap-32 items-center relative shrink-0"
+          >
+            <div
+              class="content-stretch flex gap-16 items-start relative rounded-100 shrink-0"
+            >
+              <div
+                class="absolute border-blue-seco border-5 border-solid inset-0 pointer-events-none rounded-105"
+              ></div>
+              <div class="h-126 relative rounded-60 shrink-0 size-124">
+                <img
+                  alt=""
+                  class="absolute inset-0 max-w-none object-50-50 object-cover pointer-events-none rounded-60 size-full"
+                  src="http://localhost:3845/assets/f9dc94f207b5933c3e3ccf5137a16b61e309a96d.png"
+                />
+              </div>
+            </div>
+            <div
+              class="content-stretch flex gap-16 items-start relative rounded-100 shrink-0"
+            >
+              <div
+                class="absolute border-blue-seco border-5 border-solid inset-0 pointer-events-none rounded-105"
+              ></div>
+              <div class="h-126 relative rounded-60 shrink-0 size-124">
+                <div class="absolute inset-0 pointer-events-none rounded-60">
+                  <div
+                    class="absolute bg-green bg-opacity-20 inset-0 rounded-60"
+                  ></div>
+                  <img
+                    alt=""
+                    class="absolute max-w-none object-50-50 object-cover rounded-60 size-full"
+                    src="http://localhost:3845/assets/01bf48680b78c26e99a5ef97de7d8c90fac3925d.png"
+                  />
+                </div>
+              </div>
+            </div>
+            <div
+              class="content-stretch flex gap-16 items-start relative rounded-100 shrink-0"
+            >
+              <div
+                class="absolute border-blue-seco border-5 border-solid inset-0 pointer-events-none rounded-105"
+              ></div>
+              <div class="h-126 relative rounded-60 shrink-0 size-124">
+                <img
+                  alt=""
+                  class="absolute inset-0 max-w-none object-50-50 object-cover pointer-events-none rounded-60 size-full"
+                  src="http://localhost:3845/assets/60913b8bfda30c4eaf7fc7c871f6de61a938ca12.png"
+                />
+              </div>
+            </div>
+            <div
+              class="content-stretch flex gap-16 items-start relative rounded-100 shrink-0"
+            >
+              <div
+                class="absolute border-blue-seco border-5 border-solid inset-0 pointer-events-none rounded-105"
+              ></div>
+              <div class="h-126 relative rounded-60 shrink-0 size-124">
+                <img
+                  alt=""
+                  class="absolute inset-0 max-w-none object-50-50 object-cover pointer-events-none rounded-60 size-full"
+                  src="http://localhost:3845/assets/712c40869c78b43e69ab7db3444311ac32046ce6.png"
+                />
+              </div>
+            </div>
+            <div
+              class="content-stretch flex gap-16 items-start relative rounded-100 shrink-0"
+            >
+              <div
+                class="absolute border-blue-seco border-5 border-solid inset-0 pointer-events-none rounded-105"
+              ></div>
+              <div class="h-126 relative rounded-60 shrink-0 size-124">
+                <img
+                  alt=""
+                  class="absolute max-w-none object-50-50 object-cover pointer-events-none rounded-60 size-full"
+                  src="http://localhost:3845/assets/458d4bda02bb018dc85f1a78628048848d13fc41.png"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Info Section -->
+        <div
+          class="box-border content-stretch flex flex-col gap-32 items-start px-40 py-0 relative shrink-0 w-full"
+        >
+          <div
+            class="bg-gradient-to-t box-border content-stretch flex flex-col gap-48 items-center justify-center overflow-clip p-144 relative rounded-40 shadow-lg shrink-0 w-full"
+          >
+            <div
+              class="content-stretch flex flex-col gap-16 items-center relative shrink-0 w-full"
+            >
+              <div class="relative shrink-0 size-40">
+                <img
+                  alt=""
+                  class="block max-w-none size-full"
+                  src="http://localhost:3845/assets/9d28d4911ff1719e3aceb98459041595fc1e10d8.svg"
+                />
+              </div>
+              <div
+                class="content-stretch flex flex-col gap-32 items-center justify-center relative shrink-0 w-full"
+              >
+                <div
+                  class="font-milligram font-bold leading-0 text-grey-premier text-48 text-center w-full"
+                >
+                  <p class="leading-normal">
+                    <span class="text-white">La plateforme</span>
+                    <span class="text-blue-seco">Flying Secoya</span>
+                    <span>
+                      permet aux professionnels de l'Entertainment ...</span
+                    >
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="content-stretch flex gap-16 items-start relative shrink-0"
+            >
+              <div
+                class="content-stretch flex gap-16 items-start relative shrink-0"
+              >
+                <div
+                  class="bg-dark-blue box-border content-stretch flex gap-10 items-center justify-center p-10 relative rounded-60 shrink-0 w-438"
+                >
+                  <div
+                    class="absolute border border-blue-seco border-solid inset-0 pointer-events-none rounded-60"
+                  ></div>
+                  <div
+                    class="font-milligram font-normal leading-0 text-blue-seco text-96 text-center text-nowrap"
+                  >
+                    <p class="leading-normal whitespace-pre">Cinéma</p>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="content-stretch flex gap-16 items-start relative shrink-0"
+              >
+                <div class="h-126 relative rounded-60 shrink-0 size-124">
+                  <div class="absolute inset-0 pointer-events-none rounded-60">
+                    <div
+                      class="absolute bg-green bg-opacity-20 inset-0 rounded-60"
+                    ></div>
+                    <img
+                      alt=""
+                      class="absolute max-w-none object-50-50 object-cover rounded-60 size-full"
+                      src="http://localhost:3845/assets/01bf48680b78c26e99a5ef97de7d8c90fac3925d.png"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="content-stretch flex flex-col gap-24 items-start leading-0 text-grey-premier text-center"
+            >
+              <div class="relative shrink-0 text-24 w-630">
+                <p class="leading-normal">
+                  <span>...de déployer une démarche </span>
+                  <span class="font-bold text-white">bas carbone</span>
+                  <span> et</span>
+                  <span class="font-bold text-white"> ESG*</span>
+                  <span
+                    >, accéder aux référentiels et exigences des partenaires
+                    financiers, et centraliser l'ensemble des fournisseurs
+                    engagés.</span
+                  >
+                </p>
+              </div>
+              <div class="relative shrink-0 text-14 w-630">
+                <p class="leading-normal">
+                  Environnement, Social et Gouvernance
+                </p>
+              </div>
+            </div>
+
+            <div
+              class="absolute bottom-2px flex h-340 items-center justify-center right-1143px w-297"
+            >
+              <div class="flex-none rotate-270">
+                <div class="h-297 relative w-340">
+                  <img
+                    alt=""
+                    class="block max-w-none size-full"
+                    src="http://localhost:3845/assets/94f520908b33d26e305aea3213d0a86c138debf7.svg"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="bg-blue-seco box-border content-stretch flex gap-10 items-center justify-center px-32 py-16 relative rounded-25 shrink-0"
+            >
+              <div
+                class="font-milligram font-extrabold leading-0 text-white text-18 text-center text-nowrap"
+              >
+                <p class="leading-normal whitespace-pre">
+                  Découvrir Flying Secoya
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quote Section -->
+          <div
+            class="box-border content-stretch flex flex-col gap-10 items-start px-72 py-0 relative shrink-0 w-full gradient-dark-blue"
+          >
+            <div
+              class="bg-white box-border content-stretch flex gap-72 h-221 items-center justify-center p-48 relative rounded-20 shrink-0 w-full"
+            >
+              <div
+                class="basis-0 content-stretch flex gap-10 grow items-center justify-center min-h-px min-w-px relative shrink-0"
+              >
+                <div
+                  class="basis-0 font-milligram font-extrabold grow h-full leading-0 min-h-px min-w-px text-dark-blue text-40"
+                >
+                  <p class="leading-50">
+                    <span
+                      >" Chaque euro investi dans une production doit générer un
+                    </span>
+                    <span class="text-blue-seco">rendement positif</span>,
+                    mesurable et durable "
+                  </p>
+                </div>
+              </div>
+              <div class="h-full relative shrink-0 w-0">
+                <div class="absolute bottom-0 left-0 right-0 top-0">
+                  <img
+                    alt=""
+                    class="block max-w-none size-full"
+                    src="http://localhost:3845/assets/aff4eda437916e53d7d145ccbaea5fd9399e4e04.svg"
+                  />
+                </div>
+              </div>
+              <div
+                class="content-stretch flex flex-col gap-10 items-start relative shrink-0"
+              >
+                <div
+                  class="flex h-206 items-center justify-center relative shrink-0 w-208"
+                >
+                  <div class="flex-none rotate-16">
+                    <div class="h-165 relative w-167">
+                      <div class="absolute inset-0">
+                        <img
+                          alt=""
+                          class="block max-w-none size-full"
+                          src="http://localhost:3845/assets/2f65908afb0b963f8ef916aa1ebfd5c86755cacb.svg"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Solutions Section -->
+      <div
+        class="box-border content-stretch flex flex-col gap-48 items-center justify-center p-72 relative shrink-0 w-full gradient-dark-blue"
+      >
+        <div
+          class="content-stretch flex flex-col gap-8 items-center relative shrink-0 w-879"
+        >
+          <div
+            class="font-milligram font-bold leading-0 text-white text-center w-full"
+          >
+            <p class="font-extrabold leading-normal text-64">
+              <span class="text-white">Vos enjeux, </span>
+              <span class="text-blue-seco">nos solutions</span>
+            </p>
+          </div>
+          <div
+            class="content-stretch flex gap-10 items-center justify-center relative shrink-0 w-full"
+          >
+            <div
+              class="font-milligram font-normal leading-0 text-white text-25 text-center text-nowrap"
+            >
+              <p class="leading-normal whitespace-pre">Vous êtes :</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Solutions Cards -->
+        <div
+          class="box-border content-stretch flex gap-48 items-center px-144 py-0 relative shrink-0 w-full"
+        >
+          <!-- Card 1: Production -->
+          <div class="flex flex-row items-center self-stretch">
+            <div
+              class="box-border content-stretch flex flex-col h-full items-center justify-between pb-0 pt-32 px-0 relative rounded-16 shrink-0 w-304"
+            >
+              <div
+                class="content-stretch flex flex-col gap-32 items-center relative shrink-0"
+              >
+                <div class="relative shrink-0 size-35">
+                  <img
+                    alt=""
+                    class="block max-w-none size-full"
+                    src="http://localhost:3845/assets/438b67bb928ee5afd78dfcd956e7260bc75877cc.svg"
+                  />
+                </div>
+                <div
+                  class="font-roboto font-bold leading-0 text-white text-20 text-center w-288"
+                >
+                  <p class="leading-normal mb-0">Une société de production</p>
+                  <p class="leading-normal">
+                    <span>ou un créateur de </span>
+                    <span class="text-seco2">contenus</span>
+                  </p>
+                </div>
+              </div>
+              <div
+                class="font-milligram font-normal leading-0 text-white text-16 text-center w-256"
+              >
+                <p class="leading-normal">
+                  Pilotez vos démarches bas carbone et ESG, et identifiez les
+                  conditions d'accès aux financements.
+                </p>
+              </div>
+              <div
+                class="bg-seco2 box-border content-stretch flex flex-col gap-32 items-center p-32 relative rounded-16 shrink-0 w-full"
+              >
+                <div
+                  class="font-milligram font-extrabold leading-0 text-dark-blue text-16 text-center w-full"
+                >
+                  <p class="leading-normal">
+                    Pour piloter toutes mes productions, c'est facile :
+                  </p>
+                </div>
+                <div
+                  class="box-border content-stretch flex gap-10 h-57 items-center justify-center px-32 py-16 relative rounded-50 shrink-0 w-full gradient-dark-blue"
+                >
+                  <div
+                    class="font-milligram font-extrabold leading-0 text-seco2 text-18 text-center text-nowrap"
+                  >
+                    <p class="leading-normal whitespace-pre">
+                      Je découvre les offres
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Entreprise technique -->
+          <div
+            class="box-border content-stretch flex flex-col items-center overflow-clip pb-0 pt-32 px-0 relative rounded-16 shrink-0 w-304"
+          >
+            <div
+              class="content-stretch flex flex-col gap-32 items-center relative shrink-0"
+            >
+              <div class="relative shrink-0 size-35">
+                <img
+                  alt=""
+                  class="block max-w-none size-full"
+                  src="http://localhost:3845/assets/afd81a37cb99ae64587ac72c353c0f87084a38cc.svg"
+                />
+              </div>
+              <div
+                class="font-roboto font-bold leading-normal text-white text-20 text-center w-288"
+              >
+                <p class="mb-0">Une entreprise</p>
+                <p class="text-green">technique</p>
+              </div>
+            </div>
+            <div
+              class="box-border content-stretch flex gap-10 items-center justify-center px-0 py-32 relative shrink-0"
+            >
+              <div
+                class="font-milligram font-normal leading-0 text-white text-16 text-center w-256"
+              >
+                <p class="leading-normal">
+                  Structurez votre stratégie bas carbone et ESG, et identifiez
+                  les exigences pour obtenir des financements.
+                </p>
+              </div>
+            </div>
+            <div
+              class="bg-green box-border content-stretch flex flex-col gap-32 items-center p-32 relative rounded-16 shrink-0 w-full"
+            >
+              <div
+                class="font-milligram font-extrabold leading-0 text-dark-blue text-16 text-center w-full"
+              >
+                <p class="leading-normal">
+                  Pour piloter l'impact de mon entreprise, c'est facile :
+                </p>
+              </div>
+              <div
+                class="box-border content-stretch flex gap-10 h-57 items-center justify-center px-32 py-16 relative rounded-50 shrink-0 w-full gradient-dark-blue"
+              >
+                <div
+                  class="font-milligram font-extrabold leading-0 text-green text-18 text-center text-nowrap"
+                >
+                  <p class="leading-normal whitespace-pre">
+                    Je découvre les offres
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Partenaire financier -->
+          <div class="flex flex-row items-center self-stretch">
+            <div
+              class="box-border content-stretch flex flex-col h-full items-center justify-between overflow-clip pb-0 pt-32 px-0 relative rounded-32 shrink-0 w-304"
+            >
+              <div
+                class="content-stretch flex flex-col gap-32 items-center relative shrink-0"
+              >
+                <div class="relative shrink-0 size-35">
+                  <img
+                    alt=""
+                    class="block max-w-none size-full"
+                    src="http://localhost:3845/assets/65d177ad5e64859aa45ee545e4d5930db504b755.svg"
+                  />
+                </div>
+                <div
+                  class="font-roboto font-bold leading-normal text-white text-20 text-center w-288"
+                >
+                  <p class="mb-0">
+                    <span>Un </span>
+                    <span class="text-blue-seco">partenaire financier</span>
+                  </p>
+                  <p>public ou privé</p>
+                </div>
+              </div>
+              <div
+                class="font-milligram font-normal leading-0 text-white text-16 text-center w-256"
+              >
+                <p class="leading-normal">
+                  Évaluez les risques extra financiers et faites ruisseler vos
+                  objectifs stratégiques
+                </p>
+              </div>
+              <div
+                class="bg-blue-seco box-border content-stretch flex flex-col gap-32 items-center p-32 relative rounded-16 shrink-0 w-full"
+              >
+                <div
+                  class="font-roboto font-bold leading-0 text-white text-16 text-center w-full"
+                >
+                  <p class="leading-normal">
+                    Pour que chaque euro investi ait un impact, c'est facile :
+                  </p>
+                </div>
+                <div
+                  class="box-border content-stretch flex gap-10 h-57 items-center justify-center px-32 py-16 relative rounded-50 shrink-0 w-full gradient-dark-blue"
+                >
+                  <div
+                    class="font-milligram font-extrabold leading-0 text-blue-seco text-18 text-center text-nowrap"
+                  >
+                    <p class="leading-normal whitespace-pre">Contactez-nous</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plus de sections seront ajoutées... -->
+    </div>
+  </body>
+</html>
