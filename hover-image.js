@@ -43,8 +43,8 @@ window.initHoverImage = function () {
     gsap.set(image, {
       opacity: 0,
       scale: 0.8,
-      xPercent: -50,
-      yPercent: -50,
+      xPercent: -50, // Centré horizontalement
+      yPercent: 0, // Pas de centrage vertical = l'image démarre du haut
     });
 
     // Handler mouseenter : faire apparaître l'image
