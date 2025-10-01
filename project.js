@@ -1,12 +1,12 @@
 // Animation curseur projets - Style Laura Geley
 // Compatible avec BarbaJS - PAS de DOMContentLoaded !
 
-// Fonction de nettoyage globale
-if (window.projectCursorCleanup) {
-  window.projectCursorCleanup();
-}
-
-function initProjectCursorAnimation() {
+// Fonction principale d'initialisation (globale pour Barba)
+window.initProjectCursorAnimation = function () {
+  // Fonction de nettoyage globale
+  if (window.projectCursorCleanup) {
+    window.projectCursorCleanup();
+  }
   // Vérifier que GSAP est disponible
   if (typeof gsap === "undefined") {
     return;
@@ -194,7 +194,40 @@ function initProjectCursorAnimation() {
 
   // Retourner la fonction de cleanup pour pouvoir l'utiliser si nécessaire
   return cleanup;
+};
+
+// ========================================
+// 🔄 INITIALISATION AUTOMATIQUE
+// ========================================
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      if (typeof window.initProjectCursorAnimation === "function") {
+        window.initProjectCursorAnimation();
+      }
+    }, 200);
+  });
+} else {
+  setTimeout(() => {
+    if (typeof window.initProjectCursorAnimation === "function") {
+      window.initProjectCursorAnimation();
+    }
+  }, 200);
 }
 
-// ⚠️ DÉSACTIVÉ - Maintenant géré par barba.js
-// initProjectCursorAnimation();
+// ========================================
+// 🎪 COMPATIBILITÉ BARBA.JS (AUTO-DÉTECTION)
+// ========================================
+
+setTimeout(() => {
+  if (typeof barba !== "undefined") {
+    barba.hooks.afterEnter((data) => {
+      setTimeout(() => {
+        if (typeof window.initProjectCursorAnimation === "function") {
+          window.initProjectCursorAnimation();
+        }
+      }, 100);
+    });
+  }
+}, 500);
