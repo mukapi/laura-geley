@@ -71,7 +71,7 @@ window.initHoverImage = function () {
     const handleMouseMove = (e) => {
       gsap.to(image, {
         left: e.clientX,
-        top: e.clientY + 40, // Décalage de 40px vers le bas
+        top: e.clientY + 80, // Décalage de 80px vers le bas
         duration: 0.3,
         ease: "power2.out",
       });
