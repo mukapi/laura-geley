@@ -28,6 +28,9 @@
       });
     } catch (e) {}
 
+    // 🌍 Exposer Lenis globalement pour permettre le contrôle externe
+    window.lenis = lenis;
+
     const stopLenis = () => {
       try {
         lenis && lenis.stop();
@@ -46,6 +49,11 @@
         }
       } catch (e) {}
     };
+
+    // 🌍 Exposer les fonctions de contrôle globalement
+    window.stopLenis = stopLenis;
+    window.startLenis = startLenis;
+    window.refreshLenis = refreshLenis;
 
     // ========================================
     // 2. INITIALISATION BARBA
