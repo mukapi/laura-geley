@@ -2,11 +2,7 @@
 (function () {
   "use strict";
 
-  console.log("📁 barba.js loaded (simplified version)");
-
   document.addEventListener("DOMContentLoaded", () => {
-    console.log("🔄 Barba.js - DOMContentLoaded triggered");
-
     // ========================================
     // 1. CONFIGURATION BARBA
     // ========================================
@@ -159,19 +155,13 @@
     // ========================================
 
     barba.hooks.afterEnter((data) => {
-      console.log("🔄 Barba.js afterEnter - calling scripts");
-
       // 🎯 CURSORS (depuis cursor.js)
       if (typeof window.initAllCursors === "function") {
-        console.log("✅ Calling window.initAllCursors from Barba");
         try {
           window.initAllCursors();
-          console.log("✅ window.initAllCursors completed successfully");
         } catch (e) {
-          console.error("❌ Error calling window.initAllCursors:", e);
+          // Erreur silencieuse
         }
-      } else {
-        console.log("❌ window.initAllCursors not found");
       }
 
       // 🎯 FAQ (pour votre dropdown)

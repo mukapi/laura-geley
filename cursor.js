@@ -1,29 +1,15 @@
-console.log("📁 cursor.js loaded");
-console.log("🔍 cursor.js - window object:", typeof window);
-console.log("🔍 cursor.js - document ready state:", document.readyState);
-console.log("🔍 cursor.js - GSAP available:", typeof gsap !== "undefined");
-
 // Nettoyer les anciens event listeners et timeouts
 if (window.cursorCleanup) {
-  console.log("🔍 cursor.js - cleaning up previous cursors");
   window.cursorCleanup();
 }
 
 // Fonction d'initialisation globale pour Barba.js
 window.initAllCursors = function () {
-  console.log("🎯 initAllCursors called");
-  console.log("🔍 Document ready state:", document.readyState);
-  console.log("🔍 GSAP available:", typeof gsap !== "undefined");
-
   // Vérifier que GSAP est disponible
   if (typeof gsap === "undefined") {
-    console.error("❌ GSAP not available, retrying in 100ms");
     setTimeout(() => {
       if (typeof gsap !== "undefined") {
-        console.log("✅ GSAP now available, retrying initAllCursors");
         window.initAllCursors();
-      } else {
-        console.error("❌ GSAP still not available after retry");
       }
     }, 100);
     return;
@@ -31,39 +17,29 @@ window.initAllCursors = function () {
 
   try {
     initProjectSingleCardCursors();
-    console.log("✅ initProjectSingleCardCursors completed");
   } catch (e) {
-    console.error("❌ Error in initProjectSingleCardCursors:", e);
+    // Erreur silencieuse
   }
 
   try {
     initTestimonialsGridCursor();
-    console.log("✅ initTestimonialsGridCursor completed");
   } catch (e) {
-    console.error("❌ Error in initTestimonialsGridCursor:", e);
+    // Erreur silencieuse
   }
 
   try {
     initScopeListCursors();
-    console.log("✅ initScopeListCursors completed");
   } catch (e) {
-    console.error("❌ Error in initScopeListCursors:", e);
+    // Erreur silencieuse
   }
-
-  console.log("🎯 initAllCursors finished");
 };
-
-console.log("✅ window.initAllCursors function created");
 
 // Fonction d'initialisation des project single cards
 function initProjectSingleCardCursors() {
-  console.log("🔍 Looking for .project_single_card elements");
   const cards = document.querySelectorAll(".project_single_card");
-  console.log("🔍 Found", cards.length, "project_single_card elements");
 
-  cards.forEach((card, index) => {
+  cards.forEach((card) => {
     const cursor = card.querySelector(".project_cursor");
-    console.log(`🔍 Card ${index}: cursor found:`, !!cursor);
     if (cursor) {
       initializeCursor(card, cursor);
     }
@@ -72,25 +48,19 @@ function initProjectSingleCardCursors() {
 
 // Fonction d'initialisation du testimonials grid
 function initTestimonialsGridCursor() {
-  console.log("🔍 Looking for .testimonials_grid element");
   const testimonialsGrid = document.querySelector(".testimonials_grid");
-  console.log("🔍 testimonials_grid found:", !!testimonialsGrid);
 
   if (testimonialsGrid) {
     let cursor = testimonialsGrid.querySelector(".project_cursor");
-    console.log("🔍 Direct cursor found:", !!cursor);
 
     if (!cursor) {
       const swiperContainer = testimonialsGrid.closest(".swiper");
-      console.log("🔍 Swiper container found:", !!swiperContainer);
       if (swiperContainer) {
         cursor = swiperContainer.querySelector(".project_cursor");
-        console.log("🔍 Swiper cursor found:", !!cursor);
       }
     }
 
     if (cursor) {
-      console.log("🔍 Initializing testimonials cursor");
       initializeCursor(testimonialsGrid, cursor);
     }
   }
@@ -98,18 +68,11 @@ function initTestimonialsGridCursor() {
 
 // Fonction d'initialisation des scope list cursors
 function initScopeListCursors() {
-  console.log("🔍 Looking for .scope_list.swiper-wrapper elements");
   const scopeListWrappers = document.querySelectorAll(
     ".scope_list.swiper-wrapper"
   );
-  console.log(
-    "🔍 Found",
-    scopeListWrappers.length,
-    "scope_list.swiper-wrapper elements"
-  );
 
-  scopeListWrappers.forEach((scopeListWrapper, index) => {
-    console.log(`🔍 Processing scope list wrapper ${index}`);
+  scopeListWrappers.forEach((scopeListWrapper) => {
     // Chercher le curseur drag dans le parent swiper (pas dans les cartes)
     const swiperContainer = scopeListWrapper.closest(".swiper");
     let dragCursor = null;
@@ -339,14 +302,9 @@ const initializeCursor = (container, cursor) => {
 };
 
 // Initialisation automatique si barba.js ne fonctionne pas
-console.log("🔄 cursor.js - Setting up fallback initialization");
-
-// Attendre que le DOM soit prêt
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
-    console.log("🔄 cursor.js - DOMContentLoaded fallback");
     setTimeout(() => {
-      console.log("🔄 cursor.js - Calling initAllCursors as fallback");
       if (typeof window.initAllCursors === "function") {
         window.initAllCursors();
       }
@@ -354,7 +312,6 @@ if (document.readyState === "loading") {
   });
 } else {
   // DOM déjà prêt
-  console.log("🔄 cursor.js - DOM already ready, calling initAllCursors");
   setTimeout(() => {
     if (typeof window.initAllCursors === "function") {
       window.initAllCursors();
@@ -369,23 +326,13 @@ if (document.readyState === "loading") {
 // Attendre que Barba soit disponible
 setTimeout(() => {
   if (typeof barba !== "undefined") {
-    console.log("🔄 cursor.js - Barba detected, setting up hooks");
-
     // Hook pour réinitialiser les curseurs après chaque transition
     barba.hooks.afterEnter((data) => {
-      console.log("🔄 cursor.js - Barba afterEnter hook triggered");
       setTimeout(() => {
-        console.log(
-          "🔄 cursor.js - Reinitializing cursors after Barba transition"
-        );
         if (typeof window.initAllCursors === "function") {
           window.initAllCursors();
         }
       }, 100);
     });
-
-    console.log("✅ cursor.js - Barba hooks registered successfully");
-  } else {
-    console.log("⚠️ cursor.js - Barba not found, using fallback only");
   }
 }, 500);

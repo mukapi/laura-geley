@@ -1,20 +1,23 @@
+// ========================================
+// 🎠 SWIPER - COMPATIBLE BARBA.JS
+// ========================================
 // Script Swiper universel pour tous les sliders de la page
-// Compatible avec BarbaJS - PAS de DOMContentLoaded !
 
-// Nettoyer les anciennes instances Swiper
-if (window.swiperInstances) {
-  window.swiperInstances.forEach((swiper) => {
-    if (swiper && swiper.destroy) {
-      swiper.destroy(true, true);
-    }
-  });
+// Fonction principale d'initialisation
+window.initSwiper = function () {
+  // Nettoyer les anciennes instances Swiper
+  if (window.swiperInstances) {
+    window.swiperInstances.forEach((swiper) => {
+      if (swiper && swiper.destroy) {
+        swiper.destroy(true, true);
+      }
+    });
+    window.swiperInstances = [];
+  }
+
+  // Initialiser les instances
   window.swiperInstances = [];
-}
 
-// Initialiser les instances
-window.swiperInstances = [];
-
-(function () {
   // Trouver tous les éléments .swiper
   const swiperElements = document.querySelectorAll(".swiper");
 
@@ -43,4 +46,40 @@ window.swiperInstances = [];
     const swiperInstance = new Swiper(swiperEl, config);
     window.swiperInstances.push(swiperInstance);
   });
-})();
+};
+
+// ========================================
+// 🔄 INITIALISATION AUTOMATIQUE
+// ========================================
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      if (typeof window.initSwiper === "function") {
+        window.initSwiper();
+      }
+    }, 200);
+  });
+} else {
+  setTimeout(() => {
+    if (typeof window.initSwiper === "function") {
+      window.initSwiper();
+    }
+  }, 200);
+}
+
+// ========================================
+// 🎪 COMPATIBILITÉ BARBA.JS (AUTO-DÉTECTION)
+// ========================================
+
+setTimeout(() => {
+  if (typeof barba !== "undefined") {
+    barba.hooks.afterEnter((data) => {
+      setTimeout(() => {
+        if (typeof window.initSwiper === "function") {
+          window.initSwiper();
+        }
+      }, 100);
+    });
+  }
+}, 500);
