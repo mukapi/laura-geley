@@ -69,9 +69,10 @@ window.initHoverImage = function () {
 
     // Handler mousemove : faire suivre la souris (effet magnetic)
     const handleMouseMove = (e) => {
+      const rect = trigger.getBoundingClientRect();
       gsap.to(image, {
         left: e.clientX,
-        top: e.clientY + 80, // Décalage de 80px vers le bas
+        top: rect.bottom + 10, // Juste sous le span + 10px de marge
         duration: 0.3,
         ease: "power2.out",
       });
