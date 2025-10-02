@@ -27,15 +27,15 @@ window.initHoverImage = function () {
     window.hoverImageCleanup();
   }
 
+  // Réinitialiser le tableau des handlers
+  const handlers = [];
+
   // Sélectionner tous les triggers (spans avec attribut data-hover-image)
   const triggers = document.querySelectorAll("[data-hover-image]");
 
   if (triggers.length === 0) {
     return;
   }
-
-  // Stocker les handlers pour le cleanup
-  const handlers = [];
 
   triggers.forEach((trigger) => {
     // Récupérer l'ID de l'image cible via l'attribut
@@ -84,7 +84,7 @@ window.initHoverImage = function () {
 
       if (position === "above") {
         // Au-dessus du texte
-        const imageHeight = image.offsetHeight || 200; // Hauteur estimée
+        const imageHeight = image.offsetHeight || image.clientHeight || 300; // Hauteur estimée plus large
         topPosition = rect.top - imageHeight - 10;
       } else {
         // En dessous du texte (par défaut)
