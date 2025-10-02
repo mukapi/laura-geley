@@ -45,6 +45,40 @@ window.initSwiper = function () {
     // Initialiser le Swiper et le stocker
     const swiperInstance = new Swiper(swiperEl, config);
     window.swiperInstances.push(swiperInstance);
+
+    // ========================================
+    // NAVIGATION AU CLIC (gauche/droite)
+    // ========================================
+
+    // Ajouter la navigation au clic sur desktop uniquement
+    const isTouchDevice =
+      "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+    if (!isTouchDevice) {
+      // Créer un handler de clic
+      const handleClick = (e) => {
+        // Ignorer si on est en train de dragger
+        if (swiperInstance.touchEventsData.isTouched) {
+          return;
+        }
+
+        // Récupérer la position du clic
+        const rect = swiperEl.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const halfWidth = rect.width / 2;
+
+        if (clickX < halfWidth) {
+          // Clic sur la moitié gauche → Slide précédente
+          swiperInstance.slidePrev();
+        } else {
+          // Clic sur la moitié droite → Slide suivante
+          swiperInstance.slideNext();
+        }
+      };
+
+      // Attacher l'event listener
+      swiperEl.addEventListener("click", handleClick);
+    }
   });
 };
 
