@@ -77,9 +77,23 @@ window.initHoverImage = function () {
     // Handler mousemove : faire suivre la souris (effet magnetic)
     const handleMouseMove = (e) => {
       const rect = trigger.getBoundingClientRect();
+
+      // Vérifier si on veut l'image au-dessus ou en dessous
+      const position = trigger.getAttribute("data-hover-position") || "below";
+      let topPosition;
+
+      if (position === "above") {
+        // Au-dessus du texte
+        const imageHeight = image.offsetHeight || 200; // Hauteur estimée
+        topPosition = rect.top - imageHeight - 10;
+      } else {
+        // En dessous du texte (par défaut)
+        topPosition = rect.bottom + 10;
+      }
+
       gsap.to(image, {
         left: e.clientX,
-        top: rect.bottom + 10, // Juste sous le span + 10px de marge
+        top: topPosition,
         duration: 0.3,
         ease: "power2.out",
       });
