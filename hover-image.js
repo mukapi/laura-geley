@@ -5,6 +5,13 @@
 
 // Fonction principale d'initialisation
 window.initHoverImage = function () {
+  // Désactiver sur les appareils tactiles (mobile/tablette)
+  const isTouchDevice =
+    "ontouchstart" in window || navigator.maxTouchPoints > 0;
+  if (isTouchDevice) {
+    return; // Ne pas initialiser le script sur tactile
+  }
+
   // Vérifier que GSAP est disponible
   if (typeof gsap === "undefined") {
     setTimeout(() => {
