@@ -11,17 +11,17 @@ function attemptFAQInit(retries = 3) {
     console.log("⏸️ attemptFAQInit déjà en cours, skip");
     return;
   }
-  
+
   isInitializing = true;
   console.log("🔍 attemptFAQInit - Tentative", 4 - retries, "/", 3);
-  
+
   // Trouver le PREMIER DROPDOWN VISIBLE (pas juste first-child)
   const allDropdowns = document.querySelectorAll(
     ".cs_sticky_menu .cs_sticky_dropdown:not(.w-condition-invisible)"
   );
-  
+
   console.log("📊 Dropdowns visibles trouvés:", allDropdowns.length);
-  
+
   if (allDropdowns.length === 0) {
     console.log("⚠️ Aucun dropdown visible, sortie");
     isInitializing = false;
@@ -59,7 +59,7 @@ function attemptFAQInit(retries = 3) {
 
     if (dropdown) {
       console.log("🔄 Réinitialisation des dropdowns Webflow...");
-      
+
       // Réinitialiser Webflow dropdowns
       if (dropdown.ready) {
         dropdown.ready();
@@ -78,7 +78,7 @@ function attemptFAQInit(retries = 3) {
       // Petit délai supplémentaire pour s'assurer que tout est prêt
       setTimeout(() => {
         console.log("🖱️ Simulation des événements souris...");
-        
+
         // Simuler mousedown + mouseup en séquence
         firstToggle.dispatchEvent(
           new MouseEvent("mousedown", {
@@ -107,14 +107,14 @@ function attemptFAQInit(retries = 3) {
           setTimeout(() => {
             const dropdown_list = document.querySelector("#w-dropdown-list-0");
             console.log("🔍 Dropdown list trouvé:", dropdown_list);
-            
+
             if (dropdown_list) {
               firstToggle.setAttribute("aria-expanded", "true");
               dropdown_list.style.height = "auto";
               dropdown_list.style.display = "block";
               parentDropdown.classList.add("w--open");
               console.log("🎉 Dropdown forcé en ouverture (w--open ajouté)");
-              
+
               // Relâcher le lock après l'ouverture
               setTimeout(() => {
                 isInitializing = false;
@@ -147,7 +147,7 @@ function attemptFAQInit(retries = 3) {
 // Fonction pour gérer le dernier dropdown visible
 function updateLastVisibleDropdown() {
   console.log("🔄 updateLastVisibleDropdown appelée");
-  
+
   const menu = document.querySelector(".cs_sticky_menu");
   if (!menu) {
     console.log("❌ Menu .cs_sticky_menu introuvable");
@@ -156,13 +156,15 @@ function updateLastVisibleDropdown() {
 
   const allDropdowns = menu.querySelectorAll(".cs_sticky_dropdown");
   console.log("📊 Total dropdowns:", allDropdowns.length);
-  
+
   if (allDropdowns.length === 0) return;
 
   // Enlever la classe is-last de tous les dropdowns visibles
-  const visibleBeforeRemove = menu.querySelectorAll(".cs_sticky_dropdown:not(.w-condition-invisible)");
+  const visibleBeforeRemove = menu.querySelectorAll(
+    ".cs_sticky_dropdown:not(.w-condition-invisible)"
+  );
   console.log("🧹 Retrait is-last de", visibleBeforeRemove.length, "dropdowns");
-  
+
   visibleBeforeRemove.forEach((dropdown) => {
     dropdown.classList.remove("is-last");
   });
@@ -171,13 +173,15 @@ function updateLastVisibleDropdown() {
   const visibleDropdowns = Array.from(allDropdowns).filter(
     (dropdown) => !dropdown.classList.contains("w-condition-invisible")
   );
-  
+
   console.log("✅ Dropdowns visibles:", visibleDropdowns.length);
 
   // Ajouter la classe is-last au dernier dropdown visible
   if (visibleDropdowns.length > 0) {
     const lastVisibleDropdown = visibleDropdowns[visibleDropdowns.length - 1];
-    const toggleText = lastVisibleDropdown.querySelector(".cs_sticky_text")?.textContent.trim();
+    const toggleText = lastVisibleDropdown
+      .querySelector(".cs_sticky_text")
+      ?.textContent.trim();
     console.log("🎯 Ajout is-last au dernier visible:", toggleText);
     lastVisibleDropdown.classList.add("is-last");
   }
@@ -186,7 +190,7 @@ function updateLastVisibleDropdown() {
 // Fonction pour observer les changements de classes
 function initLastVisibleObserver() {
   console.log("👀 initLastVisibleObserver démarré");
-  
+
   const menu = document.querySelector(".cs_sticky_menu");
   if (!menu) {
     console.log("❌ Menu introuvable");
@@ -199,11 +203,13 @@ function initLastVisibleObserver() {
     window.faqObserver.disconnect();
   }
 
-  // Exécuter une première fois APRÈS un délai pour laisser le dropdown s'ouvrir COMPLÈTEMENT
-  console.log("⏱️ updateLastVisibleDropdown programmé dans 1000ms");
+  // Exécuter une première fois APRÈS un LONG délai pour laisser le dropdown complètement stable
+  console.log(
+    "⏱️ updateLastVisibleDropdown programmé dans 2000ms (après stabilisation)"
+  );
   setTimeout(() => {
     updateLastVisibleDropdown();
-  }, 1000);
+  }, 2000);
 
   // Observer les changements de classes avec protection contre les boucles
   let isUpdating = false;
@@ -222,20 +228,28 @@ function initLastVisibleObserver() {
         mutation.attributeName === "class"
       ) {
         const target = mutation.target;
-        
+
         // Seulement si c'est un cs_sticky_dropdown
         if (!target.classList.contains("cs_sticky_dropdown")) {
           return false;
         }
-        
+
         // Récupérer l'ancienne valeur de la classe
         const oldClasses = mutation.oldValue || "";
         const hadInvisible = oldClasses.includes("w-condition-invisible");
         const hasInvisible = target.classList.contains("w-condition-invisible");
-        
-        console.log("🔍 Dropdown muté:", target.querySelector(".cs_sticky_text")?.textContent.trim());
-        console.log("   Avant invisible:", hadInvisible, "/ Maintenant:", hasInvisible);
-        
+
+        console.log(
+          "🔍 Dropdown muté:",
+          target.querySelector(".cs_sticky_text")?.textContent.trim()
+        );
+        console.log(
+          "   Avant invisible:",
+          hadInvisible,
+          "/ Maintenant:",
+          hasInvisible
+        );
+
         // On ne s'intéresse QUE si w-condition-invisible a changé
         const changed = hadInvisible !== hasInvisible;
         if (changed) {
@@ -247,7 +261,9 @@ function initLastVisibleObserver() {
     });
 
     if (hasRelevantChange) {
-      console.log("🔥 MutationObserver: Changement pertinent, appel updateLastVisibleDropdown");
+      console.log(
+        "🔥 MutationObserver: Changement pertinent, appel updateLastVisibleDropdown"
+      );
       isUpdating = true;
       updateLastVisibleDropdown();
       setTimeout(() => {
@@ -265,9 +281,9 @@ function initLastVisibleObserver() {
     subtree: true,
     attributeFilter: ["class"],
   });
-  
+
   console.log("✅ Observer activé et stocké dans window.faqObserver");
-  
+
   // Stocker l'observer pour cleanup
   window.faqObserver = observer;
 }
