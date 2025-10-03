@@ -32,6 +32,12 @@ window.initAllCursors = function () {
   } catch (e) {
     // Erreur silencieuse
   }
+
+  try {
+    initChallengesGridCursors();
+  } catch (e) {
+    // Erreur silencieuse
+  }
 };
 
 // Fonction d'initialisation des project single cards
@@ -241,6 +247,78 @@ function initScopeListCursors() {
           });
         });
       }
+    }
+  });
+}
+
+// Fonction d'initialisation des challenges grid cursors
+function initChallengesGridCursors() {
+  const challengesGridWrappers = document.querySelectorAll(
+    ".challenges_grid.swiper-wrapper"
+  );
+
+  challengesGridWrappers.forEach((challengesGridWrapper) => {
+    // Chercher le curseur drag dans le parent swiper
+    const swiperContainer = challengesGridWrapper.closest(".swiper");
+    let dragCursor = null;
+
+    if (swiperContainer) {
+      // Chercher le curseur dans le wrapper
+      dragCursor = challengesGridWrapper.querySelector(".project_cursor");
+    }
+
+    if (dragCursor) {
+      // Forcer le reset du curseur drag
+      dragCursor.removeAttribute("style");
+
+      setTimeout(() => {
+        gsap.set(dragCursor, {
+          opacity: 0,
+          scale: 0.8,
+        });
+
+        let hideTimeout;
+
+        const handleDragMouseEnter = () => {
+          if (hideTimeout) {
+            clearTimeout(hideTimeout);
+            hideTimeout = null;
+          }
+          gsap.killTweensOf(dragCursor);
+          gsap.to(dragCursor, {
+            opacity: 1,
+            scale: 1,
+            duration: 0.3,
+            ease: "back.out(1.2)",
+          });
+        };
+
+        const handleDragMouseLeave = () => {
+          hideTimeout = setTimeout(() => {
+            gsap.killTweensOf(dragCursor);
+            gsap.to(dragCursor, {
+              opacity: 0,
+              scale: 0.8,
+              duration: 0.2,
+              ease: "power2.out",
+            });
+          }, 50);
+        };
+
+        const handleDragMouseMove = (e) => {
+          const rect = challengesGridWrapper.getBoundingClientRect();
+          gsap.to(dragCursor, {
+            left: e.clientX - rect.left,
+            top: e.clientY - rect.top,
+            duration: 0.05,
+            ease: "none",
+          });
+        };
+
+        challengesGridWrapper.addEventListener("mouseenter", handleDragMouseEnter);
+        challengesGridWrapper.addEventListener("mouseleave", handleDragMouseLeave);
+        challengesGridWrapper.addEventListener("mousemove", handleDragMouseMove);
+      }, 100);
     }
   });
 }

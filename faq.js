@@ -8,22 +8,17 @@ let isInitializing = false;
 // Fonction qui tente d'initialiser le FAQ avec retry
 function attemptFAQInit(retries = 3) {
   if (isInitializing) {
-    console.log("⏸️ attemptFAQInit déjà en cours, skip");
     return;
   }
 
   isInitializing = true;
-  console.log("🔍 attemptFAQInit - Tentative", 4 - retries, "/", 3);
 
   // Trouver le PREMIER DROPDOWN VISIBLE (pas juste first-child)
   const allDropdowns = document.querySelectorAll(
     ".cs_sticky_menu .cs_sticky_dropdown:not(.w-condition-invisible)"
   );
 
-  console.log("📊 Dropdowns visibles trouvés:", allDropdowns.length);
-
   if (allDropdowns.length === 0) {
-    console.log("⚠️ Aucun dropdown visible, sortie");
     isInitializing = false;
     return;
   }
@@ -32,25 +27,16 @@ function attemptFAQInit(retries = 3) {
   const firstToggle = firstVisibleDropdown.querySelector(".cs_sticky_toggle");
   const parentDropdown = firstToggle?.closest(".w-dropdown");
 
-  console.log("🎯 Premier dropdown visible:", firstVisibleDropdown);
-  console.log("🔘 Toggle trouvé:", firstToggle);
-  console.log("📦 Parent dropdown:", parentDropdown);
-
   if (!firstToggle || !parentDropdown) {
-    console.log("❌ Toggle ou parent manquant, sortie");
     isInitializing = false;
     return;
   }
 
   try {
-    console.log("🎯 Forçage direct de l'ouverture du dropdown...");
-
     // Trouver la liste dropdown
     const dropdown_list = parentDropdown.querySelector(".w-dropdown-list");
-    console.log("🔍 Dropdown list trouvé:", dropdown_list);
 
     if (!dropdown_list) {
-      console.log("❌ Liste dropdown introuvable, retry");
       isInitializing = false;
       if (retries > 0) {
         setTimeout(() => attemptFAQInit(retries - 1), 200);
@@ -67,15 +53,11 @@ function attemptFAQInit(retries = 3) {
     parentDropdown.classList.add("w--open");
     parentDropdown.style.zIndex = "901";
 
-    console.log("🎉 Dropdown forcé en ouverture (sans animation Webflow)");
-
     // Relâcher le lock après l'ouverture
     setTimeout(() => {
       isInitializing = false;
-      console.log("🔓 Lock isInitializing relâché");
     }, 300);
   } catch (e) {
-    console.error("❌ Erreur dans attemptFAQInit:", e);
     isInitializing = false;
     // En cas d'erreur, réessayer si possible
     if (retries > 0) {
@@ -86,16 +68,12 @@ function attemptFAQInit(retries = 3) {
 
 // Fonction pour gérer le dernier dropdown visible
 function updateLastVisibleDropdown() {
-  console.log("🔄 updateLastVisibleDropdown appelée");
-
   const menu = document.querySelector(".cs_sticky_menu");
   if (!menu) {
-    console.log("❌ Menu .cs_sticky_menu introuvable");
     return;
   }
 
   const allDropdowns = menu.querySelectorAll(".cs_sticky_dropdown");
-  console.log("📊 Total dropdowns:", allDropdowns.length);
 
   if (allDropdowns.length === 0) return;
 
@@ -103,7 +81,6 @@ function updateLastVisibleDropdown() {
   const visibleBeforeRemove = menu.querySelectorAll(
     ".cs_sticky_dropdown:not(.w-condition-invisible)"
   );
-  console.log("🧹 Retrait is-last de", visibleBeforeRemove.length, "dropdowns");
 
   visibleBeforeRemove.forEach((dropdown) => {
     dropdown.classList.remove("is-last");
@@ -114,15 +91,9 @@ function updateLastVisibleDropdown() {
     (dropdown) => !dropdown.classList.contains("w-condition-invisible")
   );
 
-  console.log("✅ Dropdowns visibles:", visibleDropdowns.length);
-
   // Ajouter la classe is-last au dernier dropdown visible
   if (visibleDropdowns.length > 0) {
     const lastVisibleDropdown = visibleDropdowns[visibleDropdowns.length - 1];
-    const toggleText = lastVisibleDropdown
-      .querySelector(".cs_sticky_text")
-      ?.textContent.trim();
-    console.log("🎯 Ajout is-last au dernier visible:", toggleText);
     lastVisibleDropdown.classList.add("is-last");
   }
 }

@@ -19,9 +19,35 @@
     let lenis = null;
     try {
       lenis = new Lenis({ duration: 1.2, smoothWheel: true, autoRaf: true });
+
+      // Resize au changement de fenêtre
       window.addEventListener("resize", () => {
         if (lenis) lenis.resize();
       });
+
+      // 🔥 SOLUTION AU PROBLÈME DE SCROLL BLOQUÉ
+      // Observer les changements de hauteur du body
+      const resizeObserver = new ResizeObserver(() => {
+        if (lenis) {
+          lenis.resize();
+        }
+      });
+      resizeObserver.observe(document.body);
+
+      // Resize quand les images se chargent
+      window.addEventListener("load", () => {
+        if (lenis) {
+          lenis.resize();
+        }
+      });
+
+      // Resize périodique pendant les 3 premières secondes (au cas où)
+      let resizeCount = 0;
+      const resizeInterval = setInterval(() => {
+        if (lenis) lenis.resize();
+        resizeCount++;
+        if (resizeCount >= 6) clearInterval(resizeInterval); // 6 x 500ms = 3s
+      }, 500);
     } catch (e) {}
 
     // 🌍 Exposer Lenis globalement pour permettre le contrôle externe
@@ -101,10 +127,20 @@
             await fadeInPromise;
             startLenis();
 
-            // Forcer un refresh de Lenis après la transition
+            // 🔥 Forcer plusieurs resize de Lenis après la transition
+            // (pour être sûr que tout le contenu est chargé)
             setTimeout(() => {
-              refreshLenis();
+              if (lenis) lenis.resize();
             }, 100);
+            setTimeout(() => {
+              if (lenis) lenis.resize();
+            }, 300);
+            setTimeout(() => {
+              if (lenis) lenis.resize();
+            }, 600);
+            setTimeout(() => {
+              if (lenis) lenis.resize();
+            }, 1000);
           },
         },
       ],
@@ -128,6 +164,11 @@
         window.Webflow.ready();
         if (window.Webflow.require) window.Webflow.require("ix2").init();
       }
+
+      // Resize Lenis après init Webflow (animations peuvent changer la hauteur)
+      setTimeout(() => {
+        if (lenis) lenis.resize();
+      }, 200);
     });
 
     // Fix des liens
@@ -217,6 +258,14 @@
           }
         }
       }, 100);
+
+      // 🔥 Resize Lenis après tous les scripts custom (FAQ, cursors, etc.)
+      setTimeout(() => {
+        if (lenis) lenis.resize();
+      }, 400);
+      setTimeout(() => {
+        if (lenis) lenis.resize();
+      }, 800);
     });
 
     // ========================================
