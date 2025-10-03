@@ -92,9 +92,11 @@
             stopLenis();
 
             const navbar = document.querySelector(".nav_wrap");
-            
+
             // Désactiver temporairement le blend pendant la transition
-            const originalBlend = navbar ? window.getComputedStyle(navbar).mixBlendMode : null;
+            const originalBlend = navbar
+              ? window.getComputedStyle(navbar).mixBlendMode
+              : null;
             if (navbar) {
               navbar.style.mixBlendMode = "normal";
               navbar.style.isolation = "isolate";
@@ -110,7 +112,7 @@
                     navbar.style.mixBlendMode = originalBlend;
                   }
                   resolve();
-                }
+                },
               });
             });
             return overlayPromise;
@@ -126,7 +128,7 @@
 
           async enter(data) {
             gsap.set(data.current.container, { display: "none" });
-            
+
             const navbar = document.querySelector(".nav_wrap");
             // Désactiver à nouveau pendant le fade out de l'overlay
             if (navbar) navbar.style.mixBlendMode = "normal";
@@ -137,10 +139,17 @@
                   // Restaurer le blend APRÈS le fade out complet de l'overlay
                   if (navbar) navbar.style.mixBlendMode = "difference";
                   resolve();
-                }
+                },
               });
-              tl.to(overlay, { opacity: 0, duration: 0.4, ease: "power2.out" }, 0)
-                .to(data.next.container, { opacity: 1, duration: 0.5, ease: "power2.out" }, 0.1);
+              tl.to(
+                overlay,
+                { opacity: 0, duration: 0.4, ease: "power2.out" },
+                0
+              ).to(
+                data.next.container,
+                { opacity: 1, duration: 0.5, ease: "power2.out" },
+                0.1
+              );
             });
 
             await fadeInPromise;
