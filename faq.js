@@ -188,11 +188,11 @@ function initLastVisibleObserver() {
     window.faqObserver.disconnect();
   }
 
-  // Exécuter une première fois APRÈS un délai pour laisser le dropdown s'ouvrir
-  console.log("⏱️ updateLastVisibleDropdown programmé dans 300ms");
+  // Exécuter une première fois APRÈS un délai pour laisser le dropdown s'ouvrir COMPLÈTEMENT
+  console.log("⏱️ updateLastVisibleDropdown programmé dans 1000ms");
   setTimeout(() => {
     updateLastVisibleDropdown();
-  }, 300);
+  }, 1000);
 
   // Observer les changements de classes avec protection contre les boucles
   let isUpdating = false;
