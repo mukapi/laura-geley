@@ -91,28 +91,17 @@
           async leave(data) {
             stopLenis();
 
+            // 💀 SOLUTION BRUTALE : Cacher instantanément la navbar
             const navbar = document.querySelector(".nav_wrap");
-
-            // Désactiver temporairement le blend pendant la transition
-            const originalBlend = navbar
-              ? window.getComputedStyle(navbar).mixBlendMode
-              : null;
             if (navbar) {
-              navbar.style.mixBlendMode = "normal";
-              navbar.style.isolation = "isolate";
+              gsap.set(navbar, { opacity: 0 });
             }
 
             const overlayPromise = new Promise((resolve) => {
               gsap.to(overlay, {
                 opacity: 1,
                 duration: 0.3,
-                onComplete: () => {
-                  // Restaurer le blend APRÈS que l'overlay soit opaque
-                  if (navbar && originalBlend) {
-                    navbar.style.mixBlendMode = originalBlend;
-                  }
-                  resolve();
-                },
+                onComplete: resolve,
               });
             });
             return overlayPromise;
