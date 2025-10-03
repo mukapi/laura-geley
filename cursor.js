@@ -315,9 +315,18 @@ function initChallengesGridCursors() {
           });
         };
 
-        challengesGridWrapper.addEventListener("mouseenter", handleDragMouseEnter);
-        challengesGridWrapper.addEventListener("mouseleave", handleDragMouseLeave);
-        challengesGridWrapper.addEventListener("mousemove", handleDragMouseMove);
+        challengesGridWrapper.addEventListener(
+          "mouseenter",
+          handleDragMouseEnter
+        );
+        challengesGridWrapper.addEventListener(
+          "mouseleave",
+          handleDragMouseLeave
+        );
+        challengesGridWrapper.addEventListener(
+          "mousemove",
+          handleDragMouseMove
+        );
       }, 100);
     }
   });

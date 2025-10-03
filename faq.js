@@ -100,35 +100,22 @@ function updateLastVisibleDropdown() {
 
 // Fonction pour observer les changements de classes
 function initLastVisibleObserver() {
-  console.log("👀 initLastVisibleObserver démarré");
-
   const menu = document.querySelector(".cs_sticky_menu");
   if (!menu) {
-    console.log("❌ Menu introuvable");
     return;
   }
 
   // Nettoyer l'ancien observer si existe
   if (window.faqObserver) {
-    console.log("🧹 Nettoyage ancien observer");
     window.faqObserver.disconnect();
   }
-
-  // Ne PAS exécuter au démarrage car déjà fait AVANT l'ouverture du dropdown
-  // L'update sera fait uniquement quand w-condition-invisible change
-  console.log(
-    "⏭️ is-last déjà appliqué avant ouverture, observer prêt pour les changements"
-  );
 
   // Observer les changements de classes avec protection contre les boucles
   let isUpdating = false;
   const observer = new MutationObserver((mutations) => {
     if (isUpdating) {
-      console.log("⏸️ MutationObserver: déjà en update, skip");
       return;
     }
-
-    console.log("👁️ MutationObserver: mutations détectées:", mutations.length);
 
     // Vérifier si c'est VRAIMENT un changement de w-condition-invisible
     const hasRelevantChange = mutations.some((mutation) => {
@@ -148,50 +135,28 @@ function initLastVisibleObserver() {
         const hadInvisible = oldClasses.includes("w-condition-invisible");
         const hasInvisible = target.classList.contains("w-condition-invisible");
 
-        console.log(
-          "🔍 Dropdown muté:",
-          target.querySelector(".cs_sticky_text")?.textContent.trim()
-        );
-        console.log(
-          "   Avant invisible:",
-          hadInvisible,
-          "/ Maintenant:",
-          hasInvisible
-        );
-
         // On ne s'intéresse QUE si w-condition-invisible a changé
         const changed = hadInvisible !== hasInvisible;
-        if (changed) {
-          console.log("✅ Changement pertinent détecté!");
-        }
         return changed;
       }
       return false;
     });
 
     if (hasRelevantChange) {
-      console.log(
-        "🔥 MutationObserver: Changement pertinent, appel updateLastVisibleDropdown"
-      );
       isUpdating = true;
       updateLastVisibleDropdown();
       setTimeout(() => {
         isUpdating = false;
-        console.log("✅ MutationObserver: Lock relâché");
       }, 100);
-    } else {
-      console.log("⏭️ MutationObserver: Pas de changement pertinent, skip");
     }
   });
 
   observer.observe(menu, {
     attributes: true,
-    attributeOldValue: true, // Pour comparer l'ancienne valeur
+    attributeOldValue: true,
     subtree: true,
     attributeFilter: ["class"],
   });
-
-  console.log("✅ Observer activé et stocké dans window.faqObserver");
 
   // Stocker l'observer pour cleanup
   window.faqObserver = observer;
@@ -202,8 +167,6 @@ function initLastVisibleObserver() {
 // ========================================
 
 window.initFAQ = function () {
-  console.log("🎯 initFAQ called");
-
   // Appliquer is-last AVANT d'ouvrir le dropdown pour éviter les interférences
   updateLastVisibleDropdown();
 
@@ -244,7 +207,6 @@ if (document.readyState === "loading") {
 
 setTimeout(() => {
   if (typeof barba !== "undefined") {
-    console.log("🔄 FAQ - Barba detected, setting up hooks");
     barba.hooks.afterEnter((data) => {
       setTimeout(() => {
         if (typeof window.initFAQ === "function") {
