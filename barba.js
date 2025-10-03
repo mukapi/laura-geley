@@ -118,18 +118,8 @@
           async enter(data) {
             gsap.set(data.current.container, { display: "none" });
 
-            const navbar = document.querySelector(".nav_wrap");
-            // Désactiver à nouveau pendant le fade out de l'overlay
-            if (navbar) navbar.style.mixBlendMode = "normal";
-
             const fadeInPromise = new Promise((resolve) => {
-              const tl = gsap.timeline({
-                onComplete: () => {
-                  // Restaurer le blend APRÈS le fade out complet de l'overlay
-                  if (navbar) navbar.style.mixBlendMode = "difference";
-                  resolve();
-                },
-              });
+              const tl = gsap.timeline({ onComplete: resolve });
               tl.to(
                 overlay,
                 { opacity: 0, duration: 0.4, ease: "power2.out" },
@@ -143,6 +133,14 @@
 
             await fadeInPromise;
             startLenis();
+            
+            // 💀 Faire réapparaître la navbar à la toute fin
+            setTimeout(() => {
+              const navbar = document.querySelector(".nav_wrap");
+              if (navbar) {
+                gsap.to(navbar, { opacity: 1, duration: 0.3, ease: "power2.out" });
+              }
+            }, 100);
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
             setTimeout(() => {
