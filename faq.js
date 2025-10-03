@@ -43,9 +43,14 @@ function attemptFAQInit(retries = 3) {
   }
 
   try {
-    // Vérifier que Webflow est disponible et initialisé
-    if (!window.Webflow || !window.Webflow.require) {
-      console.log("⏳ Webflow pas encore prêt, retry dans 200ms");
+    console.log("🎯 Forçage direct de l'ouverture du dropdown...");
+
+    // Trouver la liste dropdown
+    const dropdown_list = parentDropdown.querySelector(".w-dropdown-list");
+    console.log("🔍 Dropdown list trouvé:", dropdown_list);
+
+    if (!dropdown_list) {
+      console.log("❌ Liste dropdown introuvable, retry");
       isInitializing = false;
       if (retries > 0) {
         setTimeout(() => attemptFAQInit(retries - 1), 200);
@@ -53,87 +58,22 @@ function attemptFAQInit(retries = 3) {
       return;
     }
 
-    // Récupérer le module dropdown de Webflow
-    const dropdown = window.Webflow.require("dropdown");
-    console.log("🔌 Module Webflow dropdown:", dropdown);
+    // Forcer l'ouverture DIRECTEMENT sans passer par les méthodes Webflow
+    firstToggle.setAttribute("aria-expanded", "true");
+    firstToggle.classList.add("w--open");
+    dropdown_list.style.display = "block";
+    dropdown_list.style.opacity = "1";
+    dropdown_list.style.transform = "translateY(0)";
+    parentDropdown.classList.add("w--open");
+    parentDropdown.style.zIndex = "901";
 
-    if (dropdown) {
-      console.log("🔄 Réinitialisation des dropdowns Webflow...");
+    console.log("🎉 Dropdown forcé en ouverture (sans animation Webflow)");
 
-      // Réinitialiser Webflow dropdowns
-      if (dropdown.ready) {
-        dropdown.ready();
-        console.log("✅ dropdown.ready() appelé");
-      }
-      if (dropdown.design) {
-        dropdown.design();
-        console.log("✅ dropdown.design() appelé");
-      }
-      if (dropdown.preview) {
-        dropdown.preview();
-        dropdown.preview();
-        console.log("✅ dropdown.preview() appelé 2x");
-      }
-
-      // Petit délai supplémentaire pour s'assurer que tout est prêt
-      setTimeout(() => {
-        console.log("🖱️ Simulation des événements souris...");
-
-        // Simuler mousedown + mouseup en séquence
-        firstToggle.dispatchEvent(
-          new MouseEvent("mousedown", {
-            view: window,
-            bubbles: true,
-            cancelable: true,
-            button: 0,
-            buttons: 1,
-          })
-        );
-        console.log("✅ mousedown dispatché");
-
-        setTimeout(() => {
-          firstToggle.dispatchEvent(
-            new MouseEvent("mouseup", {
-              view: window,
-              bubbles: true,
-              cancelable: true,
-              button: 0,
-              buttons: 0,
-            })
-          );
-          console.log("✅ mouseup dispatché");
-
-          // Force l'ouverture en manipulant directement le DOM comme Webflow le fait
-          setTimeout(() => {
-            const dropdown_list = document.querySelector("#w-dropdown-list-0");
-            console.log("🔍 Dropdown list trouvé:", dropdown_list);
-
-            if (dropdown_list) {
-              firstToggle.setAttribute("aria-expanded", "true");
-              dropdown_list.style.height = "auto";
-              dropdown_list.style.display = "block";
-              parentDropdown.classList.add("w--open");
-              console.log("🎉 Dropdown forcé en ouverture (w--open ajouté)");
-
-              // Relâcher le lock après l'ouverture
-              setTimeout(() => {
-                isInitializing = false;
-                console.log("🔓 Lock isInitializing relâché");
-              }, 500);
-            } else {
-              console.log("❌ #w-dropdown-list-0 introuvable");
-              isInitializing = false;
-            }
-          }, 50);
-        }, 10);
-      }, 100);
-    } else if (retries > 0) {
-      console.log("⚠️ Module dropdown pas disponible, retry");
+    // Relâcher le lock après l'ouverture
+    setTimeout(() => {
       isInitializing = false;
-      setTimeout(() => attemptFAQInit(retries - 1), 200);
-    } else {
-      isInitializing = false;
-    }
+      console.log("🔓 Lock isInitializing relâché");
+    }, 300);
   } catch (e) {
     console.error("❌ Erreur dans attemptFAQInit:", e);
     isInitializing = false;
@@ -203,13 +143,11 @@ function initLastVisibleObserver() {
     window.faqObserver.disconnect();
   }
 
-  // Exécuter une première fois APRÈS un LONG délai pour laisser le dropdown complètement stable
+  // Ne PAS exécuter au démarrage car déjà fait AVANT l'ouverture du dropdown
+  // L'update sera fait uniquement quand w-condition-invisible change
   console.log(
-    "⏱️ updateLastVisibleDropdown programmé dans 2000ms (après stabilisation)"
+    "⏭️ is-last déjà appliqué avant ouverture, observer prêt pour les changements"
   );
-  setTimeout(() => {
-    updateLastVisibleDropdown();
-  }, 2000);
 
   // Observer les changements de classes avec protection contre les boucles
   let isUpdating = false;
