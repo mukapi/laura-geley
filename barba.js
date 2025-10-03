@@ -90,6 +90,17 @@
 
           async leave(data) {
             stopLenis();
+            
+            // 🎨 Faire disparaître la navbar pour éviter le flash du mix-blend-mode
+            const navbar = document.querySelector(".nav_wrap");
+            if (navbar) {
+              gsap.to(navbar, {
+                opacity: 0,
+                duration: 0.2,
+                ease: "power2.out",
+              });
+            }
+            
             const overlayPromise = new Promise((resolve) => {
               gsap.to(overlay, {
                 opacity: 1,
@@ -126,6 +137,16 @@
 
             await fadeInPromise;
             startLenis();
+            
+            // 🎨 Faire réapparaître la navbar après la transition
+            const navbar = document.querySelector(".nav_wrap");
+            if (navbar) {
+              gsap.to(navbar, {
+                opacity: 1,
+                duration: 0.4,
+                ease: "power2.out",
+              });
+            }
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
             // (pour être sûr que tout le contenu est chargé)
