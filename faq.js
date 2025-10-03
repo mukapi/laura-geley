@@ -129,10 +129,14 @@ function attemptFAQInit(retries = 3) {
       }, 100);
     } else if (retries > 0) {
       console.log("⚠️ Module dropdown pas disponible, retry");
+      isInitializing = false;
       setTimeout(() => attemptFAQInit(retries - 1), 200);
+    } else {
+      isInitializing = false;
     }
   } catch (e) {
     console.error("❌ Erreur dans attemptFAQInit:", e);
+    isInitializing = false;
     // En cas d'erreur, réessayer si possible
     if (retries > 0) {
       setTimeout(() => attemptFAQInit(retries - 1), 200);
