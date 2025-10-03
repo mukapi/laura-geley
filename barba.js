@@ -7,11 +7,11 @@
     // 1. CONFIGURATION BARBA
     // ========================================
 
-    // Overlay de transition (noir pour éviter les problèmes avec mix-blend-mode)
+    // Overlay de transition
     const overlay = document.createElement("div");
     overlay.style.cssText = `
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background-color: #000000; z-index: 9999; opacity: 0; pointer-events: none;
+      background-color: #ff641e; z-index: 9999; opacity: 0; pointer-events: none;
     `;
     document.body.appendChild(overlay);
 
