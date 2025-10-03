@@ -90,7 +90,7 @@
 
           async leave(data) {
             stopLenis();
-            
+
             // 🎨 Cacher complètement la navbar pendant la transition
             const navbar = document.querySelector(".nav_wrap");
             if (navbar) {
@@ -100,10 +100,10 @@
                 ease: "power2.out",
                 onComplete: () => {
                   navbar.style.visibility = "hidden";
-                }
+                },
               });
             }
-            
+
             const overlayPromise = new Promise((resolve) => {
               gsap.to(overlay, {
                 opacity: 1,
@@ -140,13 +140,13 @@
 
             await fadeInPromise;
             startLenis();
-            
+
             // 🎨 Faire réapparaître la navbar après la transition
             const navbar = document.querySelector(".nav_wrap");
             if (navbar) {
               // D'abord la rendre visible
               navbar.style.visibility = "visible";
-              
+
               // Puis faire le fade in
               gsap.to(navbar, {
                 opacity: 1,
