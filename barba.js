@@ -136,9 +136,9 @@
             await fadeInPromise;
             startLenis();
 
-            // 💀 Faire réapparaître la navbar à la toute fin
+            // 💀 Faire réapparaître la navbar à la toute fin (après que TOUT soit stable)
             console.log(
-              "⏰ Enter - Attente 100ms avant de réafficher la navbar"
+              "⏰ Enter - Attente 500ms avant de réafficher la navbar"
             );
             setTimeout(() => {
               const navbar = document.querySelector(".nav_wrap");
@@ -154,7 +154,7 @@
                   },
                 });
               }
-            }, 100);
+            }, 500);
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
             setTimeout(() => {
