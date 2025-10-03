@@ -90,17 +90,18 @@
 
           async leave(data) {
             stopLenis();
-            
-            // 🎨 Faire disparaître la navbar pour éviter le flash du mix-blend-mode
+
+            // 🎨 Désactiver le mix-blend-mode pendant la transition
             const navbar = document.querySelector(".nav_wrap");
             if (navbar) {
+              navbar.style.mixBlendMode = "normal";
               gsap.to(navbar, {
                 opacity: 0,
                 duration: 0.2,
                 ease: "power2.out",
               });
             }
-            
+
             const overlayPromise = new Promise((resolve) => {
               gsap.to(overlay, {
                 opacity: 1,
@@ -137,10 +138,11 @@
 
             await fadeInPromise;
             startLenis();
-            
-            // 🎨 Faire réapparaître la navbar après la transition
+
+            // 🎨 Réactiver le mix-blend-mode et faire réapparaître la navbar
             const navbar = document.querySelector(".nav_wrap");
             if (navbar) {
+              navbar.style.mixBlendMode = "difference";
               gsap.to(navbar, {
                 opacity: 1,
                 duration: 0.4,
