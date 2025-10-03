@@ -4,13 +4,17 @@
 
 // Fonction qui tente d'initialiser le FAQ avec retry
 function attemptFAQInit(retries = 3) {
+  console.log("🔍 attemptFAQInit - Tentative", 4 - retries, "/", 3);
+  
   // Trouver le PREMIER DROPDOWN VISIBLE (pas juste first-child)
   const allDropdowns = document.querySelectorAll(
     ".cs_sticky_menu .cs_sticky_dropdown:not(.w-condition-invisible)"
   );
-
+  
+  console.log("📊 Dropdowns visibles trouvés:", allDropdowns.length);
+  
   if (allDropdowns.length === 0) {
-    // Aucun dropdown visible, pas de problème
+    console.log("⚠️ Aucun dropdown visible, sortie");
     return;
   }
 
@@ -18,8 +22,12 @@ function attemptFAQInit(retries = 3) {
   const firstToggle = firstVisibleDropdown.querySelector(".cs_sticky_toggle");
   const parentDropdown = firstToggle?.closest(".w-dropdown");
 
+  console.log("🎯 Premier dropdown visible:", firstVisibleDropdown);
+  console.log("🔘 Toggle trouvé:", firstToggle);
+  console.log("📦 Parent dropdown:", parentDropdown);
+
   if (!firstToggle || !parentDropdown) {
-    // Si les éléments n'existent pas, pas de problème
+    console.log("❌ Toggle ou parent manquant, sortie");
     return;
   }
 
@@ -133,8 +141,10 @@ function initLastVisibleObserver() {
     window.faqObserver.disconnect();
   }
 
-  // NE PAS exécuter immédiatement pour éviter interférences avec l'ouverture du dropdown
-  // L'update sera fait uniquement quand w-condition-invisible change vraiment
+  // Exécuter une première fois APRÈS un délai pour laisser le dropdown s'ouvrir
+  setTimeout(() => {
+    updateLastVisibleDropdown();
+  }, 300);
 
   // Observer les changements de classes avec protection contre les boucles
   let isUpdating = false;
