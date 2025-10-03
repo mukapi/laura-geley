@@ -90,18 +90,20 @@
 
           async leave(data) {
             stopLenis();
-
-            // 🎨 Désactiver le mix-blend-mode pendant la transition
+            
+            // 🎨 Cacher complètement la navbar pendant la transition
             const navbar = document.querySelector(".nav_wrap");
             if (navbar) {
-              navbar.style.mixBlendMode = "normal";
               gsap.to(navbar, {
                 opacity: 0,
                 duration: 0.2,
                 ease: "power2.out",
+                onComplete: () => {
+                  navbar.style.visibility = "hidden";
+                }
               });
             }
-
+            
             const overlayPromise = new Promise((resolve) => {
               gsap.to(overlay, {
                 opacity: 1,
@@ -138,22 +140,19 @@
 
             await fadeInPromise;
             startLenis();
-
-            // 🎨 Réactiver le mix-blend-mode AVANT de faire réapparaître la navbar
+            
+            // 🎨 Faire réapparaître la navbar après la transition
             const navbar = document.querySelector(".nav_wrap");
             if (navbar) {
-              // D'abord réactiver le blend mode
-              navbar.style.mixBlendMode = "difference";
-
-              // Attendre un tout petit peu que le blend mode soit appliqué
-              // puis faire réapparaître la navbar
-              setTimeout(() => {
-                gsap.to(navbar, {
-                  opacity: 1,
-                  duration: 0.4,
-                  ease: "power2.out",
-                });
-              }, 50);
+              // D'abord la rendre visible
+              navbar.style.visibility = "visible";
+              
+              // Puis faire le fade in
+              gsap.to(navbar, {
+                opacity: 1,
+                duration: 0.4,
+                ease: "power2.out",
+              });
             }
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
