@@ -2,8 +2,17 @@
 // 📋 FAQ - COMPATIBLE BARBA.JS
 // ========================================
 
+// Lock global pour éviter les appels multiples
+let isInitializing = false;
+
 // Fonction qui tente d'initialiser le FAQ avec retry
 function attemptFAQInit(retries = 3) {
+  if (isInitializing) {
+    console.log("⏸️ attemptFAQInit déjà en cours, skip");
+    return;
+  }
+  
+  isInitializing = true;
   console.log("🔍 attemptFAQInit - Tentative", 4 - retries, "/", 3);
   
   // Trouver le PREMIER DROPDOWN VISIBLE (pas juste first-child)
@@ -162,15 +171,22 @@ function updateLastVisibleDropdown() {
 
 // Fonction pour observer les changements de classes
 function initLastVisibleObserver() {
+  console.log("👀 initLastVisibleObserver démarré");
+  
   const menu = document.querySelector(".cs_sticky_menu");
-  if (!menu) return;
+  if (!menu) {
+    console.log("❌ Menu introuvable");
+    return;
+  }
 
   // Nettoyer l'ancien observer si existe
   if (window.faqObserver) {
+    console.log("🧹 Nettoyage ancien observer");
     window.faqObserver.disconnect();
   }
 
   // Exécuter une première fois APRÈS un délai pour laisser le dropdown s'ouvrir
+  console.log("⏱️ updateLastVisibleDropdown programmé dans 300ms");
   setTimeout(() => {
     updateLastVisibleDropdown();
   }, 300);
@@ -178,7 +194,12 @@ function initLastVisibleObserver() {
   // Observer les changements de classes avec protection contre les boucles
   let isUpdating = false;
   const observer = new MutationObserver((mutations) => {
-    if (isUpdating) return;
+    if (isUpdating) {
+      console.log("⏸️ MutationObserver: déjà en update, skip");
+      return;
+    }
+
+    console.log("👁️ MutationObserver: mutations détectées:", mutations.length);
 
     // Vérifier si c'est VRAIMENT un changement de w-condition-invisible
     const hasRelevantChange = mutations.some((mutation) => {
@@ -187,29 +208,40 @@ function initLastVisibleObserver() {
         mutation.attributeName === "class"
       ) {
         const target = mutation.target;
-
+        
         // Seulement si c'est un cs_sticky_dropdown
         if (!target.classList.contains("cs_sticky_dropdown")) {
           return false;
         }
-
+        
         // Récupérer l'ancienne valeur de la classe
         const oldClasses = mutation.oldValue || "";
         const hadInvisible = oldClasses.includes("w-condition-invisible");
         const hasInvisible = target.classList.contains("w-condition-invisible");
-
+        
+        console.log("🔍 Dropdown muté:", target.querySelector(".cs_sticky_text")?.textContent.trim());
+        console.log("   Avant invisible:", hadInvisible, "/ Maintenant:", hasInvisible);
+        
         // On ne s'intéresse QUE si w-condition-invisible a changé
-        return hadInvisible !== hasInvisible;
+        const changed = hadInvisible !== hasInvisible;
+        if (changed) {
+          console.log("✅ Changement pertinent détecté!");
+        }
+        return changed;
       }
       return false;
     });
 
     if (hasRelevantChange) {
+      console.log("🔥 MutationObserver: Changement pertinent, appel updateLastVisibleDropdown");
       isUpdating = true;
       updateLastVisibleDropdown();
       setTimeout(() => {
         isUpdating = false;
+        console.log("✅ MutationObserver: Lock relâché");
       }, 100);
+    } else {
+      console.log("⏭️ MutationObserver: Pas de changement pertinent, skip");
     }
   });
 
@@ -219,7 +251,9 @@ function initLastVisibleObserver() {
     subtree: true,
     attributeFilter: ["class"],
   });
-
+  
+  console.log("✅ Observer activé et stocké dans window.faqObserver");
+  
   // Stocker l'observer pour cleanup
   window.faqObserver = observer;
 }
