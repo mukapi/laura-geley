@@ -137,7 +137,9 @@
             startLenis();
 
             // 💀 Faire réapparaître la navbar à la toute fin
-            console.log("⏰ Enter - Attente 100ms avant de réafficher la navbar");
+            console.log(
+              "⏰ Enter - Attente 100ms avant de réafficher la navbar"
+            );
             setTimeout(() => {
               const navbar = document.querySelector(".nav_wrap");
               console.log("🔍 Enter - Navbar trouvée:", navbar);
@@ -149,7 +151,7 @@
                   ease: "power2.out",
                   onComplete: () => {
                     console.log("✅ Enter - Navbar réapparue!");
-                  }
+                  },
                 });
               }
             }, 100);
