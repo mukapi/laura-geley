@@ -135,25 +135,9 @@
             await fadeInPromise;
             startLenis();
 
-            // 🎨 Faire réapparaître la navbar APRÈS que l'overlay soit complètement parti
-            setTimeout(() => {
-              const navbar = document.querySelector(".nav_wrap");
-              if (navbar) {
-                navbar.style.visibility = "visible";
-                gsap.fromTo(
-                  navbar,
-                  { opacity: 0 },
-                  {
-                    opacity: 1,
-                    duration: 0.4,
-                    ease: "power2.out",
-                  }
-                );
-              }
-            }, 600);
+            // Plus besoin de cacher/montrer la navbar grâce à isolation: isolate ! 🎉
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
-            // (pour être sûr que tout le contenu est chargé)
             setTimeout(() => {
               if (lenis) lenis.resize();
             }, 100);
