@@ -91,10 +91,12 @@
           async leave(data) {
             stopLenis();
 
-            // ✨ SOLUTION : Isoler la navbar pour qu'elle ne réagisse pas à l'overlay
             const navbar = document.querySelector(".nav_wrap");
+            
+            // Désactiver temporairement le blend pendant la transition
+            const originalBlend = navbar ? window.getComputedStyle(navbar).mixBlendMode : null;
             if (navbar) {
-              navbar.style.zIndex = "9999";
+              navbar.style.mixBlendMode = "normal";
               navbar.style.isolation = "isolate";
             }
 
@@ -102,7 +104,13 @@
               gsap.to(overlay, {
                 opacity: 1,
                 duration: 0.3,
-                onComplete: resolve,
+                onComplete: () => {
+                  // Restaurer le blend APRÈS que l'overlay soit opaque
+                  if (navbar && originalBlend) {
+                    navbar.style.mixBlendMode = originalBlend;
+                  }
+                  resolve();
+                }
               });
             });
             return overlayPromise;
@@ -118,24 +126,25 @@
 
           async enter(data) {
             gsap.set(data.current.container, { display: "none" });
+            
+            const navbar = document.querySelector(".nav_wrap");
+            // Désactiver à nouveau pendant le fade out de l'overlay
+            if (navbar) navbar.style.mixBlendMode = "normal";
 
             const fadeInPromise = new Promise((resolve) => {
-              const tl = gsap.timeline({ onComplete: resolve });
-              tl.to(
-                overlay,
-                { opacity: 0, duration: 0.4, ease: "power2.out" },
-                0
-              ).to(
-                data.next.container,
-                { opacity: 1, duration: 0.5, ease: "power2.out" },
-                0.1
-              );
+              const tl = gsap.timeline({
+                onComplete: () => {
+                  // Restaurer le blend APRÈS le fade out complet de l'overlay
+                  if (navbar) navbar.style.mixBlendMode = "difference";
+                  resolve();
+                }
+              });
+              tl.to(overlay, { opacity: 0, duration: 0.4, ease: "power2.out" }, 0)
+                .to(data.next.container, { opacity: 1, duration: 0.5, ease: "power2.out" }, 0.1);
             });
 
             await fadeInPromise;
             startLenis();
-
-            // Plus besoin de cacher/montrer la navbar grâce à isolation: isolate ! 🎉
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
             setTimeout(() => {
