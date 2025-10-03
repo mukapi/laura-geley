@@ -93,8 +93,10 @@
 
             // 💀 SOLUTION BRUTALE : Cacher instantanément la navbar
             const navbar = document.querySelector(".nav_wrap");
+            console.log("🔍 Leave - Navbar trouvée:", navbar);
             if (navbar) {
               gsap.set(navbar, { opacity: 0 });
+              console.log("✅ Leave - Navbar cachée (opacity: 0)");
             }
 
             const overlayPromise = new Promise((resolve) => {
@@ -133,12 +135,22 @@
 
             await fadeInPromise;
             startLenis();
-            
+
             // 💀 Faire réapparaître la navbar à la toute fin
+            console.log("⏰ Enter - Attente 100ms avant de réafficher la navbar");
             setTimeout(() => {
               const navbar = document.querySelector(".nav_wrap");
+              console.log("🔍 Enter - Navbar trouvée:", navbar);
               if (navbar) {
-                gsap.to(navbar, { opacity: 1, duration: 0.3, ease: "power2.out" });
+                console.log("🎬 Enter - Fade in de la navbar (opacity: 1)");
+                gsap.to(navbar, {
+                  opacity: 1,
+                  duration: 0.3,
+                  ease: "power2.out",
+                  onComplete: () => {
+                    console.log("✅ Enter - Navbar réapparue!");
+                  }
+                });
               }
             }, 100);
 
