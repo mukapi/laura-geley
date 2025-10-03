@@ -7,11 +7,11 @@
     // 1. CONFIGURATION BARBA
     // ========================================
 
-    // Overlay de transition
+    // Overlay de transition (noir pour éviter les problèmes avec mix-blend-mode)
     const overlay = document.createElement("div");
     overlay.style.cssText = `
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background-color: #ff641e; z-index: 9999; opacity: 0; pointer-events: none;
+      background-color: #000000; z-index: 9999; opacity: 0; pointer-events: none;
     `;
     document.body.appendChild(overlay);
 
@@ -149,7 +149,7 @@
                   }
                 );
               }
-            }, 100);
+            }, 400);
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
             // (pour être sûr que tout le contenu est chargé)
