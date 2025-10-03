@@ -145,15 +145,16 @@
               const navbar = document.querySelector(".nav_wrap");
               console.log("🔍 Enter - Navbar trouvée:", navbar);
               if (navbar) {
-                // Réactiver le blend mode AVANT de faire réapparaître
-                navbar.style.mixBlendMode = "difference";
+                // Garder le blend mode à "normal" pendant l'apparition
                 console.log("🎬 Enter - Fade in de la navbar (opacity: 1)");
                 gsap.to(navbar, {
                   opacity: 1,
                   duration: 0.3,
                   ease: "power2.out",
                   onComplete: () => {
-                    console.log("✅ Enter - Navbar réapparue!");
+                    // Réactiver le blend mode APRÈS que la navbar soit visible
+                    navbar.style.mixBlendMode = "difference";
+                    console.log("✅ Enter - Navbar réapparue + blend réactivé!");
                   },
                 });
               }
