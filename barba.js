@@ -90,6 +90,14 @@
 
           async leave(data) {
             stopLenis();
+
+            // 🎨 Fix du flash de la navbar avec mix-blend-mode
+            // Mettre la navbar au-dessus de l'overlay pendant la transition
+            const navbar = document.querySelector(".nav_wrap");
+            if (navbar) {
+              navbar.style.zIndex = "10000";
+            }
+
             const overlayPromise = new Promise((resolve) => {
               gsap.to(overlay, {
                 opacity: 1,
@@ -126,6 +134,12 @@
 
             await fadeInPromise;
             startLenis();
+
+            // 🎨 Remettre le z-index de la navbar à sa valeur normale
+            const navbar = document.querySelector(".nav_wrap");
+            if (navbar) {
+              navbar.style.zIndex = "";
+            }
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
             // (pour être sûr que tout le contenu est chargé)
