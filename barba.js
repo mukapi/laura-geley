@@ -7,11 +7,11 @@
     // 1. CONFIGURATION BARBA
     // ========================================
 
-    // Overlay de transition
+    // Overlay de transition (z-index 9998 pour être sous la navbar)
     const overlay = document.createElement("div");
     overlay.style.cssText = `
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background-color: #ff641e; z-index: 9999; opacity: 0; pointer-events: none;
+      background-color: #ff641e; z-index: 9998; opacity: 0; pointer-events: none;
     `;
     document.body.appendChild(overlay);
 
@@ -91,10 +91,11 @@
           async leave(data) {
             stopLenis();
 
-            // 🎨 Cacher IMMÉDIATEMENT la navbar pour éviter le flash
+            // ✨ SOLUTION : Isoler la navbar pour qu'elle ne réagisse pas à l'overlay
             const navbar = document.querySelector(".nav_wrap");
             if (navbar) {
-              navbar.style.visibility = "hidden";
+              navbar.style.zIndex = "9999";
+              navbar.style.isolation = "isolate";
             }
 
             const overlayPromise = new Promise((resolve) => {
