@@ -1,14 +1,25 @@
-// Script FAQ compatible avec BarbaJS - PAS de DOMContentLoaded !
+// ========================================
+// 📋 FAQ - COMPATIBLE BARBA.JS
+// ========================================
 
-// Fonction qui tente d'initialiser le FAQ avec retry (compatible BarbaJS)
+// Fonction qui tente d'initialiser le FAQ avec retry
 function attemptFAQInit(retries = 3) {
-  const firstToggle = document.querySelector(
-    ".cs_sticky_menu .cs_sticky_dropdown:first-child .cs_sticky_toggle"
+  // Trouver le PREMIER DROPDOWN VISIBLE (pas juste first-child)
+  const allDropdowns = document.querySelectorAll(
+    ".cs_sticky_menu .cs_sticky_dropdown:not(.w-condition-invisible)"
   );
+
+  if (allDropdowns.length === 0) {
+    // Aucun dropdown visible, pas de problème
+    return;
+  }
+
+  const firstVisibleDropdown = allDropdowns[0];
+  const firstToggle = firstVisibleDropdown.querySelector(".cs_sticky_toggle");
   const parentDropdown = firstToggle?.closest(".w-dropdown");
 
   if (!firstToggle || !parentDropdown) {
-    // Si les éléments n'existent pas sur cette page, pas de problème
+    // Si les éléments n'existent pas, pas de problème
     return;
   }
 
@@ -117,10 +128,15 @@ function initLastVisibleObserver() {
   const menu = document.querySelector(".cs_sticky_menu");
   if (!menu) return;
 
+  // Nettoyer l'ancien observer si existe
+  if (window.faqObserver) {
+    window.faqObserver.disconnect();
+  }
+
   // Exécuter une première fois
   updateLastVisibleDropdown();
 
-  // Observer les changements de classes (compatible BarbaJS) avec protection contre les boucles
+  // Observer les changements de classes avec protection contre les boucles
   let isUpdating = false;
   const observer = new MutationObserver((mutations) => {
     if (isUpdating) return;
@@ -155,10 +171,58 @@ function initLastVisibleObserver() {
     subtree: true,
     attributeFilter: ["class"],
   });
+
+  // Stocker l'observer pour cleanup
+  window.faqObserver = observer;
 }
 
-// Démarrer l'initialisation avec retry - compatible BarbaJS
-attemptFAQInit();
+// ========================================
+// 🎬 FONCTION PRINCIPALE D'INITIALISATION
+// ========================================
 
-// Initialiser l'observateur pour le dernier dropdown visible
-initLastVisibleObserver();
+window.initFAQ = function () {
+  console.log("🎯 initFAQ called");
+
+  // Démarrer l'initialisation avec retry
+  attemptFAQInit();
+
+  // Initialiser l'observateur pour le dernier dropdown visible
+  initLastVisibleObserver();
+};
+
+// ========================================
+// 🔄 INITIALISATION AUTOMATIQUE
+// ========================================
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      if (typeof window.initFAQ === "function") {
+        window.initFAQ();
+      }
+    }, 200);
+  });
+} else {
+  setTimeout(() => {
+    if (typeof window.initFAQ === "function") {
+      window.initFAQ();
+    }
+  }, 200);
+}
+
+// ========================================
+// 🎪 COMPATIBILITÉ BARBA.JS (AUTO-DÉTECTION)
+// ========================================
+
+setTimeout(() => {
+  if (typeof barba !== "undefined") {
+    console.log("🔄 FAQ - Barba detected, setting up hooks");
+    barba.hooks.afterEnter((data) => {
+      setTimeout(() => {
+        if (typeof window.initFAQ === "function") {
+          window.initFAQ();
+        }
+      }, 100);
+    });
+  }
+}, 500);
