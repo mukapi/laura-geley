@@ -114,8 +114,15 @@ function attemptFAQInit(retries = 3) {
               dropdown_list.style.display = "block";
               parentDropdown.classList.add("w--open");
               console.log("🎉 Dropdown forcé en ouverture (w--open ajouté)");
+              
+              // Relâcher le lock après l'ouverture
+              setTimeout(() => {
+                isInitializing = false;
+                console.log("🔓 Lock isInitializing relâché");
+              }, 500);
             } else {
               console.log("❌ #w-dropdown-list-0 introuvable");
+              isInitializing = false;
             }
           }, 50);
         }, 10);
