@@ -24,6 +24,7 @@ function attemptFAQInit(retries = 3) {
   
   if (allDropdowns.length === 0) {
     console.log("⚠️ Aucun dropdown visible, sortie");
+    isInitializing = false;
     return;
   }
 
@@ -37,6 +38,7 @@ function attemptFAQInit(retries = 3) {
 
   if (!firstToggle || !parentDropdown) {
     console.log("❌ Toggle ou parent manquant, sortie");
+    isInitializing = false;
     return;
   }
 
@@ -44,6 +46,7 @@ function attemptFAQInit(retries = 3) {
     // Vérifier que Webflow est disponible et initialisé
     if (!window.Webflow || !window.Webflow.require) {
       console.log("⏳ Webflow pas encore prêt, retry dans 200ms");
+      isInitializing = false;
       if (retries > 0) {
         setTimeout(() => attemptFAQInit(retries - 1), 200);
       }
