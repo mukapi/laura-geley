@@ -133,8 +133,8 @@ function initLastVisibleObserver() {
     window.faqObserver.disconnect();
   }
 
-  // Exécuter une première fois
-  updateLastVisibleDropdown();
+  // NE PAS exécuter immédiatement pour éviter interférences avec l'ouverture du dropdown
+  // L'update sera fait uniquement quand w-condition-invisible change vraiment
 
   // Observer les changements de classes avec protection contre les boucles
   let isUpdating = false;
