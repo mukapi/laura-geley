@@ -257,11 +257,6 @@ function initChallengesGridCursors() {
     ".challenges_grid.swiper-wrapper"
   );
 
-  console.log(
-    "🔍 Challenges grid wrappers trouvés:",
-    challengesGridWrappers.length
-  );
-
   challengesGridWrappers.forEach((challengesGridWrapper) => {
     // Chercher le curseur drag dans le parent swiper
     const swiperContainer = challengesGridWrapper.closest(".swiper");
@@ -271,8 +266,6 @@ function initChallengesGridCursors() {
       // Chercher le curseur dans le wrapper
       dragCursor = challengesGridWrapper.querySelector(".project_cursor");
     }
-
-    console.log("🎯 Curseur trouvé:", dragCursor);
 
     if (dragCursor) {
       // Forcer le reset du curseur drag

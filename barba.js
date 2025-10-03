@@ -139,7 +139,8 @@
               const navbar = document.querySelector(".nav_wrap");
               if (navbar) {
                 navbar.style.visibility = "visible";
-                gsap.fromTo(navbar, 
+                gsap.fromTo(
+                  navbar,
                   { opacity: 0 },
                   {
                     opacity: 1,
