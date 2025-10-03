@@ -295,13 +295,18 @@ function initLastVisibleObserver() {
 window.initFAQ = function () {
   console.log("🎯 initFAQ called");
 
-  // Démarrer l'initialisation avec retry
-  attemptFAQInit();
+  // Appliquer is-last AVANT d'ouvrir le dropdown pour éviter les interférences
+  updateLastVisibleDropdown();
 
-  // Initialiser l'observateur APRÈS l'ouverture du dropdown (éviter interférences)
+  // Démarrer l'initialisation avec retry APRÈS avoir appliqué is-last
+  setTimeout(() => {
+    attemptFAQInit();
+  }, 100);
+
+  // Initialiser l'observateur APRÈS l'ouverture du dropdown
   setTimeout(() => {
     initLastVisibleObserver();
-  }, 500);
+  }, 800);
 };
 
 // ========================================
