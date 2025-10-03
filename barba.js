@@ -268,58 +268,6 @@
       }, 800);
     });
 
-    // ========================================
-    // 5. HOOKS POUR LES HORLOGES
-    // ========================================
-
-    barba.hooks.beforeEnter((data) => {
-      const newContainer = data.next.container;
-      newContainer.querySelectorAll(".js-clock").forEach((el) => {
-        el.style.visibility = "hidden";
-      });
-
-      function initClockAndShow() {
-        function updateClocks() {
-          newContainer.querySelectorAll(".js-clock").forEach((el) => {
-            const tz = el.dataset.tz;
-            const now = new Date();
-            const formatter = new Intl.DateTimeFormat("en-US", {
-              timeZone: tz,
-              hour: "numeric",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: true,
-            });
-            el.textContent = formatter.format(now);
-            el.style.visibility = "visible";
-          });
-        }
-
-        updateClocks();
-
-        if (window.clockInterval) {
-          clearInterval(window.clockInterval);
-        }
-
-        window.clockInterval = setInterval(() => {
-          document.querySelectorAll(".js-clock").forEach((el) => {
-            const tz = el.dataset.tz;
-            const now = new Date();
-            const formatter = new Intl.DateTimeFormat("en-US", {
-              timeZone: tz,
-              hour: "numeric",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: true,
-            });
-            el.textContent = formatter.format(now);
-          });
-        }, 1000);
-      }
-
-      setTimeout(initClockAndShow, 50);
-    });
-
     // Hooks pour résoudre le problème de double-clic
     barba.hooks.before((data) => {
       stopLenis();
