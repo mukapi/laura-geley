@@ -139,15 +139,21 @@
             await fadeInPromise;
             startLenis();
 
-            // 🎨 Réactiver le mix-blend-mode et faire réapparaître la navbar
+            // 🎨 Réactiver le mix-blend-mode AVANT de faire réapparaître la navbar
             const navbar = document.querySelector(".nav_wrap");
             if (navbar) {
+              // D'abord réactiver le blend mode
               navbar.style.mixBlendMode = "difference";
-              gsap.to(navbar, {
-                opacity: 1,
-                duration: 0.4,
-                ease: "power2.out",
-              });
+
+              // Attendre un tout petit peu que le blend mode soit appliqué
+              // puis faire réapparaître la navbar
+              setTimeout(() => {
+                gsap.to(navbar, {
+                  opacity: 1,
+                  duration: 0.4,
+                  ease: "power2.out",
+                });
+              }, 50);
             }
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
