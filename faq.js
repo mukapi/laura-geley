@@ -141,18 +141,26 @@ function initLastVisibleObserver() {
   const observer = new MutationObserver((mutations) => {
     if (isUpdating) return;
 
-    // Vérifier si c'est un changement de w-condition-invisible (pas is-last)
+    // Vérifier si c'est VRAIMENT un changement de w-condition-invisible
     const hasRelevantChange = mutations.some((mutation) => {
       if (
         mutation.type === "attributes" &&
         mutation.attributeName === "class"
       ) {
         const target = mutation.target;
-        return (
-          target.classList.contains("cs_sticky_dropdown") &&
-          (target.classList.contains("w-condition-invisible") ||
-            !target.classList.contains("w-condition-invisible"))
-        );
+
+        // Seulement si c'est un cs_sticky_dropdown
+        if (!target.classList.contains("cs_sticky_dropdown")) {
+          return false;
+        }
+
+        // Récupérer l'ancienne valeur de la classe
+        const oldClasses = mutation.oldValue || "";
+        const hadInvisible = oldClasses.includes("w-condition-invisible");
+        const hasInvisible = target.classList.contains("w-condition-invisible");
+
+        // On ne s'intéresse QUE si w-condition-invisible a changé
+        return hadInvisible !== hasInvisible;
       }
       return false;
     });
@@ -168,6 +176,7 @@ function initLastVisibleObserver() {
 
   observer.observe(menu, {
     attributes: true,
+    attributeOldValue: true, // Pour comparer l'ancienne valeur
     subtree: true,
     attributeFilter: ["class"],
   });
@@ -186,8 +195,10 @@ window.initFAQ = function () {
   // Démarrer l'initialisation avec retry
   attemptFAQInit();
 
-  // Initialiser l'observateur pour le dernier dropdown visible
-  initLastVisibleObserver();
+  // Initialiser l'observateur APRÈS l'ouverture du dropdown (éviter interférences)
+  setTimeout(() => {
+    initLastVisibleObserver();
+  }, 500);
 };
 
 // ========================================
