@@ -149,7 +149,7 @@
                   }
                 );
               }
-            }, 400);
+            }, 600);
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
             // (pour être sûr que tout le contenu est chargé)
