@@ -91,12 +91,13 @@
           async leave(data) {
             stopLenis();
 
-            // 💀 SOLUTION ULTRA BRUTALE : Cacher instantanément la navbar AVEC CSS
+            // 💀 SOLUTION ULTRA BRUTALE : Désactiver blend mode PUIS cacher
             const navbar = document.querySelector(".nav_wrap");
             console.log("🔍 Leave - Navbar trouvée:", navbar);
             if (navbar) {
-              navbar.style.opacity = "0"; // CSS direct = instantané
-              console.log("✅ Leave - Navbar cachée (opacity: 0)");
+              navbar.style.mixBlendMode = "normal"; // D'ABORD désactiver le blend
+              navbar.style.opacity = "0"; // PUIS cacher
+              console.log("✅ Leave - Blend désactivé + Navbar cachée");
             }
 
             const overlayPromise = new Promise((resolve) => {
