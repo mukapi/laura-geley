@@ -145,6 +145,8 @@
               const navbar = document.querySelector(".nav_wrap");
               console.log("🔍 Enter - Navbar trouvée:", navbar);
               if (navbar) {
+                // Réactiver le blend mode AVANT de faire réapparaître
+                navbar.style.mixBlendMode = "difference";
                 console.log("🎬 Enter - Fade in de la navbar (opacity: 1)");
                 gsap.to(navbar, {
                   opacity: 1,
