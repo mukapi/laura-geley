@@ -91,11 +91,11 @@
           async leave(data) {
             stopLenis();
 
-            // 💀 SOLUTION BRUTALE : Cacher instantanément la navbar
+            // 💀 SOLUTION ULTRA BRUTALE : Cacher instantanément la navbar AVEC CSS
             const navbar = document.querySelector(".nav_wrap");
             console.log("🔍 Leave - Navbar trouvée:", navbar);
             if (navbar) {
-              gsap.set(navbar, { opacity: 0 });
+              navbar.style.opacity = "0"; // CSS direct = instantané
               console.log("✅ Leave - Navbar cachée (opacity: 0)");
             }
 
