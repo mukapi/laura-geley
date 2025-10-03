@@ -34,6 +34,7 @@ function attemptFAQInit(retries = 3) {
   try {
     // Vérifier que Webflow est disponible et initialisé
     if (!window.Webflow || !window.Webflow.require) {
+      console.log("⏳ Webflow pas encore prêt, retry dans 200ms");
       if (retries > 0) {
         setTimeout(() => attemptFAQInit(retries - 1), 200);
       }
@@ -42,22 +43,30 @@ function attemptFAQInit(retries = 3) {
 
     // Récupérer le module dropdown de Webflow
     const dropdown = window.Webflow.require("dropdown");
+    console.log("🔌 Module Webflow dropdown:", dropdown);
 
     if (dropdown) {
+      console.log("🔄 Réinitialisation des dropdowns Webflow...");
+      
       // Réinitialiser Webflow dropdowns
       if (dropdown.ready) {
         dropdown.ready();
+        console.log("✅ dropdown.ready() appelé");
       }
       if (dropdown.design) {
         dropdown.design();
+        console.log("✅ dropdown.design() appelé");
       }
       if (dropdown.preview) {
         dropdown.preview();
         dropdown.preview();
+        console.log("✅ dropdown.preview() appelé 2x");
       }
 
       // Petit délai supplémentaire pour s'assurer que tout est prêt
       setTimeout(() => {
+        console.log("🖱️ Simulation des événements souris...");
+        
         // Simuler mousedown + mouseup en séquence
         firstToggle.dispatchEvent(
           new MouseEvent("mousedown", {
@@ -68,6 +77,7 @@ function attemptFAQInit(retries = 3) {
             buttons: 1,
           })
         );
+        console.log("✅ mousedown dispatché");
 
         setTimeout(() => {
           firstToggle.dispatchEvent(
@@ -79,24 +89,31 @@ function attemptFAQInit(retries = 3) {
               buttons: 0,
             })
           );
+          console.log("✅ mouseup dispatché");
 
           // Force l'ouverture en manipulant directement le DOM comme Webflow le fait
           setTimeout(() => {
             const dropdown_list = document.querySelector("#w-dropdown-list-0");
+            console.log("🔍 Dropdown list trouvé:", dropdown_list);
+            
             if (dropdown_list) {
               firstToggle.setAttribute("aria-expanded", "true");
               dropdown_list.style.height = "auto";
               dropdown_list.style.display = "block";
               parentDropdown.classList.add("w--open");
+              console.log("🎉 Dropdown forcé en ouverture (w--open ajouté)");
+            } else {
+              console.log("❌ #w-dropdown-list-0 introuvable");
             }
           }, 50);
         }, 10);
       }, 100);
     } else if (retries > 0) {
-      // Si dropdown n'est pas encore disponible, réessayer
+      console.log("⚠️ Module dropdown pas disponible, retry");
       setTimeout(() => attemptFAQInit(retries - 1), 200);
     }
   } catch (e) {
+    console.error("❌ Erreur dans attemptFAQInit:", e);
     // En cas d'erreur, réessayer si possible
     if (retries > 0) {
       setTimeout(() => attemptFAQInit(retries - 1), 200);
@@ -106,27 +123,39 @@ function attemptFAQInit(retries = 3) {
 
 // Fonction pour gérer le dernier dropdown visible
 function updateLastVisibleDropdown() {
+  console.log("🔄 updateLastVisibleDropdown appelée");
+  
   const menu = document.querySelector(".cs_sticky_menu");
-  if (!menu) return;
+  if (!menu) {
+    console.log("❌ Menu .cs_sticky_menu introuvable");
+    return;
+  }
 
   const allDropdowns = menu.querySelectorAll(".cs_sticky_dropdown");
+  console.log("📊 Total dropdowns:", allDropdowns.length);
+  
   if (allDropdowns.length === 0) return;
 
   // Enlever la classe is-last de tous les dropdowns visibles
-  menu
-    .querySelectorAll(".cs_sticky_dropdown:not(.w-condition-invisible)")
-    .forEach((dropdown) => {
-      dropdown.classList.remove("is-last");
-    });
+  const visibleBeforeRemove = menu.querySelectorAll(".cs_sticky_dropdown:not(.w-condition-invisible)");
+  console.log("🧹 Retrait is-last de", visibleBeforeRemove.length, "dropdowns");
+  
+  visibleBeforeRemove.forEach((dropdown) => {
+    dropdown.classList.remove("is-last");
+  });
 
   // Trouver le dernier dropdown visible (pas invisible)
   const visibleDropdowns = Array.from(allDropdowns).filter(
     (dropdown) => !dropdown.classList.contains("w-condition-invisible")
   );
+  
+  console.log("✅ Dropdowns visibles:", visibleDropdowns.length);
 
   // Ajouter la classe is-last au dernier dropdown visible
   if (visibleDropdowns.length > 0) {
     const lastVisibleDropdown = visibleDropdowns[visibleDropdowns.length - 1];
+    const toggleText = lastVisibleDropdown.querySelector(".cs_sticky_text")?.textContent.trim();
+    console.log("🎯 Ajout is-last au dernier visible:", toggleText);
     lastVisibleDropdown.classList.add("is-last");
   }
 }
