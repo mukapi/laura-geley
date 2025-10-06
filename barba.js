@@ -91,14 +91,14 @@
           async leave(data) {
             stopLenis();
 
-            // 💀 SOLUTION ULTRA BRUTALE : Désactiver blend mode PUIS cacher
+            // 🎯 SOLUTION SIMPLE : Cacher complètement la navbar
             const navbar = document.querySelector(".nav_wrap");
             console.log("🔍 Leave - Navbar trouvée:", navbar);
             if (navbar) {
-              navbar.style.cssText +=
-                "mix-blend-mode: normal !important; opacity: 0 !important;";
+              navbar.style.setProperty("visibility", "hidden", "important");
+              navbar.style.setProperty("opacity", "0", "important");
               console.log(
-                "✅ Leave - Blend désactivé + Navbar cachée (!important)"
+                "✅ Leave - Navbar cachée (visibility: hidden + opacity: 0)"
               );
             }
 
@@ -175,28 +175,16 @@
             console.log("🔍 Enter - Navbar trouvée:", navbar);
 
             if (navbar) {
-              // 🎯 NOUVELLE APPROCHE : Réactiver le blend mode AVANT le fade in (pendant que c'est invisible)
-              console.log(
-                "🔄 Réactivation du blend mode (navbar encore invisible)"
-              );
-              navbar.style.setProperty(
-                "mix-blend-mode",
-                "difference",
-                "important"
-              );
-
-              // Petit délai pour que le blend mode soit bien appliqué
-              await new Promise((resolve) => setTimeout(resolve, 50));
-
-              console.log("🎬 Enter - Fade in de la navbar (avec blend actif)");
+              // 🎯 Remettre la navbar visible (le blend mode reste celui de Webflow)
+              navbar.style.setProperty("visibility", "visible", "important");
+              console.log("🎬 Enter - Fade in de la navbar");
 
               await new Promise((resolve) => {
                 gsap.to(navbar, {
                   opacity: 1,
-                  duration: 0.4,
+                  duration: 0.3,
                   ease: "power2.out",
                   onUpdate: function () {
-                    // Forcer l'opacity avec !important pendant l'animation
                     navbar.style.setProperty(
                       "opacity",
                       gsap.getProperty(navbar, "opacity"),
@@ -207,7 +195,7 @@
                 });
               });
 
-              console.log("✅ Navbar visible avec blend mode actif!");
+              console.log("✅ Navbar visible!");
             }
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
