@@ -138,18 +138,20 @@
             startLenis();
 
             // 🎯 Faire réapparaître la navbar APRÈS que la transition soit 100% terminée
-            console.log("⏰ Enter - Transition terminée, réaffichage navbar...");
-            
+            console.log(
+              "⏰ Enter - Transition terminée, réaffichage navbar..."
+            );
+
             // Petit délai supplémentaire pour s'assurer que tout est stable
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
             const navbar = document.querySelector(".nav_wrap");
             console.log("🔍 Enter - Navbar trouvée:", navbar);
-            
+
             if (navbar) {
               // Fade in avec blend mode qui reste à "normal" pendant l'animation
               console.log("🎬 Enter - Fade in de la navbar");
-              
+
               await new Promise((resolve) => {
                 gsap.to(navbar, {
                   opacity: 1,
