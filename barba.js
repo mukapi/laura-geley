@@ -83,7 +83,6 @@
 
     barba.init({
       preventRunning: true,
-      debug: true,
       transitions: [
         {
           name: "fade-transition",
@@ -91,12 +90,10 @@
           async leave(data) {
             stopLenis();
 
-            // 🎯 SOLUTION FINALE : Cacher la navbar avec opacity
+            // Cacher la navbar avec opacity
             const navbar = document.querySelector(".nav_wrap");
-            console.log("🔍 Leave - Navbar trouvée:", navbar);
             if (navbar) {
               navbar.style.setProperty("opacity", "0", "important");
-              console.log("✅ Leave - Navbar cachée (opacity: 0)");
             }
 
             const overlayPromise = new Promise((resolve) => {
@@ -118,13 +115,10 @@
             );
             data.next.container.style.setProperty("opacity", "0", "important");
 
-            // 🎯 CACHER LA NAVBAR DE LA NOUVELLE PAGE IMMÉDIATEMENT
+            // Cacher la navbar de la nouvelle page immédiatement
             const newNavbar = data.next.container.querySelector(".nav_wrap");
             if (newNavbar) {
               newNavbar.style.setProperty("opacity", "0", "important");
-              console.log(
-                "🚫 beforeEnter - Navbar de la nouvelle page cachée (opacity: 0)"
-              );
             }
           },
 
