@@ -180,18 +180,16 @@
             console.log("🔍 Enter - Navbar trouvée:", navbar);
 
             if (navbar) {
-              // 🎯 Remettre la navbar dans le flux (display: block)
-              navbar.style.setProperty("display", "block", "important");
+              // 🔥 RESET BRUTAL : Retirer TOUS les styles inline
+              navbar.removeAttribute("style");
+              console.log("🧹 Styles inline retirés, navbar réinitialisée");
+
+              // Petit délai
+              await new Promise((resolve) => setTimeout(resolve, 30));
+
+              // Partir de opacity 0 et fade in
               navbar.style.setProperty("opacity", "0", "important");
-              console.log("🔄 Display et opacity appliqués. Navbar:", navbar);
-
-              // Petit délai pour que le display soit appliqué
-              await new Promise((resolve) => setTimeout(resolve, 50));
-
-              console.log(
-                "🎬 Enter - Fade in de la navbar. Display actuel:",
-                getComputedStyle(navbar).display
-              );
+              console.log("🎬 Enter - Fade in de la navbar");
 
               await new Promise((resolve) => {
                 gsap.to(navbar, {
