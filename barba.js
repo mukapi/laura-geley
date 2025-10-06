@@ -175,6 +175,7 @@
             // Petit délai supplémentaire pour s'assurer que tout est stable
             await new Promise((resolve) => setTimeout(resolve, 100));
 
+            // 🎯 La navbar est probablement GLOBALE (hors container Barba)
             const navbar = document.querySelector(".nav_wrap");
             console.log("🔍 Enter - Navbar trouvée:", navbar);
 
@@ -182,11 +183,12 @@
               // 🎯 Remettre la navbar dans le flux (display: block)
               navbar.style.setProperty("display", "block", "important");
               navbar.style.setProperty("opacity", "0", "important");
+              console.log("🔄 Display et opacity appliqués. Navbar:", navbar);
 
               // Petit délai pour que le display soit appliqué
               await new Promise((resolve) => setTimeout(resolve, 50));
 
-              console.log("🎬 Enter - Fade in de la navbar");
+              console.log("🎬 Enter - Fade in de la navbar. Display actuel:", getComputedStyle(navbar).display);
 
               await new Promise((resolve) => {
                 gsap.to(navbar, {
