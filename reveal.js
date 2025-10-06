@@ -133,6 +133,8 @@
       // Log final de debug : position de tous les triggers
       const allTriggers = ScrollTrigger.getAll();
       console.log(`📊 Total ScrollTriggers actifs: ${allTriggers.length}`);
+      
+      // 🔥 FIX CRITIQUE : Forcer le déclenchement des éléments déjà dans leur zone
       allTriggers.forEach((st, i) => {
         if (st.vars && st.vars.id && st.vars.id.startsWith("reveal-")) {
           console.log(
@@ -140,6 +142,19 @@
               st.trigger ? "OK" : "MISSING"
             }`
           );
+          
+          // Vérifier si le trigger est déjà dépassé (élément déjà visible)
+          const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+          const triggerStart = st.start;
+          
+          if (currentScroll >= triggerStart && !st.triggered) {
+            console.log(`⚡ ${st.vars.id} déjà visible, déclenchement forcé!`);
+            st.triggered = true;
+            // Déclencher le callback onEnter manuellement
+            if (st.vars.onEnter) {
+              st.vars.onEnter(st);
+            }
+          }
         }
       });
     }, 500);
