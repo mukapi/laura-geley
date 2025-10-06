@@ -22,7 +22,15 @@
     if (window.lenis) {
       // 🔥 MÉTHODE OFFICIELLE GSAP + LENIS
       // https://github.com/studio-freight/lenis#gsap-scrolltrigger
-      window.lenis.on("scroll", ScrollTrigger.update);
+      let scrollUpdateCount = 0;
+      window.lenis.on("scroll", (e) => {
+        ScrollTrigger.update();
+        // Log les 5 premiers updates après 1s (pour éviter les logs initiaux)
+        if (scrollUpdateCount < 5 && e.scroll > 100) {
+          console.log(`📊 ScrollTrigger.update() appelé, scroll=${e.scroll.toFixed(0)}px`);
+          scrollUpdateCount++;
+        }
+      });
 
       // Désactiver le smooth scroll natif de GSAP (important !)
       gsap.ticker.lagSmoothing(0);
