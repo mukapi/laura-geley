@@ -42,27 +42,46 @@
     console.log(`✅ ${revealElements.length} éléments [data-reveal] trouvés`);
 
     revealElements.forEach((element, index) => {
-      // État initial : invisible et décalé vers le bas
-      gsap.set(element, {
-        opacity: 0,
-        y: 50,
-      });
+      // Vérifier si l'élément est déjà visible dans le viewport
+      const rect = element.getBoundingClientRect();
+      const isAlreadyVisible = rect.top < window.innerHeight * 0.8;
 
-      // Animation d'apparition
-      gsap.to(element, {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: "power2.out",
-        immediateRender: false, // Important : ne pas forcer l'état final immédiatement
-        scrollTrigger: {
-          id: `reveal-${index}`, // ID unique pour pouvoir kill les anciennes instances
-          trigger: element,
-          start: "top 80%",
-          toggleActions: "play none none none", // Une seule fois
-          markers: false, // Mettre true pour debug si besoin
-        },
-      });
+      if (isAlreadyVisible) {
+        // Si déjà visible : animer directement sans ScrollTrigger
+        console.log(`✨ Élément ${index} déjà visible, animation immédiate`);
+        gsap.fromTo(
+          element,
+          { opacity: 0, y: 50 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power2.out",
+            delay: index * 0.1, // Petit délai échelonné pour effet cascade
+          }
+        );
+      } else {
+        // Si pas encore visible : utiliser ScrollTrigger
+        gsap.set(element, {
+          opacity: 0,
+          y: 50,
+        });
+
+        gsap.to(element, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power2.out",
+          immediateRender: false,
+          scrollTrigger: {
+            id: `reveal-${index}`,
+            trigger: element,
+            start: "top 80%",
+            toggleActions: "play none none none",
+            markers: false,
+          },
+        });
+      }
     });
 
     // Rafraîchir ScrollTrigger (important avec Lenis)
