@@ -13,7 +13,6 @@
 
   // 🔥 Configuration globale de ScrollTrigger pour Lenis (une seule fois)
   let lenisIntegrated = false;
-  let rafId = null;
 
   function integrateLenis() {
     if (lenisIntegrated) return;
@@ -21,31 +20,9 @@
     console.log("🔗 Intégration Lenis + ScrollTrigger");
 
     if (window.lenis) {
-      // ⚠️ MÉTHODE 1 : Event listener (peut ne pas marcher avec autoRaf)
-      let scrollEventCount = 0;
-      window.lenis.on("scroll", (e) => {
-        ScrollTrigger.update();
-        if (scrollEventCount < 3) {
-          console.log(
-            `🌊 Lenis scroll event ${scrollEventCount + 1}:`,
-            e.scroll?.toFixed(0)
-          );
-          scrollEventCount++;
-        }
-      });
-
-      // 🔥 MÉTHODE 2 : RAF Loop (backup si les events ne marchent pas)
-      let rafCount = 0;
-      function updateScrollTrigger() {
-        ScrollTrigger.update();
-        if (rafCount < 3) {
-          console.log(`🔄 RAF update ${rafCount + 1}, scroll:`, window.scrollY);
-          rafCount++;
-        }
-        rafId = requestAnimationFrame(updateScrollTrigger);
-      }
-      rafId = requestAnimationFrame(updateScrollTrigger);
-      console.log("✅ RAF loop démarrée pour ScrollTrigger");
+      // Lier Lenis à ScrollTrigger
+      window.lenis.on("scroll", ScrollTrigger.update);
+      console.log("✅ Lenis connecté à ScrollTrigger");
     }
 
     lenisIntegrated = true;
@@ -78,19 +55,29 @@
     console.log(`✅ ${revealElements.length} éléments [data-reveal] trouvés`);
 
     revealElements.forEach((element, index) => {
-      // État initial : toujours invisible au départ
+      // 🔥 VÉRIFIER si l'élément a déjà été animé (important pour Barba)
+      const alreadyAnimated = element.dataset.revealAnimated === "true";
+      
+      if (alreadyAnimated) {
+        console.log(`⏭️ reveal-${index} déjà animé, on skip`);
+        // Forcer l'état final visible
+        gsap.set(element, { opacity: 1, y: 0 });
+        return; // Skip cet élément
+      }
+
+      // État initial : invisible
       gsap.set(element, {
         opacity: 0,
         y: 50,
       });
 
-      // Animation d'apparition avec ScrollTrigger
+      // Animation d'apparition
       const animation = gsap.to(element, {
         opacity: 1,
         y: 0,
         duration: 0.8,
         ease: "power2.out",
-        paused: true, // On démarre en pause
+        paused: true,
       });
 
       // ScrollTrigger qui lance l'animation
@@ -99,34 +86,22 @@
         trigger: element,
         start: "top 85%",
         onEnter: () => {
+          // Marquer comme animé pour éviter de re-animer
+          element.dataset.revealAnimated = "true";
           console.log(`🎬 Animation reveal-${index} déclenchée`);
           animation.play();
         },
-        onUpdate: (self) => {
-          // Log uniquement la première fois pour debug
-          if (!element.dataset.stDebug) {
-            console.log(
-              `📊 reveal-${index} progress: ${self.progress.toFixed(
-                2
-              )}, isActive: ${self.isActive}`
-            );
-            element.dataset.stDebug = "true";
-          }
-        },
-        once: true,
-        markers: false, // Mettre true pour voir les markers
+        once: false, // 🔥 Important : ne pas détruire le trigger
+        markers: false,
       });
 
-      // Log détaillé de la position du trigger
+      // Log de debug
       const rect = element.getBoundingClientRect();
       const scrollY = window.scrollY || window.pageYOffset;
       const elementTop = rect.top + scrollY;
-      const triggerPoint = elementTop - window.innerHeight * 0.85;
-
+      
       console.log(
-        `📍 reveal-${index}: element top=${elementTop.toFixed(
-          0
-        )}px, trigger à ${triggerPoint.toFixed(0)}px scroll, start=${st.start}`
+        `📍 reveal-${index}: top=${elementTop.toFixed(0)}px, trigger=${st.start}px, currentScroll=${scrollY.toFixed(0)}px`
       );
     });
 
@@ -146,35 +121,9 @@
     }, 300);
 
     setTimeout(() => {
-      console.log("✅ Reveal animations prêtes");
-      // Log final de debug : position de tous les triggers
       const allTriggers = ScrollTrigger.getAll();
-      console.log(`📊 Total ScrollTriggers actifs: ${allTriggers.length}`);
-
-      // 🔥 FIX CRITIQUE : Forcer le déclenchement des éléments déjà dans leur zone
-      allTriggers.forEach((st, i) => {
-        if (st.vars && st.vars.id && st.vars.id.startsWith("reveal-")) {
-          console.log(
-            `  - ${st.vars.id}: start=${st.start}, end=${st.end}, trigger=${
-              st.trigger ? "OK" : "MISSING"
-            }`
-          );
-
-          // Vérifier si le trigger est déjà dépassé (élément déjà visible)
-          const currentScroll =
-            window.pageYOffset || document.documentElement.scrollTop;
-          const triggerStart = st.start;
-
-          if (currentScroll >= triggerStart && !st.triggered) {
-            console.log(`⚡ ${st.vars.id} déjà visible, déclenchement forcé!`);
-            st.triggered = true;
-            // Déclencher le callback onEnter manuellement
-            if (st.vars.onEnter) {
-              st.vars.onEnter(st);
-            }
-          }
-        }
-      });
+      const revealTriggers = allTriggers.filter(st => st.vars?.id?.startsWith("reveal-"));
+      console.log(`✅ Reveal animations prêtes (${revealTriggers.length} triggers actifs)`);
     }, 500);
   };
 
