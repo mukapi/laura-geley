@@ -121,8 +121,8 @@
             // 🎯 CACHER LA NAVBAR DE LA NOUVELLE PAGE IMMÉDIATEMENT
             const newNavbar = data.next.container.querySelector(".nav_wrap");
             if (newNavbar) {
-              newNavbar.style.setProperty("display", "none", "important");
-              console.log("🚫 beforeEnter - Navbar de la nouvelle page cachée");
+              newNavbar.style.setProperty("opacity", "0", "important");
+              console.log("🚫 beforeEnter - Navbar de la nouvelle page cachée (opacity: 0)");
             }
           },
 
