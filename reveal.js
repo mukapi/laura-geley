@@ -50,12 +50,13 @@
         y: 0,
         duration: 0.8,
         ease: "power2.out",
+        immediateRender: false, // Important : ne pas forcer l'état final immédiatement
         scrollTrigger: {
           id: `reveal-${index}`, // ID unique pour pouvoir kill les anciennes instances
           trigger: element,
           start: "top 80%",
           toggleActions: "play none none none", // Une seule fois
-          scroller: window.lenis ? window.lenis.rootElement : window, // Support Lenis
+          markers: false, // Mettre true pour debug si besoin
         },
       });
     });
