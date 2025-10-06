@@ -11,25 +11,39 @@
   // Enregistrer ScrollTrigger
   gsap.registerPlugin(ScrollTrigger);
 
+  // 🔥 Configuration globale de ScrollTrigger pour Lenis (une seule fois)
+  let lenisIntegrated = false;
+
+  function integrateLenis() {
+    if (lenisIntegrated || !window.lenis) return;
+    
+    console.log("🔗 Intégration Lenis + ScrollTrigger");
+    
+    // Méthode recommandée par Lenis pour ScrollTrigger
+    window.lenis.on("scroll", ScrollTrigger.update);
+    
+    gsap.ticker.add((time) => {
+      window.lenis.raf(time * 1000);
+    });
+    
+    gsap.ticker.lagSmoothing(0);
+    
+    lenisIntegrated = true;
+  }
+
   // 1️⃣ FONCTION PRINCIPALE D'INITIALISATION
   window.initRevealAnimations = function () {
     console.log("🎯 initRevealAnimations called");
 
-    // 🔗 Ré-intégrer Lenis à chaque init (crucial pour Barba)
-    if (window.lenis) {
-      window.lenis.on("scroll", ScrollTrigger.update);
-      gsap.ticker.add((time) => {
-        window.lenis.raf(time * 1000);
-      });
-      gsap.ticker.lagSmoothing(0);
-    }
+    // Intégrer Lenis si pas encore fait
+    integrateLenis();
 
     // Kill toutes les anciennes instances ScrollTrigger de ce script
-    ScrollTrigger.getAll().forEach((st) => {
-      if (st.vars && st.vars.id && st.vars.id.startsWith("reveal-")) {
-        st.kill();
-      }
-    });
+    const oldTriggers = ScrollTrigger.getAll().filter((st) => 
+      st.vars && st.vars.id && st.vars.id.startsWith("reveal-")
+    );
+    console.log(`🗑️ Suppression de ${oldTriggers.length} anciens ScrollTriggers`);
+    oldTriggers.forEach((st) => st.kill());
 
     // Sélectionner tous les éléments avec l'attribut data-reveal
     const revealElements = document.querySelectorAll("[data-reveal]");
@@ -42,52 +56,44 @@
     console.log(`✅ ${revealElements.length} éléments [data-reveal] trouvés`);
 
     revealElements.forEach((element, index) => {
-      // Vérifier si l'élément est déjà visible dans le viewport
-      const rect = element.getBoundingClientRect();
-      const isAlreadyVisible = rect.top < window.innerHeight * 0.8;
+      // État initial : toujours invisible au départ
+      gsap.set(element, {
+        opacity: 0,
+        y: 50,
+      });
 
-      if (isAlreadyVisible) {
-        // Si déjà visible : animer directement sans ScrollTrigger
-        console.log(`✨ Élément ${index} déjà visible, animation immédiate`);
-        gsap.fromTo(
-          element,
-          { opacity: 0, y: 50 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: "power2.out",
-            delay: index * 0.1, // Petit délai échelonné pour effet cascade
-          }
-        );
-      } else {
-        // Si pas encore visible : utiliser ScrollTrigger
-        gsap.set(element, {
-          opacity: 0,
-          y: 50,
-        });
+      // Animation d'apparition avec ScrollTrigger
+      const animation = gsap.to(element, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out",
+        paused: true, // On démarre en pause
+      });
 
-        gsap.to(element, {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: "power2.out",
-          immediateRender: false,
-          scrollTrigger: {
-            id: `reveal-${index}`,
-            trigger: element,
-            start: "top 80%",
-            toggleActions: "play none none none",
-            markers: false,
-          },
-        });
-      }
+      // ScrollTrigger qui lance l'animation
+      ScrollTrigger.create({
+        id: `reveal-${index}`,
+        trigger: element,
+        start: "top 85%", // Un peu plus tard pour être sûr
+        onEnter: () => {
+          console.log(`🎬 Animation reveal-${index} déclenchée`);
+          animation.play();
+        },
+        once: true, // Une seule fois
+        markers: false,
+      });
     });
 
-    // Rafraîchir ScrollTrigger (important avec Lenis)
+    // Rafraîchir ScrollTrigger après création
+    console.log("🔄 Refresh ScrollTrigger...");
+    ScrollTrigger.refresh();
+    
+    // Double refresh après un court délai (important avec Lenis)
     setTimeout(() => {
       ScrollTrigger.refresh();
-    }, 100);
+      console.log("✅ Reveal animations prêtes");
+    }, 200);
   };
 
   // 2️⃣ INITIALISATION AU CHARGEMENT DE PAGE (FALLBACK)
