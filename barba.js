@@ -239,6 +239,15 @@
         }
       }
 
+      // 🎯 REVEAL ANIMATIONS (depuis reveal.js)
+      if (typeof window.initRevealAnimations === "function") {
+        try {
+          window.initRevealAnimations();
+        } catch (e) {
+          // Erreur silencieuse
+        }
+      }
+
       // 🎯 FAQ (pour votre dropdown)
       setTimeout(() => {
         const firstToggle = document.querySelector(
