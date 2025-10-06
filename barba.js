@@ -154,7 +154,9 @@
                   onComplete: () => {
                     // Réactiver le blend mode APRÈS que la navbar soit visible
                     navbar.style.mixBlendMode = "difference";
-                    console.log("✅ Enter - Navbar réapparue + blend réactivé!");
+                    console.log(
+                      "✅ Enter - Navbar réapparue + blend réactivé!"
+                    );
                   },
                 });
               }
