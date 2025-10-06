@@ -114,10 +114,8 @@
 
           beforeEnter(data) {
             window.scrollTo(0, 0);
-            gsap.set(data.next.container, {
-              visibility: "visible",
-              opacity: 0,
-            });
+            data.next.container.style.setProperty("visibility", "visible", "important");
+            data.next.container.style.setProperty("opacity", "0", "important");
           },
 
           async enter(data) {
@@ -141,7 +139,19 @@
                 0
               ).to(
                 data.next.container,
-                { opacity: 1, duration: 0.5, ease: "power2.out" },
+                { 
+                  opacity: 1, 
+                  duration: 0.5, 
+                  ease: "power2.out",
+                  onUpdate: function() {
+                    // Forcer l'opacity avec !important pendant l'animation
+                    data.next.container.style.setProperty(
+                      "opacity",
+                      gsap.getProperty(data.next.container, "opacity"),
+                      "important"
+                    );
+                  }
+                },
                 0.1
               );
             });
