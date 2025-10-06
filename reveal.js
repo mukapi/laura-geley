@@ -11,14 +11,18 @@
   // Enregistrer ScrollTrigger
   gsap.registerPlugin(ScrollTrigger);
 
-  // 🔗 Intégration avec Lenis (obligatoire pour que ScrollTrigger fonctionne avec le smooth scroll)
-  if (window.lenis) {
-    window.lenis.on("scroll", ScrollTrigger.update);
-  }
-
   // 1️⃣ FONCTION PRINCIPALE D'INITIALISATION
   window.initRevealAnimations = function () {
     console.log("🎯 initRevealAnimations called");
+
+    // 🔗 Ré-intégrer Lenis à chaque init (crucial pour Barba)
+    if (window.lenis) {
+      window.lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add((time) => {
+        window.lenis.raf(time * 1000);
+      });
+      gsap.ticker.lagSmoothing(0);
+    }
 
     // Kill toutes les anciennes instances ScrollTrigger de ce script
     ScrollTrigger.getAll().forEach((st) => {
