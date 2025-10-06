@@ -91,15 +91,12 @@
           async leave(data) {
             stopLenis();
 
-            // 🎯 SOLUTION SIMPLE : Cacher complètement la navbar
+            // 🎯 SOLUTION FINALE : Retirer complètement la navbar du flux
             const navbar = document.querySelector(".nav_wrap");
             console.log("🔍 Leave - Navbar trouvée:", navbar);
             if (navbar) {
-              navbar.style.setProperty("visibility", "hidden", "important");
-              navbar.style.setProperty("opacity", "0", "important");
-              console.log(
-                "✅ Leave - Navbar cachée (visibility: hidden + opacity: 0)"
-              );
+              navbar.style.setProperty("display", "none", "important");
+              console.log("✅ Leave - Navbar retirée (display: none)");
             }
 
             const overlayPromise = new Promise((resolve) => {
@@ -175,8 +172,13 @@
             console.log("🔍 Enter - Navbar trouvée:", navbar);
 
             if (navbar) {
-              // 🎯 Remettre la navbar visible (le blend mode reste celui de Webflow)
-              navbar.style.setProperty("visibility", "visible", "important");
+              // 🎯 Remettre la navbar dans le flux (display: block)
+              navbar.style.setProperty("display", "block", "important");
+              navbar.style.setProperty("opacity", "0", "important");
+
+              // Petit délai pour que le display soit appliqué
+              await new Promise((resolve) => setTimeout(resolve, 50));
+
               console.log("🎬 Enter - Fade in de la navbar");
 
               await new Promise((resolve) => {
