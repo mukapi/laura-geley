@@ -20,8 +20,13 @@
     console.log("🔗 Intégration Lenis + ScrollTrigger");
 
     if (window.lenis) {
-      // Lier Lenis à ScrollTrigger
+      // 🔥 MÉTHODE OFFICIELLE GSAP + LENIS
+      // https://github.com/studio-freight/lenis#gsap-scrolltrigger
       window.lenis.on("scroll", ScrollTrigger.update);
+
+      // Désactiver le smooth scroll natif de GSAP (important !)
+      gsap.ticker.lagSmoothing(0);
+
       console.log("✅ Lenis connecté à ScrollTrigger");
     }
 
@@ -57,7 +62,7 @@
     revealElements.forEach((element, index) => {
       // 🔥 VÉRIFIER si l'élément a déjà été animé (important pour Barba)
       const alreadyAnimated = element.dataset.revealAnimated === "true";
-      
+
       if (alreadyAnimated) {
         console.log(`⏭️ reveal-${index} déjà animé, on skip`);
         // Forcer l'état final visible
@@ -91,6 +96,17 @@
           console.log(`🎬 Animation reveal-${index} déclenchée`);
           animation.play();
         },
+        onUpdate: (self) => {
+          // Debug : log chaque fois que le trigger est actif
+          if (self.isActive && !element.dataset.stActive) {
+            console.log(
+              `🟢 reveal-${index} est maintenant ACTIF (progress: ${self.progress.toFixed(
+                2
+              )})`
+            );
+            element.dataset.stActive = "true";
+          }
+        },
         once: false, // 🔥 Important : ne pas détruire le trigger
         markers: false,
       });
@@ -99,9 +115,11 @@
       const rect = element.getBoundingClientRect();
       const scrollY = window.scrollY || window.pageYOffset;
       const elementTop = rect.top + scrollY;
-      
+
       console.log(
-        `📍 reveal-${index}: top=${elementTop.toFixed(0)}px, trigger=${st.start}px, currentScroll=${scrollY.toFixed(0)}px`
+        `📍 reveal-${index}: top=${elementTop.toFixed(0)}px, trigger=${
+          st.start
+        }px, currentScroll=${scrollY.toFixed(0)}px`
       );
     });
 
@@ -122,8 +140,12 @@
 
     setTimeout(() => {
       const allTriggers = ScrollTrigger.getAll();
-      const revealTriggers = allTriggers.filter(st => st.vars?.id?.startsWith("reveal-"));
-      console.log(`✅ Reveal animations prêtes (${revealTriggers.length} triggers actifs)`);
+      const revealTriggers = allTriggers.filter((st) =>
+        st.vars?.id?.startsWith("reveal-")
+      );
+      console.log(
+        `✅ Reveal animations prêtes (${revealTriggers.length} triggers actifs)`
+      );
     }, 500);
   };
 
