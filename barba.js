@@ -188,7 +188,10 @@
               // Petit délai pour que le display soit appliqué
               await new Promise((resolve) => setTimeout(resolve, 50));
 
-              console.log("🎬 Enter - Fade in de la navbar. Display actuel:", getComputedStyle(navbar).display);
+              console.log(
+                "🎬 Enter - Fade in de la navbar. Display actuel:",
+                getComputedStyle(navbar).display
+              );
 
               await new Promise((resolve) => {
                 gsap.to(navbar, {
