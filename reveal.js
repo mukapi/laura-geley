@@ -121,10 +121,12 @@
       const rect = element.getBoundingClientRect();
       const scrollY = window.scrollY || window.pageYOffset;
       const elementTop = rect.top + scrollY;
-      const triggerPoint = elementTop - (window.innerHeight * 0.85);
-      
+      const triggerPoint = elementTop - window.innerHeight * 0.85;
+
       console.log(
-        `📍 reveal-${index}: element top=${elementTop.toFixed(0)}px, trigger à ${triggerPoint.toFixed(0)}px scroll, start=${st.start}`
+        `📍 reveal-${index}: element top=${elementTop.toFixed(
+          0
+        )}px, trigger à ${triggerPoint.toFixed(0)}px scroll, start=${st.start}`
       );
     });
 
