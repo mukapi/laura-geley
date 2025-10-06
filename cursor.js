@@ -267,6 +267,10 @@ function initChallengesGridCursors() {
       dragCursor = challengesGridWrapper.querySelector(".project_cursor");
     }
 
+    // Récupérer toutes les challenge_card
+    const challengeCards =
+      challengesGridWrapper.querySelectorAll(".challenge_card");
+
     if (dragCursor) {
       // Forcer le reset du curseur drag
       dragCursor.removeAttribute("style");
@@ -329,6 +333,23 @@ function initChallengesGridCursors() {
         );
       }, 100);
     }
+
+    // Gérer le hover des challenge_card avec classe is-highlight
+    challengeCards.forEach((card) => {
+      card.addEventListener("mouseenter", (e) => {
+        if (window.innerWidth <= 991) return; // Pas de hover sur mobile/tablette
+
+        e.stopPropagation(); // Empêcher l'événement de remonter au wrapper
+        card.classList.add("is-highlight");
+      });
+
+      card.addEventListener("mouseleave", (e) => {
+        if (window.innerWidth <= 991) return; // Pas de mouseleave sur mobile/tablette
+
+        e.stopPropagation(); // Empêcher l'événement de remonter au wrapper
+        card.classList.remove("is-highlight");
+      });
+    });
   });
 }
 
