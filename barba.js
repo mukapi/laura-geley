@@ -122,7 +122,16 @@
 
           async enter(data) {
             console.log("🚀🚀🚀 VERSION MISE À JOUR - 6 OCT 2025 🚀🚀🚀");
-            gsap.set(data.current.container, { display: "none" });
+            data.current.container.style.setProperty(
+              "display",
+              "none",
+              "important"
+            );
+            data.current.container.style.setProperty(
+              "opacity",
+              "0",
+              "important"
+            );
 
             const fadeInPromise = new Promise((resolve) => {
               const tl = gsap.timeline({ onComplete: resolve });
