@@ -16,9 +16,9 @@
 
   function integrateLenis() {
     if (lenisIntegrated || !window.lenis) return;
-    
+
     console.log("🔗 Intégration Lenis + ScrollTrigger");
-    
+
     // ⚠️ IMPORTANT : Lenis utilise autoRaf: true dans barba.js
     // On doit SEULEMENT lier le scroll à ScrollTrigger, PAS le ticker !
     let scrollEventCount = 0;
@@ -26,16 +26,19 @@
       ScrollTrigger.update();
       // Log les 3 premiers événements de scroll pour vérifier
       if (scrollEventCount < 3) {
-        console.log(`🌊 Lenis scroll event ${scrollEventCount + 1}:`, e.scroll.toFixed(0));
+        console.log(
+          `🌊 Lenis scroll event ${scrollEventCount + 1}:`,
+          e.scroll.toFixed(0)
+        );
         scrollEventCount++;
       }
     });
-    
+
     // Forcer ScrollTrigger à bien écouter le scroll
     ScrollTrigger.defaults({
       scroller: document.documentElement,
     });
-    
+
     lenisIntegrated = true;
   }
 
@@ -93,32 +96,38 @@
         onUpdate: (self) => {
           // Log uniquement la première fois pour debug
           if (!element.dataset.stDebug) {
-            console.log(`📊 reveal-${index} progress: ${self.progress.toFixed(2)}, isActive: ${self.isActive}`);
+            console.log(
+              `📊 reveal-${index} progress: ${self.progress.toFixed(
+                2
+              )}, isActive: ${self.isActive}`
+            );
             element.dataset.stDebug = "true";
           }
         },
         once: true,
         markers: false, // Mettre true pour voir les markers
       });
-      
-      console.log(`📍 ScrollTrigger créé pour reveal-${index}, start: ${st.start}`);
+
+      console.log(
+        `📍 ScrollTrigger créé pour reveal-${index}, start: ${st.start}`
+      );
     });
 
     // Rafraîchir ScrollTrigger après création
     console.log("🔄 Refresh ScrollTrigger...");
     ScrollTrigger.refresh();
-    
+
     // Multiple refresh pour être sûr que tout est synchro (important avec Lenis + Barba)
     setTimeout(() => {
       ScrollTrigger.refresh();
       console.log("🔄 Refresh 2/3");
     }, 100);
-    
+
     setTimeout(() => {
       ScrollTrigger.refresh();
       console.log("🔄 Refresh 3/3");
     }, 300);
-    
+
     setTimeout(() => {
       console.log("✅ Reveal animations prêtes");
       // Log final de debug : position de tous les triggers
@@ -126,7 +135,11 @@
       console.log(`📊 Total ScrollTriggers actifs: ${allTriggers.length}`);
       allTriggers.forEach((st, i) => {
         if (st.vars && st.vars.id && st.vars.id.startsWith("reveal-")) {
-          console.log(`  - ${st.vars.id}: start=${st.start}, end=${st.end}, trigger=${st.trigger ? 'OK' : 'MISSING'}`);
+          console.log(
+            `  - ${st.vars.id}: start=${st.start}, end=${st.end}, trigger=${
+              st.trigger ? "OK" : "MISSING"
+            }`
+          );
         }
       });
     }, 500);
