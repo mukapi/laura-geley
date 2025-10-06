@@ -175,18 +175,18 @@
             // Petit délai supplémentaire pour s'assurer que tout est stable
             await new Promise((resolve) => setTimeout(resolve, 100));
 
-            // 🎯 La navbar est probablement GLOBALE (hors container Barba)
-            const navbar = document.querySelector(".nav_wrap");
-            console.log("🔍 Enter - Navbar trouvée:", navbar);
+            // 🎯 CHERCHER LA NAVBAR DANS LE NOUVEAU CONTAINER (pas l'ancien!)
+            const navbar = data.next.container.querySelector(".nav_wrap");
+            console.log("🔍 Enter - Navbar trouvée dans nouveau container:", navbar);
 
             if (navbar) {
               // 🔥 RESET BRUTAL : Retirer TOUS les styles inline
               navbar.removeAttribute("style");
               console.log("🧹 Styles inline retirés, navbar réinitialisée");
-
+              
               // Petit délai
               await new Promise((resolve) => setTimeout(resolve, 30));
-
+              
               // Partir de opacity 0 et fade in
               navbar.style.setProperty("opacity", "0", "important");
               console.log("🎬 Enter - Fade in de la navbar");
