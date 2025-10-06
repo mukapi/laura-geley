@@ -56,17 +56,6 @@
           start: "top 80%",
           toggleActions: "play none none none", // Une seule fois
           scroller: window.lenis ? window.lenis.rootElement : window, // Support Lenis
-          onRefresh: function () {
-            // Si l'élément est déjà visible au chargement, jouer l'animation
-            if (this.isActive) {
-              gsap.to(element, {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                ease: "power2.out",
-              });
-            }
-          },
         },
       });
     });
