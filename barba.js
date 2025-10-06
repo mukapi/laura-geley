@@ -119,6 +119,7 @@
           },
 
           async enter(data) {
+            console.log("🚀🚀🚀 VERSION MISE À JOUR - 6 OCT 2025 🚀🚀🚀");
             gsap.set(data.current.container, { display: "none" });
 
             const fadeInPromise = new Promise((resolve) => {
