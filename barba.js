@@ -158,14 +158,19 @@
                   opacity: 1,
                   duration: 0.3,
                   ease: "power2.out",
-                  onComplete: () => {
-                    // Réactiver le blend mode SEULEMENT quand l'animation est finie
-                    navbar.style.mixBlendMode = "difference";
-                    console.log("✅ Enter - Navbar visible + blend réactivé!");
-                    resolve();
-                  },
+                  onComplete: resolve,
                 });
               });
+
+              console.log(
+                "⏱️ Navbar visible, attente 200ms avant de réactiver blend..."
+              );
+
+              // Attendre que TOUT soit vraiment stable avant de réactiver le blend mode
+              await new Promise((resolve) => setTimeout(resolve, 200));
+
+              navbar.style.mixBlendMode = "difference";
+              console.log("✅ Blend mode réactivé!");
             }
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
