@@ -123,7 +123,6 @@
           },
 
           async enter(data) {
-            console.log("🚀🚀🚀 VERSION MISE À JOUR - 6 OCT 2025 🚀🚀🚀");
             data.current.container.style.setProperty(
               "display",
               "none",
@@ -148,7 +147,6 @@
                   duration: 0.5,
                   ease: "power2.out",
                   onUpdate: function () {
-                    // Forcer l'opacity avec !important pendant l'animation
                     data.next.container.style.setProperty(
                       "opacity",
                       gsap.getProperty(data.next.container, "opacity"),
@@ -163,29 +161,13 @@
             await fadeInPromise;
             startLenis();
 
-            // 🎯 Faire réapparaître la navbar APRÈS que la transition soit 100% terminée
-            console.log(
-              "⏰ Enter - Transition terminée, réaffichage navbar..."
-            );
-
-            // Petit délai supplémentaire pour s'assurer que tout est stable
-            await new Promise((resolve) => setTimeout(resolve, 100));
-
-            // 🎯 CHERCHER LA NAVBAR DANS LE NOUVEAU CONTAINER (pas l'ancien!)
+            // Réapparition rapide de la navbar
             const navbar = data.next.container.querySelector(".nav_wrap");
-            console.log(
-              "🔍 Enter - Navbar trouvée dans nouveau container:",
-              navbar
-            );
-
             if (navbar) {
-              // La navbar est déjà à opacity: 0 grâce au beforeEnter
-              console.log("🎬 Enter - Fade in de la navbar (opacity: 0 → 1)");
-
               await new Promise((resolve) => {
                 gsap.to(navbar, {
                   opacity: 1,
-                  duration: 0.3,
+                  duration: 0.2,
                   ease: "power2.out",
                   onUpdate: function () {
                     navbar.style.setProperty(
@@ -197,8 +179,6 @@
                   onComplete: resolve,
                 });
               });
-
-              console.log("✅ Navbar visible!");
             }
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
