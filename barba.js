@@ -122,7 +122,9 @@
             const newNavbar = data.next.container.querySelector(".nav_wrap");
             if (newNavbar) {
               newNavbar.style.setProperty("opacity", "0", "important");
-              console.log("🚫 beforeEnter - Navbar de la nouvelle page cachée (opacity: 0)");
+              console.log(
+                "🚫 beforeEnter - Navbar de la nouvelle page cachée (opacity: 0)"
+              );
             }
           },
 
@@ -183,16 +185,8 @@
             );
 
             if (navbar) {
-              // 🔥 RESET BRUTAL : Retirer TOUS les styles inline
-              navbar.removeAttribute("style");
-              console.log("🧹 Styles inline retirés, navbar réinitialisée");
-
-              // Petit délai
-              await new Promise((resolve) => setTimeout(resolve, 30));
-
-              // Partir de opacity 0 et fade in
-              navbar.style.setProperty("opacity", "0", "important");
-              console.log("🎬 Enter - Fade in de la navbar");
+              // La navbar est déjà à opacity: 0 grâce au beforeEnter
+              console.log("🎬 Enter - Fade in de la navbar (opacity: 0 → 1)");
 
               await new Promise((resolve) => {
                 gsap.to(navbar, {
