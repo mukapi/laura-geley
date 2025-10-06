@@ -137,30 +137,33 @@
             await fadeInPromise;
             startLenis();
 
-            // 💀 Faire réapparaître la navbar à la toute fin (après que TOUT soit stable)
-            console.log(
-              "⏰ Enter - Attente 500ms avant de réafficher la navbar"
-            );
-            setTimeout(() => {
-              const navbar = document.querySelector(".nav_wrap");
-              console.log("🔍 Enter - Navbar trouvée:", navbar);
-              if (navbar) {
-                // Garder le blend mode à "normal" pendant l'apparition
-                console.log("🎬 Enter - Fade in de la navbar (opacity: 1)");
+            // 🎯 Faire réapparaître la navbar APRÈS que la transition soit 100% terminée
+            console.log("⏰ Enter - Transition terminée, réaffichage navbar...");
+            
+            // Petit délai supplémentaire pour s'assurer que tout est stable
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const navbar = document.querySelector(".nav_wrap");
+            console.log("🔍 Enter - Navbar trouvée:", navbar);
+            
+            if (navbar) {
+              // Fade in avec blend mode qui reste à "normal" pendant l'animation
+              console.log("🎬 Enter - Fade in de la navbar");
+              
+              await new Promise((resolve) => {
                 gsap.to(navbar, {
                   opacity: 1,
                   duration: 0.3,
                   ease: "power2.out",
                   onComplete: () => {
-                    // Réactiver le blend mode APRÈS que la navbar soit visible
+                    // Réactiver le blend mode SEULEMENT quand l'animation est finie
                     navbar.style.mixBlendMode = "difference";
-                    console.log(
-                      "✅ Enter - Navbar réapparue + blend réactivé!"
-                    );
+                    console.log("✅ Enter - Navbar visible + blend réactivé!");
+                    resolve();
                   },
                 });
-              }
-            }, 500);
+              });
+            }
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
             setTimeout(() => {
