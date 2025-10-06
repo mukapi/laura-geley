@@ -114,7 +114,11 @@
 
           beforeEnter(data) {
             window.scrollTo(0, 0);
-            data.next.container.style.setProperty("visibility", "visible", "important");
+            data.next.container.style.setProperty(
+              "visibility",
+              "visible",
+              "important"
+            );
             data.next.container.style.setProperty("opacity", "0", "important");
           },
 
@@ -139,18 +143,18 @@
                 0
               ).to(
                 data.next.container,
-                { 
-                  opacity: 1, 
-                  duration: 0.5, 
+                {
+                  opacity: 1,
+                  duration: 0.5,
                   ease: "power2.out",
-                  onUpdate: function() {
+                  onUpdate: function () {
                     // Forcer l'opacity avec !important pendant l'animation
                     data.next.container.style.setProperty(
                       "opacity",
                       gsap.getProperty(data.next.container, "opacity"),
                       "important"
                     );
-                  }
+                  },
                 },
                 0.1
               );
