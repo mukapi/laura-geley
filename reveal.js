@@ -13,31 +13,40 @@
 
   // 🔥 Configuration globale de ScrollTrigger pour Lenis (une seule fois)
   let lenisIntegrated = false;
+  let rafId = null;
 
   function integrateLenis() {
-    if (lenisIntegrated || !window.lenis) return;
+    if (lenisIntegrated) return;
 
     console.log("🔗 Intégration Lenis + ScrollTrigger");
 
-    // ⚠️ IMPORTANT : Lenis utilise autoRaf: true dans barba.js
-    // On doit SEULEMENT lier le scroll à ScrollTrigger, PAS le ticker !
-    let scrollEventCount = 0;
-    window.lenis.on("scroll", (e) => {
-      ScrollTrigger.update();
-      // Log les 3 premiers événements de scroll pour vérifier
-      if (scrollEventCount < 3) {
-        console.log(
-          `🌊 Lenis scroll event ${scrollEventCount + 1}:`,
-          e.scroll.toFixed(0)
-        );
-        scrollEventCount++;
-      }
-    });
+    if (window.lenis) {
+      // ⚠️ MÉTHODE 1 : Event listener (peut ne pas marcher avec autoRaf)
+      let scrollEventCount = 0;
+      window.lenis.on("scroll", (e) => {
+        ScrollTrigger.update();
+        if (scrollEventCount < 3) {
+          console.log(
+            `🌊 Lenis scroll event ${scrollEventCount + 1}:`,
+            e.scroll?.toFixed(0)
+          );
+          scrollEventCount++;
+        }
+      });
 
-    // Forcer ScrollTrigger à bien écouter le scroll
-    ScrollTrigger.defaults({
-      scroller: document.documentElement,
-    });
+      // 🔥 MÉTHODE 2 : RAF Loop (backup si les events ne marchent pas)
+      let rafCount = 0;
+      function updateScrollTrigger() {
+        ScrollTrigger.update();
+        if (rafCount < 3) {
+          console.log(`🔄 RAF update ${rafCount + 1}, scroll:`, window.scrollY);
+          rafCount++;
+        }
+        rafId = requestAnimationFrame(updateScrollTrigger);
+      }
+      rafId = requestAnimationFrame(updateScrollTrigger);
+      console.log("✅ RAF loop démarrée pour ScrollTrigger");
+    }
 
     lenisIntegrated = true;
   }
@@ -108,8 +117,14 @@
         markers: false, // Mettre true pour voir les markers
       });
 
+      // Log détaillé de la position du trigger
+      const rect = element.getBoundingClientRect();
+      const scrollY = window.scrollY || window.pageYOffset;
+      const elementTop = rect.top + scrollY;
+      const triggerPoint = elementTop - (window.innerHeight * 0.85);
+      
       console.log(
-        `📍 ScrollTrigger créé pour reveal-${index}, start: ${st.start}`
+        `📍 reveal-${index}: element top=${elementTop.toFixed(0)}px, trigger à ${triggerPoint.toFixed(0)}px scroll, start=${st.start}`
       );
     });
 
@@ -133,7 +148,7 @@
       // Log final de debug : position de tous les triggers
       const allTriggers = ScrollTrigger.getAll();
       console.log(`📊 Total ScrollTriggers actifs: ${allTriggers.length}`);
-      
+
       // 🔥 FIX CRITIQUE : Forcer le déclenchement des éléments déjà dans leur zone
       allTriggers.forEach((st, i) => {
         if (st.vars && st.vars.id && st.vars.id.startsWith("reveal-")) {
@@ -142,11 +157,12 @@
               st.trigger ? "OK" : "MISSING"
             }`
           );
-          
+
           // Vérifier si le trigger est déjà dépassé (élément déjà visible)
-          const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+          const currentScroll =
+            window.pageYOffset || document.documentElement.scrollTop;
           const triggerStart = st.start;
-          
+
           if (currentScroll >= triggerStart && !st.triggered) {
             console.log(`⚡ ${st.vars.id} déjà visible, déclenchement forcé!`);
             st.triggered = true;
