@@ -95,9 +95,8 @@
             const navbar = document.querySelector(".nav_wrap");
             console.log("🔍 Leave - Navbar trouvée:", navbar);
             if (navbar) {
-              navbar.style.mixBlendMode = "normal"; // D'ABORD désactiver le blend
-              navbar.style.opacity = "0"; // PUIS cacher
-              console.log("✅ Leave - Blend désactivé + Navbar cachée");
+              navbar.style.cssText += "mix-blend-mode: normal !important; opacity: 0 !important;";
+              console.log("✅ Leave - Blend désactivé + Navbar cachée (!important)");
             }
 
             const overlayPromise = new Promise((resolve) => {
@@ -158,6 +157,10 @@
                   opacity: 1,
                   duration: 0.3,
                   ease: "power2.out",
+                  onUpdate: function() {
+                    // Forcer l'opacity avec !important pendant l'animation
+                    navbar.style.setProperty("opacity", gsap.getProperty(navbar, "opacity"), "important");
+                  },
                   onComplete: resolve,
                 });
               });
@@ -169,8 +172,8 @@
               // Attendre que TOUT soit vraiment stable avant de réactiver le blend mode
               await new Promise((resolve) => setTimeout(resolve, 200));
 
-              navbar.style.mixBlendMode = "difference";
-              console.log("✅ Blend mode réactivé!");
+              navbar.style.setProperty("mix-blend-mode", "difference", "important");
+              console.log("✅ Blend mode réactivé (!important)!");
             }
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
