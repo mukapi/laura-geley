@@ -91,12 +91,12 @@
           async leave(data) {
             stopLenis();
 
-            // 🎯 SOLUTION FINALE : Retirer complètement la navbar du flux
+            // 🎯 SOLUTION FINALE : Cacher la navbar avec opacity
             const navbar = document.querySelector(".nav_wrap");
             console.log("🔍 Leave - Navbar trouvée:", navbar);
             if (navbar) {
-              navbar.style.setProperty("display", "none", "important");
-              console.log("✅ Leave - Navbar retirée (display: none)");
+              navbar.style.setProperty("opacity", "0", "important");
+              console.log("✅ Leave - Navbar cachée (opacity: 0)");
             }
 
             const overlayPromise = new Promise((resolve) => {
