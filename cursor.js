@@ -11,7 +11,7 @@ window.initAllCursors = function () {
   console.log("🚀 ========================================");
   console.log("🚀 initAllCursors CALLED");
   console.log("🚀 ========================================");
-  
+
   // Réinitialiser l'array des handlers resize
   window.cursorResizeHandlers = [];
 
@@ -107,12 +107,14 @@ function initScopeListCursors() {
     // Gérer le hover de la dernière challenge_card
     const challengeCards = scopeListWrapper.querySelectorAll(".challenge_card");
 
-    console.log(`🃏 Found ${challengeCards.length} challenge card(s) in scope list`);
+    console.log(
+      `🃏 Found ${challengeCards.length} challenge card(s) in scope list`
+    );
 
     if (challengeCards.length > 0) {
       const lastCard = challengeCards[challengeCards.length - 1];
       const customCursor = lastCard.querySelector(".project_cursor");
-      
+
       console.log("🎯 Last card found, setting up hover behavior");
 
       // Variable de contrôle pour désactiver le curseur drag
@@ -284,7 +286,9 @@ function initChallengesGridCursors() {
     ".challenges_grid.swiper-wrapper"
   );
 
-  console.log(`📦 Found ${challengesGridWrappers.length} challenges grid wrapper(s)`);
+  console.log(
+    `📦 Found ${challengesGridWrappers.length} challenges grid wrapper(s)`
+  );
 
   challengesGridWrappers.forEach((challengesGridWrapper) => {
     // Chercher le curseur drag dans le parent swiper
@@ -368,7 +372,7 @@ function initChallengesGridCursors() {
     // Gérer le hover des challenge_card avec classe is-highlight
     challengeCards.forEach((card, index) => {
       console.log(`✅ Adding hover listeners to challenge card ${index + 1}`);
-      
+
       card.addEventListener("mouseenter", (e) => {
         console.log(`🖱️ MOUSEENTER on challenge card ${index + 1}`);
         if (window.innerWidth <= 991) {
@@ -399,10 +403,12 @@ window.cursorCleanup = () => {
   console.log("🧹 ========================================");
   console.log("🧹 cursorCleanup CALLED");
   console.log("🧹 ========================================");
-  
+
   // Supprimer tous les listeners resize stockés
   if (window.cursorResizeHandlers && window.cursorResizeHandlers.length > 0) {
-    console.log(`🧹 Removing ${window.cursorResizeHandlers.length} resize handler(s)`);
+    console.log(
+      `🧹 Removing ${window.cursorResizeHandlers.length} resize handler(s)`
+    );
     window.cursorResizeHandlers.forEach((handler) => {
       window.removeEventListener("resize", handler);
     });
