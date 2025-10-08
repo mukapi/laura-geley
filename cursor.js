@@ -196,16 +196,10 @@ function initScopeListCursors() {
 
       // Gérer le hover de la dernière carte (seulement sur desktop)
       lastCard.addEventListener("mouseenter", (e) => {
-        console.log("🖱️ MOUSEENTER on last card (scope list)");
-        if (window.innerWidth <= 991) {
-          console.log("⚠️ Mobile/tablet detected, skipping hover");
-          return;
-        }
+        if (window.innerWidth <= 991) return; // Pas de hover sur mobile/tablette
 
         e.stopPropagation(); // Empêcher l'événement de remonter au wrapper
         lastCard.classList.add("is-highlight");
-        console.log("✨ Added is-highlight to last card");
-        console.log("Classes:", lastCard.className);
 
         // Désactiver le curseur drag et montrer le curseur custom
         if (dragCursor) {
@@ -229,12 +223,10 @@ function initScopeListCursors() {
       });
 
       lastCard.addEventListener("mouseleave", (e) => {
-        console.log("🖱️ MOUSELEAVE on last card (scope list)");
         if (window.innerWidth <= 991) return; // Pas de mouseleave sur mobile/tablette
 
         e.stopPropagation(); // Empêcher l'événement de remonter au wrapper
         lastCard.classList.remove("is-highlight");
-        console.log("🧹 Removed is-highlight from last card");
 
         // Réactiver le curseur drag et cacher le curseur custom
         if (dragCursor) {
