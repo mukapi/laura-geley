@@ -8,6 +8,10 @@ window.cursorResizeHandlers = [];
 
 // Fonction d'initialisation globale pour Barba.js
 window.initAllCursors = function () {
+  console.log("🚀 ========================================");
+  console.log("🚀 initAllCursors CALLED");
+  console.log("🚀 ========================================");
+  
   // Réinitialiser l'array des handlers resize
   window.cursorResizeHandlers = [];
 
@@ -80,9 +84,12 @@ function initTestimonialsGridCursor() {
 
 // Fonction d'initialisation des scope list cursors
 function initScopeListCursors() {
+  console.log("🎯 initScopeListCursors called");
   const scopeListWrappers = document.querySelectorAll(
     ".scope_list.swiper-wrapper"
   );
+
+  console.log(`📦 Found ${scopeListWrappers.length} scope list wrapper(s)`);
 
   scopeListWrappers.forEach((scopeListWrapper) => {
     // Chercher le curseur drag dans le parent swiper (pas dans les cartes)
@@ -100,9 +107,13 @@ function initScopeListCursors() {
     // Gérer le hover de la dernière challenge_card
     const challengeCards = scopeListWrapper.querySelectorAll(".challenge_card");
 
+    console.log(`🃏 Found ${challengeCards.length} challenge card(s) in scope list`);
+
     if (challengeCards.length > 0) {
       const lastCard = challengeCards[challengeCards.length - 1];
       const customCursor = lastCard.querySelector(".project_cursor");
+      
+      console.log("🎯 Last card found, setting up hover behavior");
 
       // Variable de contrôle pour désactiver le curseur drag
       let isDragCursorDisabled = false;
@@ -196,10 +207,16 @@ function initScopeListCursors() {
 
       // Gérer le hover de la dernière carte (seulement sur desktop)
       lastCard.addEventListener("mouseenter", (e) => {
-        if (window.innerWidth <= 991) return; // Pas de hover sur mobile/tablette
+        console.log("🖱️ MOUSEENTER on last card (scope list)");
+        if (window.innerWidth <= 991) {
+          console.log("⚠️ Mobile/tablet detected, skipping hover");
+          return;
+        }
 
         e.stopPropagation(); // Empêcher l'événement de remonter au wrapper
         lastCard.classList.add("is-highlight");
+        console.log("✨ Added is-highlight to last card");
+        console.log("Classes:", lastCard.className);
 
         // Désactiver le curseur drag et montrer le curseur custom
         if (dragCursor) {
@@ -223,10 +240,12 @@ function initScopeListCursors() {
       });
 
       lastCard.addEventListener("mouseleave", (e) => {
+        console.log("🖱️ MOUSELEAVE on last card (scope list)");
         if (window.innerWidth <= 991) return; // Pas de mouseleave sur mobile/tablette
 
         e.stopPropagation(); // Empêcher l'événement de remonter au wrapper
         lastCard.classList.remove("is-highlight");
+        console.log("🧹 Removed is-highlight from last card");
 
         // Réactiver le curseur drag et cacher le curseur custom
         if (dragCursor) {
@@ -260,9 +279,12 @@ function initScopeListCursors() {
 
 // Fonction d'initialisation des challenges grid cursors
 function initChallengesGridCursors() {
+  console.log("🎯 initChallengesGridCursors called");
   const challengesGridWrappers = document.querySelectorAll(
     ".challenges_grid.swiper-wrapper"
   );
+
+  console.log(`📦 Found ${challengesGridWrappers.length} challenges grid wrapper(s)`);
 
   challengesGridWrappers.forEach((challengesGridWrapper) => {
     // Chercher le curseur drag dans le parent swiper
@@ -277,6 +299,8 @@ function initChallengesGridCursors() {
     // Récupérer toutes les challenge_card
     const challengeCards =
       challengesGridWrapper.querySelectorAll(".challenge_card");
+
+    console.log(`🃏 Found ${challengeCards.length} challenge card(s) in grid`);
 
     if (dragCursor) {
       // Forcer le reset du curseur drag
@@ -342,19 +366,29 @@ function initChallengesGridCursors() {
     }
 
     // Gérer le hover des challenge_card avec classe is-highlight
-    challengeCards.forEach((card) => {
+    challengeCards.forEach((card, index) => {
+      console.log(`✅ Adding hover listeners to challenge card ${index + 1}`);
+      
       card.addEventListener("mouseenter", (e) => {
-        if (window.innerWidth <= 991) return; // Pas de hover sur mobile/tablette
+        console.log(`🖱️ MOUSEENTER on challenge card ${index + 1}`);
+        if (window.innerWidth <= 991) {
+          console.log("⚠️ Mobile/tablet detected, skipping hover");
+          return;
+        }
 
-        e.stopPropagation(); // Empêcher l'événement de remonter au wrapper
+        e.stopPropagation();
         card.classList.add("is-highlight");
+        console.log(`✨ Added is-highlight to challenge card ${index + 1}`);
+        console.log("Classes:", card.className);
       });
 
       card.addEventListener("mouseleave", (e) => {
-        if (window.innerWidth <= 991) return; // Pas de mouseleave sur mobile/tablette
+        console.log(`🖱️ MOUSELEAVE on challenge card ${index + 1}`);
+        if (window.innerWidth <= 991) return;
 
-        e.stopPropagation(); // Empêcher l'événement de remonter au wrapper
+        e.stopPropagation();
         card.classList.remove("is-highlight");
+        console.log(`🧹 Removed is-highlight from challenge card ${index + 1}`);
       });
     });
   });
@@ -362,8 +396,13 @@ function initChallengesGridCursors() {
 
 // Fonction de nettoyage globale (méthode brutale mais efficace)
 window.cursorCleanup = () => {
+  console.log("🧹 ========================================");
+  console.log("🧹 cursorCleanup CALLED");
+  console.log("🧹 ========================================");
+  
   // Supprimer tous les listeners resize stockés
   if (window.cursorResizeHandlers && window.cursorResizeHandlers.length > 0) {
+    console.log(`🧹 Removing ${window.cursorResizeHandlers.length} resize handler(s)`);
     window.cursorResizeHandlers.forEach((handler) => {
       window.removeEventListener("resize", handler);
     });
@@ -371,13 +410,17 @@ window.cursorCleanup = () => {
   }
 
   // Cloner et remplacer tous les project_single_card
-  document.querySelectorAll(".project_single_card").forEach((card) => {
+  const projectCards = document.querySelectorAll(".project_single_card");
+  console.log(`🧹 Cloning ${projectCards.length} project_single_card(s)`);
+  projectCards.forEach((card) => {
     const newCard = card.cloneNode(true);
     card.parentNode.replaceChild(newCard, card);
   });
 
   // Cloner et remplacer tous les challenge_card (scope_list et challenges_grid)
-  document.querySelectorAll(".challenge_card").forEach((card) => {
+  const challengeCards = document.querySelectorAll(".challenge_card");
+  console.log(`🧹 Cloning ${challengeCards.length} challenge_card(s)`);
+  challengeCards.forEach((card) => {
     const newCard = card.cloneNode(true);
     card.parentNode.replaceChild(newCard, card);
   });
@@ -389,10 +432,12 @@ window.cursorCleanup = () => {
   });
 
   // Cloner et remplacer tous les challenges_grid wrappers
-  document.querySelectorAll(".challenges_grid.swiper-wrapper").forEach((wrapper) => {
-    const newWrapper = wrapper.cloneNode(true);
-    wrapper.parentNode.replaceChild(newWrapper, wrapper);
-  });
+  document
+    .querySelectorAll(".challenges_grid.swiper-wrapper")
+    .forEach((wrapper) => {
+      const newWrapper = wrapper.cloneNode(true);
+      wrapper.parentNode.replaceChild(newWrapper, wrapper);
+    });
 
   // Cloner et remplacer le testimonials_grid
   const testimonialsGrid = document.querySelector(".testimonials_grid");
