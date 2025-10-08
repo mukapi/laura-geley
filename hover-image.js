@@ -27,9 +27,6 @@ window.initHoverImage = function () {
     window.hoverImageCleanup();
   }
 
-  // Stocker les handlers dans window pour que le cleanup puisse les retrouver
-  window.hoverImageHandlers = [];
-
   // Sélectionner tous les triggers (spans avec attribut data-hover-image)
   const triggers = document.querySelectorAll("[data-hover-image]");
 
@@ -103,29 +100,27 @@ window.initHoverImage = function () {
     trigger.addEventListener("mouseenter", handleMouseEnter);
     trigger.addEventListener("mouseleave", handleMouseLeave);
     trigger.addEventListener("mousemove", handleMouseMove);
+  });
+};
 
-    // Stocker les handlers pour le cleanup
-    window.hoverImageHandlers.push({
-      trigger,
-      handleMouseEnter,
-      handleMouseLeave,
-      handleMouseMove,
-    });
+// Fonction de nettoyage globale (méthode brutale mais efficace)
+window.hoverImageCleanup = () => {
+  // Cloner et remplacer tous les triggers pour supprimer TOUS les event listeners
+  document.querySelectorAll("[data-hover-image]").forEach((trigger) => {
+    const newTrigger = trigger.cloneNode(true);
+    trigger.parentNode.replaceChild(newTrigger, trigger);
   });
 
-  // Fonction de nettoyage globale
-  window.hoverImageCleanup = () => {
-    if (window.hoverImageHandlers && window.hoverImageHandlers.length > 0) {
-      window.hoverImageHandlers.forEach(
-        ({ trigger, handleMouseEnter, handleMouseLeave, handleMouseMove }) => {
-          trigger.removeEventListener("mouseenter", handleMouseEnter);
-          trigger.removeEventListener("mouseleave", handleMouseLeave);
-          trigger.removeEventListener("mousemove", handleMouseMove);
-        }
-      );
-      window.hoverImageHandlers = [];
-    }
-  };
+  // Réinitialiser toutes les images
+  document.querySelectorAll("[data-hover-image-id]").forEach((image) => {
+    gsap.killTweensOf(image);
+    gsap.set(image, {
+      opacity: 0,
+      scale: 0.8,
+      xPercent: -50,
+      yPercent: 0,
+    });
+  });
 };
 
 // ========================================
