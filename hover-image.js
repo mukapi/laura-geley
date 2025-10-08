@@ -3,20 +3,28 @@
 // ========================================
 // Fait apparaître une image au hover d'un texte + effet magnetic (suit la souris)
 
+console.log("📁 hover-image.js loaded");
+
 // Fonction principale d'initialisation
 window.initHoverImage = function () {
+  console.log("🎯 initHoverImage called");
+
   // Désactiver sur les appareils tactiles (mobile/tablette)
   const isTouchDevice =
     "ontouchstart" in window || navigator.maxTouchPoints > 0;
   if (isTouchDevice) {
+    console.log("📱 Touch device detected - hover-image disabled");
     return; // Ne pas initialiser le script sur tactile
   }
 
   // Vérifier que GSAP est disponible
   if (typeof gsap === "undefined") {
+    console.warn("⚠️ GSAP not loaded yet, retrying in 100ms...");
     setTimeout(() => {
       if (typeof gsap !== "undefined") {
         window.initHoverImage();
+      } else {
+        console.error("❌ GSAP still not available after retry");
       }
     }, 100);
     return;
@@ -34,8 +42,11 @@ window.initHoverImage = function () {
   const triggers = document.querySelectorAll("[data-hover-image]");
 
   if (triggers.length === 0) {
+    console.log("⚠️ No hover-image triggers found on page");
     return;
   }
+
+  console.log(`✅ Found ${triggers.length} hover-image trigger(s)`);
 
   triggers.forEach((trigger) => {
     // Récupérer l'ID de l'image cible via l'attribut
@@ -115,6 +126,7 @@ window.initHoverImage = function () {
 
   // Fonction de nettoyage globale
   window.hoverImageCleanup = () => {
+    console.log("🧹 Cleaning up hover-image listeners");
     handlers.forEach(
       ({ trigger, handleMouseEnter, handleMouseLeave, handleMouseMove }) => {
         trigger.removeEventListener("mouseenter", handleMouseEnter);
@@ -123,21 +135,29 @@ window.initHoverImage = function () {
       }
     );
   };
+
+  console.log("🎯 initHoverImage finished");
 };
 
 // ========================================
 // 🔄 INITIALISATION AUTOMATIQUE
 // ========================================
 
+console.log("🔄 hover-image - Setting up fallback initialization");
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
+    console.log("🔄 hover-image - DOMContentLoaded fallback");
     setTimeout(() => {
+      console.log("🔄 hover-image - Calling initHoverImage as fallback");
       if (typeof window.initHoverImage === "function") {
         window.initHoverImage();
       }
     }, 200);
   });
 } else {
+  // DOM déjà prêt
+  console.log("🔄 hover-image - DOM already ready, calling initHoverImage");
   setTimeout(() => {
     if (typeof window.initHoverImage === "function") {
       window.initHoverImage();
@@ -151,12 +171,21 @@ if (document.readyState === "loading") {
 
 setTimeout(() => {
   if (typeof barba !== "undefined") {
+    console.log("🔄 hover-image - Barba detected, setting up hooks");
+
+    // Hook pour réinitialiser après chaque transition
     barba.hooks.afterEnter((data) => {
+      console.log("🔄 hover-image - Barba afterEnter hook triggered");
       setTimeout(() => {
+        console.log("🔄 hover-image - Reinitializing after Barba transition");
         if (typeof window.initHoverImage === "function") {
           window.initHoverImage();
         }
       }, 100);
     });
+
+    console.log("✅ hover-image - Barba hooks registered successfully");
+  } else {
+    console.log("⚠️ hover-image - Barba not found, using fallback only");
   }
 }, 500);
