@@ -260,13 +260,8 @@ function initScopeListCursors() {
 
 // Fonction d'initialisation des challenges grid cursors
 function initChallengesGridCursors() {
-  console.log("🎯 initChallengesGridCursors called");
   const challengesGridWrappers = document.querySelectorAll(
     ".challenges_grid.swiper-wrapper"
-  );
-
-  console.log(
-    `📦 Found ${challengesGridWrappers.length} challenges grid wrapper(s)`
   );
 
   challengesGridWrappers.forEach((challengesGridWrapper) => {
@@ -282,8 +277,6 @@ function initChallengesGridCursors() {
     // Récupérer toutes les challenge_card
     const challengeCards =
       challengesGridWrapper.querySelectorAll(".challenge_card");
-
-    console.log(`🃏 Found ${challengeCards.length} challenge card(s) in grid`);
 
     if (dragCursor) {
       // Forcer le reset du curseur drag
@@ -349,29 +342,19 @@ function initChallengesGridCursors() {
     }
 
     // Gérer le hover des challenge_card avec classe is-highlight
-    challengeCards.forEach((card, index) => {
-      console.log(`✅ Adding hover listeners to challenge card ${index + 1}`);
-
+    challengeCards.forEach((card) => {
       card.addEventListener("mouseenter", (e) => {
-        console.log(`🖱️ MOUSEENTER on challenge card ${index + 1}`);
-        if (window.innerWidth <= 991) {
-          console.log("⚠️ Mobile/tablet detected, skipping hover");
-          return;
-        }
+        if (window.innerWidth <= 991) return; // Pas de hover sur mobile/tablette
 
-        e.stopPropagation();
+        e.stopPropagation(); // Empêcher l'événement de remonter au wrapper
         card.classList.add("is-highlight");
-        console.log(`✨ Added is-highlight to challenge card ${index + 1}`);
-        console.log("Classes:", card.className);
       });
 
       card.addEventListener("mouseleave", (e) => {
-        console.log(`🖱️ MOUSELEAVE on challenge card ${index + 1}`);
-        if (window.innerWidth <= 991) return;
+        if (window.innerWidth <= 991) return; // Pas de mouseleave sur mobile/tablette
 
-        e.stopPropagation();
+        e.stopPropagation(); // Empêcher l'événement de remonter au wrapper
         card.classList.remove("is-highlight");
-        console.log(`🧹 Removed is-highlight from challenge card ${index + 1}`);
       });
     });
   });
@@ -379,15 +362,8 @@ function initChallengesGridCursors() {
 
 // Fonction de nettoyage globale (méthode brutale mais efficace)
 window.cursorCleanup = () => {
-  console.log("🧹 ========================================");
-  console.log("🧹 cursorCleanup CALLED");
-  console.log("🧹 ========================================");
-
   // Supprimer tous les listeners resize stockés
   if (window.cursorResizeHandlers && window.cursorResizeHandlers.length > 0) {
-    console.log(
-      `🧹 Removing ${window.cursorResizeHandlers.length} resize handler(s)`
-    );
     window.cursorResizeHandlers.forEach((handler) => {
       window.removeEventListener("resize", handler);
     });
@@ -395,17 +371,13 @@ window.cursorCleanup = () => {
   }
 
   // Cloner et remplacer tous les project_single_card
-  const projectCards = document.querySelectorAll(".project_single_card");
-  console.log(`🧹 Cloning ${projectCards.length} project_single_card(s)`);
-  projectCards.forEach((card) => {
+  document.querySelectorAll(".project_single_card").forEach((card) => {
     const newCard = card.cloneNode(true);
     card.parentNode.replaceChild(newCard, card);
   });
 
   // Cloner et remplacer tous les challenge_card (scope_list et challenges_grid)
-  const challengeCards = document.querySelectorAll(".challenge_card");
-  console.log(`🧹 Cloning ${challengeCards.length} challenge_card(s)`);
-  challengeCards.forEach((card) => {
+  document.querySelectorAll(".challenge_card").forEach((card) => {
     const newCard = card.cloneNode(true);
     card.parentNode.replaceChild(newCard, card);
   });
