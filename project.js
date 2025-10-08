@@ -46,17 +46,18 @@ window.initProjectCursorAnimation = function () {
     yPercent: 100,
   });
 
-  // Fonction de suivi de la souris
-  function followMouse(event) {
-    if (!cursorContainer) return;
+  // Fonction de suivi de la souris (stockée globalement pour cleanup)
+  window.projectFollowMouse = function (event) {
+    const container = document.querySelector(".past_projects_cursor_list");
+    if (!container) return;
 
-    gsap.to(cursorContainer, {
+    gsap.to(container, {
       x: event.clientX,
       y: event.clientY - 220,
       duration: 1,
       ease: "power1.out",
     });
-  }
+  };
 
   // Fonction d'apparition du curseur
   function showCursor() {
@@ -120,7 +121,7 @@ window.initProjectCursorAnimation = function () {
   // Event listeners
 
   // Suivi de la souris sur tout le document
-  document.addEventListener("mousemove", followMouse);
+  document.addEventListener("mousemove", window.projectFollowMouse);
 
   // Apparition/disparition sur la zone des projets
   if (projectsWrapper) {
@@ -156,6 +157,11 @@ window.initProjectCursorAnimation = function () {
 
 // Fonction de nettoyage globale (méthode brutale mais efficace)
 window.projectCursorCleanup = () => {
+  // Supprimer le listener du document (on ne peut pas cloner document)
+  if (window.projectFollowMouse) {
+    document.removeEventListener("mousemove", window.projectFollowMouse);
+  }
+
   // Cloner et remplacer tous les project items pour supprimer TOUS les event listeners
   document.querySelectorAll(".past_project_item").forEach((item) => {
     const newItem = item.cloneNode(true);
