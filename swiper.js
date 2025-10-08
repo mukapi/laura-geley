@@ -31,17 +31,6 @@ window.initSwiper = function () {
       grabCursor: true,
     };
 
-    // Si c'est le slider challenges (contient .challenges_grid), ajouter mousewheel
-    if (swiperEl.querySelector(".challenges_grid")) {
-      config.mousewheel = true;
-    }
-
-    // Si c'est le slider avec scope_list (challenge cards), même config de base
-    if (swiperEl.querySelector(".scope_list")) {
-      // Même configuration que la base, pas de modifications spécifiques nécessaires
-      // Le slider fonctionnera avec la config par défaut
-    }
-
     // Initialiser le Swiper et le stocker
     const swiperInstance = new Swiper(swiperEl, config);
     window.swiperInstances.push(swiperInstance);
