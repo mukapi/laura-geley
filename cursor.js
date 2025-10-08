@@ -3,15 +3,11 @@ window.cursorResizeHandlers = [];
 
 // Fonction d'initialisation globale pour Barba.js
 window.initAllCursors = function () {
-  console.log("🚀 ========================================");
-  console.log("🚀 initAllCursors CALLED");
-  console.log("🚀 ========================================");
-
   // CLEANUP AVANT de réinitialiser !
   if (window.cursorCleanup) {
     window.cursorCleanup();
   }
-
+  
   // Réinitialiser l'array des handlers resize
   window.cursorResizeHandlers = [];
 
@@ -84,12 +80,9 @@ function initTestimonialsGridCursor() {
 
 // Fonction d'initialisation des scope list cursors
 function initScopeListCursors() {
-  console.log("🎯 initScopeListCursors called");
   const scopeListWrappers = document.querySelectorAll(
     ".scope_list.swiper-wrapper"
   );
-
-  console.log(`📦 Found ${scopeListWrappers.length} scope list wrapper(s)`);
 
   scopeListWrappers.forEach((scopeListWrapper) => {
     // Chercher le curseur drag dans le parent swiper (pas dans les cartes)
@@ -107,15 +100,9 @@ function initScopeListCursors() {
     // Gérer le hover de la dernière challenge_card
     const challengeCards = scopeListWrapper.querySelectorAll(".challenge_card");
 
-    console.log(
-      `🃏 Found ${challengeCards.length} challenge card(s) in scope list`
-    );
-
     if (challengeCards.length > 0) {
       const lastCard = challengeCards[challengeCards.length - 1];
       const customCursor = lastCard.querySelector(".project_cursor");
-
-      console.log("🎯 Last card found, setting up hover behavior");
 
       // Variable de contrôle pour désactiver le curseur drag
       let isDragCursorDisabled = false;
