@@ -7,7 +7,7 @@ window.initAllCursors = function () {
   if (window.cursorCleanup) {
     window.cursorCleanup();
   }
-  
+
   // Réinitialiser l'array des handlers resize
   window.cursorResizeHandlers = [];
 
