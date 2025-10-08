@@ -1,8 +1,3 @@
-// Nettoyer les anciens event listeners et timeouts
-if (window.cursorCleanup) {
-  window.cursorCleanup();
-}
-
 // Stockage global des fonctions resize pour le cleanup
 window.cursorResizeHandlers = [];
 
@@ -11,6 +6,11 @@ window.initAllCursors = function () {
   console.log("🚀 ========================================");
   console.log("🚀 initAllCursors CALLED");
   console.log("🚀 ========================================");
+
+  // CLEANUP AVANT de réinitialiser !
+  if (window.cursorCleanup) {
+    window.cursorCleanup();
+  }
 
   // Réinitialiser l'array des handlers resize
   window.cursorResizeHandlers = [];
