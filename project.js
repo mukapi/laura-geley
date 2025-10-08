@@ -52,7 +52,7 @@ window.initProjectCursorAnimation = function () {
 
     gsap.to(cursorContainer, {
       x: event.clientX,
-      y: event.clientY - 100,
+      y: event.clientY - 220,
       duration: 1,
       ease: "power1.out",
     });
