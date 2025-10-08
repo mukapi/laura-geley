@@ -377,24 +377,11 @@ window.cursorCleanup = () => {
   });
 
   // Cloner et remplacer tous les challenge_card (scope_list et challenges_grid)
+  // Note: On ne clone PAS les wrappers swiper pour ne pas casser les instances Swiper
   document.querySelectorAll(".challenge_card").forEach((card) => {
     const newCard = card.cloneNode(true);
     card.parentNode.replaceChild(newCard, card);
   });
-
-  // Cloner et remplacer tous les scope_list wrappers
-  document.querySelectorAll(".scope_list.swiper-wrapper").forEach((wrapper) => {
-    const newWrapper = wrapper.cloneNode(true);
-    wrapper.parentNode.replaceChild(newWrapper, wrapper);
-  });
-
-  // Cloner et remplacer tous les challenges_grid wrappers
-  document
-    .querySelectorAll(".challenges_grid.swiper-wrapper")
-    .forEach((wrapper) => {
-      const newWrapper = wrapper.cloneNode(true);
-      wrapper.parentNode.replaceChild(newWrapper, wrapper);
-    });
 
   // Cloner et remplacer le testimonials_grid
   const testimonialsGrid = document.querySelector(".testimonials_grid");
