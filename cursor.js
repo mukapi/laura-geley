@@ -370,25 +370,26 @@ window.cursorCleanup = () => {
     window.cursorResizeHandlers = [];
   }
 
-  // Cloner et remplacer tous les project_single_card
+  // Cloner et remplacer tous les project_single_card SAUF ceux dans un swiper
   document.querySelectorAll(".project_single_card").forEach((card) => {
-    const newCard = card.cloneNode(true);
-    card.parentNode.replaceChild(newCard, card);
+    // Ne pas cloner si c'est un swiper-slide ou si c'est dans un swiper
+    if (!card.classList.contains("swiper-slide") && !card.closest(".swiper")) {
+      const newCard = card.cloneNode(true);
+      card.parentNode.replaceChild(newCard, card);
+    }
   });
 
-  // Cloner et remplacer tous les challenge_card (scope_list et challenges_grid)
-  // Note: On ne clone PAS les wrappers swiper pour ne pas casser les instances Swiper
+  // Cloner et remplacer tous les challenge_card SAUF ceux dans un swiper
   document.querySelectorAll(".challenge_card").forEach((card) => {
-    const newCard = card.cloneNode(true);
-    card.parentNode.replaceChild(newCard, card);
+    // Ne pas cloner si c'est un swiper-slide
+    if (!card.classList.contains("swiper-slide")) {
+      const newCard = card.cloneNode(true);
+      card.parentNode.replaceChild(newCard, card);
+    }
   });
 
-  // Cloner et remplacer le testimonials_grid
-  const testimonialsGrid = document.querySelector(".testimonials_grid");
-  if (testimonialsGrid) {
-    const newGrid = testimonialsGrid.cloneNode(true);
-    testimonialsGrid.parentNode.replaceChild(newGrid, testimonialsGrid);
-  }
+  // Ne PAS cloner testimonials_grid car il peut être dans un swiper
+  // Les listeners sur cet élément seront simplement réinitialisés par initAllCursors
 
   // Killer toutes les animations GSAP sur les curseurs
   document.querySelectorAll(".project_cursor").forEach((cursor) => {
