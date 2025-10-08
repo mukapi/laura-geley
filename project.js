@@ -50,6 +50,15 @@ window.initProjectCursorAnimation = function () {
   function followMouse(event) {
     if (!cursorContainer) return;
 
+    console.log(
+      "🎯 Cursor position:",
+      event.clientX,
+      event.clientY,
+      "→",
+      event.clientX,
+      event.clientY - 220
+    );
+
     gsap.to(cursorContainer, {
       x: event.clientX,
       y: event.clientY - 220,
