@@ -3,8 +3,14 @@ if (window.cursorCleanup) {
   window.cursorCleanup();
 }
 
+// Stockage global des fonctions resize pour le cleanup
+window.cursorResizeHandlers = [];
+
 // Fonction d'initialisation globale pour Barba.js
 window.initAllCursors = function () {
+  // Réinitialiser l'array des handlers resize
+  window.cursorResizeHandlers = [];
+
   // Vérifier que GSAP est disponible
   if (typeof gsap === "undefined") {
     setTimeout(() => {
@@ -184,8 +190,9 @@ function initScopeListCursors() {
       // Appliquer au chargement
       updateHighlightClass();
 
-      // Appliquer au redimensionnement
+      // Appliquer au redimensionnement et stocker pour le cleanup
       window.addEventListener("resize", updateHighlightClass);
+      window.cursorResizeHandlers.push(updateHighlightClass);
 
       // Gérer le hover de la dernière carte (seulement sur desktop)
       lastCard.addEventListener("mouseenter", (e) => {
@@ -353,12 +360,51 @@ function initChallengesGridCursors() {
   });
 }
 
-// Fonction de nettoyage globale
+// Fonction de nettoyage globale (méthode brutale mais efficace)
 window.cursorCleanup = () => {
+  // Supprimer tous les listeners resize stockés
+  if (window.cursorResizeHandlers && window.cursorResizeHandlers.length > 0) {
+    window.cursorResizeHandlers.forEach((handler) => {
+      window.removeEventListener("resize", handler);
+    });
+    window.cursorResizeHandlers = [];
+  }
+
+  // Cloner et remplacer tous les project_single_card
   document.querySelectorAll(".project_single_card").forEach((card) => {
-    // Cloner et remplacer pour supprimer tous les event listeners
     const newCard = card.cloneNode(true);
     card.parentNode.replaceChild(newCard, card);
+  });
+
+  // Cloner et remplacer tous les challenge_card (scope_list et challenges_grid)
+  document.querySelectorAll(".challenge_card").forEach((card) => {
+    const newCard = card.cloneNode(true);
+    card.parentNode.replaceChild(newCard, card);
+  });
+
+  // Cloner et remplacer tous les scope_list wrappers
+  document.querySelectorAll(".scope_list.swiper-wrapper").forEach((wrapper) => {
+    const newWrapper = wrapper.cloneNode(true);
+    wrapper.parentNode.replaceChild(newWrapper, wrapper);
+  });
+
+  // Cloner et remplacer tous les challenges_grid wrappers
+  document.querySelectorAll(".challenges_grid.swiper-wrapper").forEach((wrapper) => {
+    const newWrapper = wrapper.cloneNode(true);
+    wrapper.parentNode.replaceChild(newWrapper, wrapper);
+  });
+
+  // Cloner et remplacer le testimonials_grid
+  const testimonialsGrid = document.querySelector(".testimonials_grid");
+  if (testimonialsGrid) {
+    const newGrid = testimonialsGrid.cloneNode(true);
+    testimonialsGrid.parentNode.replaceChild(newGrid, testimonialsGrid);
+  }
+
+  // Killer toutes les animations GSAP sur les curseurs
+  document.querySelectorAll(".project_cursor").forEach((cursor) => {
+    gsap.killTweensOf(cursor);
+    gsap.set(cursor, { opacity: 0, scale: 0.8 });
   });
 };
 
