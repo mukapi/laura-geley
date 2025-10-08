@@ -150,50 +150,50 @@ window.initProjectCursorAnimation = function () {
 
       projectItem.addEventListener("mouseenter", hoverHandler);
       projectItem.addEventListener("mouseleave", leaveHandler);
-
-      // Stockage des références pour le cleanup
-      projectItem._hoverHandler = hoverHandler;
-      projectItem._leaveHandler = leaveHandler;
     }
   });
+};
 
-  // Fonction de nettoyage (cleanup)
-  function cleanup() {
-    document.removeEventListener("mousemove", followMouse);
+// Fonction de nettoyage globale (méthode brutale mais efficace)
+window.projectCursorCleanup = () => {
+  // Cloner et remplacer tous les project items pour supprimer TOUS les event listeners
+  document.querySelectorAll(".past_project_item").forEach((item) => {
+    const newItem = item.cloneNode(true);
+    item.parentNode.replaceChild(newItem, item);
+  });
 
-    if (projectsWrapper) {
-      projectsWrapper.removeEventListener("mouseenter", showCursor);
-      projectsWrapper.removeEventListener("mouseleave", hideCursor);
-    }
-
-    projectItems.forEach((projectItem) => {
-      if (projectItem && projectItem._hoverHandler) {
-        projectItem.removeEventListener(
-          "mouseenter",
-          projectItem._hoverHandler
-        );
-        delete projectItem._hoverHandler;
-      }
-      if (projectItem && projectItem._leaveHandler) {
-        projectItem.removeEventListener(
-          "mouseleave",
-          projectItem._leaveHandler
-        );
-        delete projectItem._leaveHandler;
-      }
-    });
-
-    // Réinitialiser le curseur
-    if (document.body) {
-      document.body.style.cursor = "auto";
-    }
+  // Cloner et remplacer le wrapper si il existe
+  const projectsWrapper = document.querySelector(".past_projects_list_wrap");
+  if (projectsWrapper) {
+    const newWrapper = projectsWrapper.cloneNode(true);
+    projectsWrapper.parentNode.replaceChild(newWrapper, projectsWrapper);
   }
 
-  // Stocker la fonction de cleanup globalement pour BarbaJS
-  window.projectCursorCleanup = cleanup;
+  // Réinitialiser le curseur et killer les animations GSAP
+  const cursorContainer = document.querySelector(".past_projects_cursor_list");
+  if (cursorContainer) {
+    gsap.killTweensOf(cursorContainer);
+    gsap.set(cursorContainer, {
+      opacity: 0,
+      scale: 0,
+      rotation: -45,
+    });
+  }
 
-  // Retourner la fonction de cleanup pour pouvoir l'utiliser si nécessaire
-  return cleanup;
+  const cursorItems = document.querySelectorAll(
+    ".past_projects_cursor_list_item"
+  );
+  if (cursorItems.length > 0) {
+    gsap.killTweensOf(cursorItems);
+    gsap.set(cursorItems, {
+      yPercent: 100,
+    });
+  }
+
+  // Réinitialiser le curseur du body
+  if (document.body) {
+    document.body.style.cursor = "auto";
+  }
 };
 
 // ========================================
