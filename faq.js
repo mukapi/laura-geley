@@ -202,17 +202,58 @@ if (document.readyState === "loading") {
 }
 
 // ========================================
-// 🎪 COMPATIBILITÉ BARBA.JS (AUTO-DÉTECTION)
+// 🎪 COMPATIBILITÉ BARBA.JS (SYSTÈME UNIFIÉ)
 // ========================================
 
+// Système de hooks optimisé selon la doc officielle Barba.js
 setTimeout(() => {
   if (typeof barba !== "undefined") {
+    console.log("🎯 faq.js - Barba detected, setting up optimized hooks");
+
+    // Hook beforeLeave : Nettoyer avant de quitter la page
+    barba.hooks.beforeLeave((data) => {
+      console.log("🎯 faq.js - beforeLeave: cleaning up FAQ");
+      if (window.faqObserver) {
+        window.faqObserver.disconnect();
+        window.faqObserver = null;
+      }
+      // Reset du lock
+      isInitializing = false;
+    });
+
+    // Hook afterLeave : Nettoyer après avoir quitté la page
+    barba.hooks.afterLeave((data) => {
+      console.log("🎯 faq.js - afterLeave: final cleanup");
+      // Fermer tous les dropdowns ouverts
+      document.querySelectorAll(".w-dropdown.w--open").forEach((dropdown) => {
+        dropdown.classList.remove("w--open");
+      });
+    });
+
+    // Hook beforeEnter : Préparer la nouvelle page
+    barba.hooks.beforeEnter((data) => {
+      console.log("🎯 faq.js - beforeEnter: preparing new page");
+      // Reset du lock pour la nouvelle page
+      isInitializing = false;
+    });
+
+    // Hook afterEnter : Réinitialiser après l'entrée (PRINCIPAL)
     barba.hooks.afterEnter((data) => {
+      console.log("🎯 faq.js - afterEnter: reinitializing FAQ");
       setTimeout(() => {
         if (typeof window.initFAQ === "function") {
-          window.initFAQ();
+          try {
+            window.initFAQ();
+            console.log("✅ faq.js - Successfully reinitialized");
+          } catch (error) {
+            console.error("❌ faq.js - Error during reinitialization:", error);
+          }
         }
-      }, 100);
+      }, 200); // Timing optimisé pour FAQ
     });
+
+    console.log("✅ faq.js - All Barba hooks registered successfully");
+  } else {
+    console.log("⚠️ faq.js - Barba not found, using fallback only");
   }
 }, 500);

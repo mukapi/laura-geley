@@ -88,18 +88,58 @@ if (document.readyState === "loading") {
 }
 
 // ========================================
-// 🎪 COMPATIBILITÉ BARBA.JS (AUTO-DÉTECTION)
+// 🎪 COMPATIBILITÉ BARBA.JS (SYSTÈME UNIFIÉ)
 // ========================================
 
+// Système de hooks optimisé selon la doc officielle Barba.js
 setTimeout(() => {
   if (typeof barba !== "undefined") {
-    // Hook pour réinitialiser après chaque transition
+    console.log(
+      "🎯 menu-scroll-lock.js - Barba detected, setting up optimized hooks"
+    );
+
+    // Hook beforeLeave : Nettoyer avant de quitter la page
+    barba.hooks.beforeLeave((data) => {
+      console.log(
+        "🎯 menu-scroll-lock.js - beforeLeave: cleaning up menu scroll lock"
+      );
+      if (window.menuScrollObserver) {
+        window.menuScrollObserver.disconnect();
+        window.menuScrollObserver = null;
+      }
+      // Réactiver le scroll avant de quitter
+      if (window.startLenis) {
+        window.startLenis();
+      }
+      document.body.style.overflow = "";
+    });
+
+    // Hook afterEnter : Réinitialiser après l'entrée (PRINCIPAL)
     barba.hooks.afterEnter((data) => {
+      console.log(
+        "🎯 menu-scroll-lock.js - afterEnter: reinitializing menu scroll lock"
+      );
       setTimeout(() => {
         if (typeof window.initMenuScrollLock === "function") {
-          window.initMenuScrollLock();
+          try {
+            window.initMenuScrollLock();
+            console.log("✅ menu-scroll-lock.js - Successfully reinitialized");
+          } catch (error) {
+            console.error(
+              "❌ menu-scroll-lock.js - Error during reinitialization:",
+              error
+            );
+          }
         }
-      }, 100);
+      }, 150); // Timing optimisé
     });
+
+    console.log(
+      "✅ menu-scroll-lock.js - All Barba hooks registered successfully"
+    );
+  } else {
+    console.log(
+      "⚠️ menu-scroll-lock.js - Barba not found, using fallback only"
+    );
   }
 }, 500);

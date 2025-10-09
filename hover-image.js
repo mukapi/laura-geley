@@ -144,17 +144,69 @@ if (document.readyState === "loading") {
 }
 
 // ========================================
-// 🎪 COMPATIBILITÉ BARBA.JS (AUTO-DÉTECTION)
+// 🎪 COMPATIBILITÉ BARBA.JS (SYSTÈME UNIFIÉ)
 // ========================================
 
+// Système de hooks optimisé selon la doc officielle Barba.js
 setTimeout(() => {
   if (typeof barba !== "undefined") {
+    console.log(
+      "🎯 hover-image.js - Barba detected, setting up optimized hooks"
+    );
+
+    // Hook beforeLeave : Nettoyer avant de quitter la page
+    barba.hooks.beforeLeave((data) => {
+      console.log("🎯 hover-image.js - beforeLeave: cleaning up hover images");
+      if (window.hoverImageCleanup) {
+        window.hoverImageCleanup();
+      }
+    });
+
+    // Hook afterLeave : Nettoyer après avoir quitté la page
+    barba.hooks.afterLeave((data) => {
+      console.log("🎯 hover-image.js - afterLeave: final cleanup");
+      // Nettoyer les animations GSAP en cours
+      document.querySelectorAll("[data-hover-image-id]").forEach((image) => {
+        gsap.killTweensOf(image);
+      });
+    });
+
+    // Hook beforeEnter : Préparer la nouvelle page
+    barba.hooks.beforeEnter((data) => {
+      console.log("🎯 hover-image.js - beforeEnter: preparing new page");
+      // S'assurer que les images sont cachées au début
+      document.querySelectorAll("[data-hover-image-id]").forEach((image) => {
+        gsap.set(image, {
+          opacity: 0,
+          scale: 0.8,
+          xPercent: -50,
+          yPercent: 0,
+        });
+      });
+    });
+
+    // Hook afterEnter : Réinitialiser après l'entrée (PRINCIPAL)
     barba.hooks.afterEnter((data) => {
+      console.log(
+        "🎯 hover-image.js - afterEnter: reinitializing hover images"
+      );
       setTimeout(() => {
         if (typeof window.initHoverImage === "function") {
-          window.initHoverImage();
+          try {
+            window.initHoverImage();
+            console.log("✅ hover-image.js - Successfully reinitialized");
+          } catch (error) {
+            console.error(
+              "❌ hover-image.js - Error during reinitialization:",
+              error
+            );
+          }
         }
-      }, 100);
+      }, 150); // Timing optimisé
     });
+
+    console.log("✅ hover-image.js - All Barba hooks registered successfully");
+  } else {
+    console.log("⚠️ hover-image.js - Barba not found, using fallback only");
   }
 }, 500);

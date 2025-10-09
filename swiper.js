@@ -92,17 +92,69 @@ if (document.readyState === "loading") {
 }
 
 // ========================================
-// 🎪 COMPATIBILITÉ BARBA.JS (AUTO-DÉTECTION)
+// 🎪 COMPATIBILITÉ BARBA.JS (SYSTÈME UNIFIÉ)
 // ========================================
 
+// Système de hooks optimisé selon la doc officielle Barba.js
 setTimeout(() => {
   if (typeof barba !== "undefined") {
+    console.log("🎯 swiper.js - Barba detected, setting up optimized hooks");
+
+    // Hook beforeLeave : Nettoyer avant de quitter la page
+    barba.hooks.beforeLeave((data) => {
+      console.log("🎯 swiper.js - beforeLeave: cleaning up swipers");
+      // Détruire toutes les instances Swiper existantes
+      if (window.swiperInstances) {
+        window.swiperInstances.forEach((swiper) => {
+          if (swiper && swiper.destroy) {
+            swiper.destroy(true, true);
+          }
+        });
+        window.swiperInstances = [];
+      }
+    });
+
+    // Hook afterLeave : Nettoyer après avoir quitté la page
+    barba.hooks.afterLeave((data) => {
+      console.log("🎯 swiper.js - afterLeave: final cleanup");
+      // S'assurer que tous les swipers sont bien détruits
+      document.querySelectorAll(".swiper").forEach((swiperEl) => {
+        if (swiperEl.swiper) {
+          swiperEl.swiper.destroy(true, true);
+        }
+      });
+    });
+
+    // Hook beforeEnter : Préparer la nouvelle page
+    barba.hooks.beforeEnter((data) => {
+      console.log("🎯 swiper.js - beforeEnter: preparing new page");
+      // S'assurer que les swipers sont dans leur état initial
+      document.querySelectorAll(".swiper").forEach((swiperEl) => {
+        swiperEl.style.transform = "";
+        swiperEl.style.transition = "";
+      });
+    });
+
+    // Hook afterEnter : Réinitialiser après l'entrée (PRINCIPAL)
     barba.hooks.afterEnter((data) => {
+      console.log("🎯 swiper.js - afterEnter: reinitializing swipers");
       setTimeout(() => {
         if (typeof window.initSwiper === "function") {
-          window.initSwiper();
+          try {
+            window.initSwiper();
+            console.log("✅ swiper.js - Successfully reinitialized");
+          } catch (error) {
+            console.error(
+              "❌ swiper.js - Error during reinitialization:",
+              error
+            );
+          }
         }
-      }, 100);
+      }, 200); // Timing optimisé pour Swiper
     });
+
+    console.log("✅ swiper.js - All Barba hooks registered successfully");
+  } else {
+    console.log("⚠️ swiper.js - Barba not found, using fallback only");
   }
 }, 500);

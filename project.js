@@ -223,17 +223,74 @@ if (document.readyState === "loading") {
 }
 
 // ========================================
-// 🎪 COMPATIBILITÉ BARBA.JS (AUTO-DÉTECTION)
+// 🎪 COMPATIBILITÉ BARBA.JS (SYSTÈME UNIFIÉ)
 // ========================================
 
+// Système de hooks optimisé selon la doc officielle Barba.js
 setTimeout(() => {
   if (typeof barba !== "undefined") {
+    console.log("🎯 project.js - Barba detected, setting up optimized hooks");
+
+    // Hook beforeLeave : Nettoyer avant de quitter la page
+    barba.hooks.beforeLeave((data) => {
+      console.log("🎯 project.js - beforeLeave: cleaning up project cursors");
+      if (window.projectCursorCleanup) {
+        window.projectCursorCleanup();
+      }
+    });
+
+    // Hook afterLeave : Nettoyer après avoir quitté la page
+    barba.hooks.afterLeave((data) => {
+      console.log("🎯 project.js - afterLeave: final cleanup");
+      // Nettoyer les animations GSAP en cours
+      document
+        .querySelectorAll(".past_projects_cursor_list")
+        .forEach((cursor) => {
+          gsap.killTweensOf(cursor);
+        });
+      document
+        .querySelectorAll(".past_projects_cursor_list_item")
+        .forEach((item) => {
+          gsap.killTweensOf(item);
+        });
+    });
+
+    // Hook beforeEnter : Préparer la nouvelle page
+    barba.hooks.beforeEnter((data) => {
+      console.log("🎯 project.js - beforeEnter: preparing new page");
+      // S'assurer que les curseurs sont cachés au début
+      document
+        .querySelectorAll(".past_projects_cursor_list")
+        .forEach((cursor) => {
+          gsap.set(cursor, { opacity: 0, scale: 0, rotation: -45 });
+        });
+      document
+        .querySelectorAll(".past_projects_cursor_list_item")
+        .forEach((item) => {
+          gsap.set(item, { yPercent: 100 });
+        });
+    });
+
+    // Hook afterEnter : Réinitialiser après l'entrée (PRINCIPAL)
     barba.hooks.afterEnter((data) => {
+      console.log("🎯 project.js - afterEnter: reinitializing project cursors");
       setTimeout(() => {
         if (typeof window.initProjectCursorAnimation === "function") {
-          window.initProjectCursorAnimation();
+          try {
+            window.initProjectCursorAnimation();
+            console.log("✅ project.js - Successfully reinitialized");
+          } catch (error) {
+            console.error(
+              "❌ project.js - Error during reinitialization:",
+              error
+            );
+          }
         }
-      }, 100);
+      }, 150); // Timing optimisé
     });
+
+    console.log("✅ project.js - All Barba hooks registered successfully");
+  } else {
+    console.log("⚠️ project.js - Barba not found, using fallback only");
   }
 }, 500);

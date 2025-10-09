@@ -58,17 +58,43 @@ if (document.readyState === "loading") {
 }
 
 // ========================================
-// 🎪 COMPATIBILITÉ BARBA.JS (AUTO-DÉTECTION)
+// 🎪 COMPATIBILITÉ BARBA.JS (SYSTÈME UNIFIÉ)
 // ========================================
 
+// Système de hooks optimisé selon la doc officielle Barba.js
 setTimeout(() => {
   if (typeof barba !== "undefined") {
-    barba.hooks.beforeEnter((data) => {
+    console.log("🎯 clock.js - Barba detected, setting up optimized hooks");
+
+    // Hook beforeLeave : Nettoyer avant de quitter la page
+    barba.hooks.beforeLeave((data) => {
+      console.log("🎯 clock.js - beforeLeave: cleaning up clock");
+      if (window.clockInterval) {
+        clearInterval(window.clockInterval);
+        window.clockInterval = null;
+      }
+    });
+
+    // Hook afterEnter : Réinitialiser après l'entrée (PRINCIPAL)
+    barba.hooks.afterEnter((data) => {
+      console.log("🎯 clock.js - afterEnter: reinitializing clock");
       setTimeout(() => {
         if (typeof window.initClock === "function") {
-          window.initClock();
+          try {
+            window.initClock();
+            console.log("✅ clock.js - Successfully reinitialized");
+          } catch (error) {
+            console.error(
+              "❌ clock.js - Error during reinitialization:",
+              error
+            );
+          }
         }
-      }, 50);
+      }, 100); // Timing optimisé pour les horloges
     });
+
+    console.log("✅ clock.js - All Barba hooks registered successfully");
+  } else {
+    console.log("⚠️ clock.js - Barba not found, using fallback only");
   }
 }, 500);

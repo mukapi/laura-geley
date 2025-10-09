@@ -464,19 +464,60 @@ if (document.readyState === "loading") {
 }
 
 // ========================================
-// COMPATIBILITÉ BARBA.JS (si barba existe)
+// 🎪 COMPATIBILITÉ BARBA.JS (SYSTÈME UNIFIÉ)
 // ========================================
 
-// Attendre que Barba soit disponible
+// Système de hooks optimisé selon la doc officielle Barba.js
 setTimeout(() => {
   if (typeof barba !== "undefined") {
-    // Hook pour réinitialiser les curseurs après chaque transition
+    console.log("🎯 cursor.js - Barba detected, setting up optimized hooks");
+
+    // Hook beforeLeave : Nettoyer avant de quitter la page
+    barba.hooks.beforeLeave((data) => {
+      console.log("🎯 cursor.js - beforeLeave: cleaning up cursors");
+      if (window.cursorCleanup) {
+        window.cursorCleanup();
+      }
+    });
+
+    // Hook afterLeave : Nettoyer après avoir quitté la page
+    barba.hooks.afterLeave((data) => {
+      console.log("🎯 cursor.js - afterLeave: final cleanup");
+      // Nettoyer les animations GSAP en cours
+      document.querySelectorAll(".project_cursor").forEach((cursor) => {
+        gsap.killTweensOf(cursor);
+      });
+    });
+
+    // Hook beforeEnter : Préparer la nouvelle page
+    barba.hooks.beforeEnter((data) => {
+      console.log("🎯 cursor.js - beforeEnter: preparing new page");
+      // S'assurer que les curseurs sont cachés au début
+      document.querySelectorAll(".project_cursor").forEach((cursor) => {
+        gsap.set(cursor, { opacity: 0, scale: 0.8 });
+      });
+    });
+
+    // Hook afterEnter : Réinitialiser après l'entrée (PRINCIPAL)
     barba.hooks.afterEnter((data) => {
+      console.log("🎯 cursor.js - afterEnter: reinitializing cursors");
       setTimeout(() => {
         if (typeof window.initAllCursors === "function") {
-          window.initAllCursors();
+          try {
+            window.initAllCursors();
+            console.log("✅ cursor.js - Successfully reinitialized");
+          } catch (error) {
+            console.error(
+              "❌ cursor.js - Error during reinitialization:",
+              error
+            );
+          }
         }
-      }, 100);
+      }, 150); // Timing optimisé
     });
+
+    console.log("✅ cursor.js - All Barba hooks registered successfully");
+  } else {
+    console.log("⚠️ cursor.js - Barba not found, using fallback only");
   }
 }, 500);

@@ -66,17 +66,63 @@ if (document.readyState === "loading") {
 }
 
 // ========================================
-// 🎪 COMPATIBILITÉ BARBA.JS (AUTO-DÉTECTION)
+// 🎪 COMPATIBILITÉ BARBA.JS (SYSTÈME UNIFIÉ)
 // ========================================
 
+// Système de hooks optimisé selon la doc officielle Barba.js
 setTimeout(() => {
   if (typeof barba !== "undefined") {
+    console.log("🎯 parallax.js - Barba detected, setting up optimized hooks");
+
+    // Hook beforeLeave : Nettoyer avant de quitter la page
+    barba.hooks.beforeLeave((data) => {
+      console.log("🎯 parallax.js - beforeLeave: cleaning up parallax");
+      // Nettoyer toutes les instances ScrollTrigger
+      if (typeof ScrollTrigger !== "undefined") {
+        ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      }
+    });
+
+    // Hook afterLeave : Nettoyer après avoir quitté la page
+    barba.hooks.afterLeave((data) => {
+      console.log("🎯 parallax.js - afterLeave: final cleanup");
+      // S'assurer que ScrollTrigger est bien nettoyé
+      if (typeof ScrollTrigger !== "undefined") {
+        ScrollTrigger.refresh();
+      }
+    });
+
+    // Hook beforeEnter : Préparer la nouvelle page
+    barba.hooks.beforeEnter((data) => {
+      console.log("🎯 parallax.js - beforeEnter: preparing new page");
+      // S'assurer que les images sont dans leur état initial
+      document
+        .querySelectorAll(".project_visual .project_image")
+        .forEach((image) => {
+          gsap.set(image, { objectPosition: "50% 10%" });
+        });
+    });
+
+    // Hook afterEnter : Réinitialiser après l'entrée (PRINCIPAL)
     barba.hooks.afterEnter((data) => {
+      console.log("🎯 parallax.js - afterEnter: reinitializing parallax");
       setTimeout(() => {
         if (typeof window.initParallax === "function") {
-          window.initParallax();
+          try {
+            window.initParallax();
+            console.log("✅ parallax.js - Successfully reinitialized");
+          } catch (error) {
+            console.error(
+              "❌ parallax.js - Error during reinitialization:",
+              error
+            );
+          }
         }
-      }, 100);
+      }, 200); // Timing optimisé pour ScrollTrigger
     });
+
+    console.log("✅ parallax.js - All Barba hooks registered successfully");
+  } else {
+    console.log("⚠️ parallax.js - Barba not found, using fallback only");
   }
 }, 500);
