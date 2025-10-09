@@ -147,8 +147,12 @@ if (document.readyState === "loading") {
 // 🎪 COMPATIBILITÉ BARBA.JS (SYSTÈME UNIFIÉ)
 // ========================================
 
+// Debug : Vérifier que le script se charge
+console.log("🔍 hover-image.js - Script loaded");
+
 // Système de hooks optimisé selon la doc officielle Barba.js
 setTimeout(() => {
+  console.log("🔍 hover-image.js - Timeout executed, checking Barba...");
   if (typeof barba !== "undefined") {
     console.log(
       "🎯 hover-image.js - Barba detected, setting up optimized hooks"
