@@ -230,13 +230,13 @@ if (document.readyState === "loading") {
 setTimeout(() => {
   if (typeof barba !== "undefined") {
     console.log("🎯 project.js - Barba detected, setting up optimized hooks");
-    
+
     // Nettoyer les anciens hooks pour éviter les doublons
     if (window.projectHooksRegistered) {
       console.log("🎯 project.js - Cleaning up old hooks");
       return; // Éviter les hooks multiples
     }
-    
+
     window.projectHooksRegistered = true;
 
     // Hook beforeLeave : Nettoyer avant de quitter la page

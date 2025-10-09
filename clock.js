@@ -65,13 +65,13 @@ if (document.readyState === "loading") {
 setTimeout(() => {
   if (typeof barba !== "undefined") {
     console.log("🎯 clock.js - Barba detected, setting up optimized hooks");
-    
+
     // Nettoyer les anciens hooks pour éviter les doublons
     if (window.clockHooksRegistered) {
       console.log("🎯 clock.js - Cleaning up old hooks");
       return; // Éviter les hooks multiples
     }
-    
+
     window.clockHooksRegistered = true;
 
     // Hook beforeLeave : Nettoyer avant de quitter la page
