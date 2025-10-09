@@ -99,6 +99,14 @@ if (document.readyState === "loading") {
 setTimeout(() => {
   if (typeof barba !== "undefined") {
     console.log("🎯 swiper.js - Barba detected, setting up optimized hooks");
+    
+    // Nettoyer les anciens hooks pour éviter les doublons
+    if (window.swiperHooksRegistered) {
+      console.log("🎯 swiper.js - Cleaning up old hooks");
+      return; // Éviter les hooks multiples
+    }
+    
+    window.swiperHooksRegistered = true;
 
     // Hook beforeLeave : Nettoyer avant de quitter la page
     barba.hooks.beforeLeave((data) => {

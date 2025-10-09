@@ -97,6 +97,14 @@ setTimeout(() => {
     console.log(
       "🎯 menu-scroll-lock.js - Barba detected, setting up optimized hooks"
     );
+    
+    // Nettoyer les anciens hooks pour éviter les doublons
+    if (window.menuScrollLockHooksRegistered) {
+      console.log("🎯 menu-scroll-lock.js - Cleaning up old hooks");
+      return; // Éviter les hooks multiples
+    }
+    
+    window.menuScrollLockHooksRegistered = true;
 
     // Hook beforeLeave : Nettoyer avant de quitter la page
     barba.hooks.beforeLeave((data) => {
