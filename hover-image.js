@@ -154,6 +154,14 @@ setTimeout(() => {
       "🎯 hover-image.js - Barba detected, setting up optimized hooks"
     );
 
+    // Nettoyer les anciens hooks pour éviter les doublons
+    if (window.hoverImageHooksRegistered) {
+      console.log("🎯 hover-image.js - Cleaning up old hooks");
+      return; // Éviter les hooks multiples
+    }
+
+    window.hoverImageHooksRegistered = true;
+
     // Hook beforeLeave : Nettoyer avant de quitter la page
     barba.hooks.beforeLeave((data) => {
       console.log("🎯 hover-image.js - beforeLeave: cleaning up hover images");

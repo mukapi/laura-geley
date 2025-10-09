@@ -210,6 +210,14 @@ setTimeout(() => {
   if (typeof barba !== "undefined") {
     console.log("🎯 faq.js - Barba detected, setting up optimized hooks");
 
+    // Nettoyer les anciens hooks pour éviter les doublons
+    if (window.faqHooksRegistered) {
+      console.log("🎯 faq.js - Cleaning up old hooks");
+      return; // Éviter les hooks multiples
+    }
+
+    window.faqHooksRegistered = true;
+
     // Hook beforeLeave : Nettoyer avant de quitter la page
     barba.hooks.beforeLeave((data) => {
       console.log("🎯 faq.js - beforeLeave: cleaning up FAQ");

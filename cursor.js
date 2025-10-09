@@ -370,6 +370,29 @@ window.cursorCleanup = () => {
     window.cursorResizeHandlers = [];
   }
 
+  // Nettoyer les event listeners des curseurs de manière propre
+  document
+    .querySelectorAll(
+      ".project_single_card, .testimonials_grid, .scope_list.swiper-wrapper, .challenges_grid.swiper-wrapper"
+    )
+    .forEach((container) => {
+      if (container._cursorHandlers) {
+        container.removeEventListener(
+          "mouseenter",
+          container._cursorHandlers.mouseenter
+        );
+        container.removeEventListener(
+          "mouseleave",
+          container._cursorHandlers.mouseleave
+        );
+        container.removeEventListener(
+          "mousemove",
+          container._cursorHandlers.mousemove
+        );
+        delete container._cursorHandlers;
+      }
+    });
+
   // Cloner et remplacer tous les project_single_card SAUF ceux dans un swiper
   document.querySelectorAll(".project_single_card").forEach((card) => {
     // Ne pas cloner si c'est un swiper-slide ou si c'est dans un swiper
@@ -440,6 +463,13 @@ const initializeCursor = (container, cursor) => {
     });
   };
 
+  // Stocker les handlers pour pouvoir les supprimer plus tard
+  container._cursorHandlers = {
+    mouseenter: handleMouseEnter,
+    mouseleave: handleMouseLeave,
+    mousemove: handleMouseMove,
+  };
+
   container.addEventListener("mouseenter", handleMouseEnter);
   container.addEventListener("mouseleave", handleMouseLeave);
   container.addEventListener("mousemove", handleMouseMove);
@@ -471,6 +501,14 @@ if (document.readyState === "loading") {
 setTimeout(() => {
   if (typeof barba !== "undefined") {
     console.log("🎯 cursor.js - Barba detected, setting up optimized hooks");
+
+    // Nettoyer les anciens hooks pour éviter les doublons
+    if (window.cursorHooksRegistered) {
+      console.log("🎯 cursor.js - Cleaning up old hooks");
+      return; // Éviter les hooks multiples
+    }
+
+    window.cursorHooksRegistered = true;
 
     // Hook beforeLeave : Nettoyer avant de quitter la page
     barba.hooks.beforeLeave((data) => {
