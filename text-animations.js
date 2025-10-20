@@ -4,7 +4,7 @@
 // Animation des titres H1 et H2 avec SplitText - mots qui montent du bas
 
 // Version identifier pour debug
-const TEXT_ANIMATIONS_VERSION = "3.1";
+const TEXT_ANIMATIONS_VERSION = "3.3";
 console.log(`🎭 TEXT ANIMATIONS v${TEXT_ANIMATIONS_VERSION} - Starting...`);
 
 // ========================================
@@ -391,6 +391,7 @@ if (document.readyState === "loading") {
 // ========================================
 // Remplacer ScrollTrigger par une détection manuelle plus fiable
 let scrollEventAdded = false;
+let userHasScrolled = false; // Flag global pour détecter si l'utilisateur a vraiment scrollé
 
 function checkElementsInViewport(forceCheck = false) {
   const scrollElements = document.querySelectorAll(
@@ -415,8 +416,8 @@ function checkElementsInViewport(forceCheck = false) {
     }
   });
 
-  // Vérifier aussi les animations de paragraphes SEULEMENT lors du scroll réel
-  if (forceCheck) {
+  // Vérifier aussi les animations de paragraphes SEULEMENT si l'utilisateur a vraiment scrollé
+  if (forceCheck && userHasScrolled) {
     checkParagraphAnimationsInViewport();
   }
 }
@@ -432,16 +433,13 @@ window.initScrollDetection = function () {
   if (!scrollEventAdded) {
     // Écouter le scroll pour détecter les nouveaux éléments (avec throttling)
     let ticking = false;
-    let hasScrolled = false; // Flag pour détecter le premier scroll
 
     function handleScroll() {
       if (!ticking) {
         requestAnimationFrame(() => {
-          // Au premier scroll, activer la vérification des paragraphes
-          if (!hasScrolled) {
-            hasScrolled = true;
-          }
-          checkElementsInViewport(hasScrolled);
+          // Marquer que l'utilisateur a vraiment scrollé
+          userHasScrolled = true;
+          checkElementsInViewport(true);
           ticking = false;
         });
         ticking = true;
@@ -451,7 +449,7 @@ window.initScrollDetection = function () {
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener(
       "resize",
-      gsap.utils.debounce(() => checkElementsInViewport(true), 250)
+      gsap.utils.debounce(() => checkElementsInViewport(userHasScrolled), 250)
     );
     scrollEventAdded = true;
     console.log("📡 Scroll event listeners added");
@@ -492,25 +490,39 @@ function initParagraphAnimations() {
 
     try {
       let splitText;
+      const splitOptions = {
+        absolute: false,
+        position: "relative",
+      };
+
       if (animateType === "chars") {
         splitText = new SplitText(element, {
           type: "chars",
           charsClass: "paragraph-char-animation",
+          absolute: false,
+          position: "relative",
         });
       } else {
         splitText = new SplitText(element, {
           type: "words",
           wordsClass: "paragraph-word-animation",
+          absolute: false,
+          position: "relative",
         });
       }
 
       const animatedElements =
         animateType === "chars" ? splitText.chars : splitText.words;
 
+      console.log(
+        `🎨 Created ${animatedElements.length} animated elements for paragraph`
+      );
+
       // Forcer les éléments à garder display: inline au lieu de inline-block
       gsap.set(animatedElements, {
         color: animationColor,
         display: "inline",
+        position: "relative",
       });
 
       // Créer une timeline pausée
@@ -542,21 +554,35 @@ function initParagraphAnimations() {
 
 // Fonction pour déclencher les animations de paragraphes dans le viewport
 function checkParagraphAnimationsInViewport() {
+  console.log(
+    `🎨 checkParagraphAnimationsInViewport called, userHasScrolled: ${userHasScrolled}`
+  );
+
   const paragraphElements = document.querySelectorAll(
     "[data-text-color-animate]:not([data-paragraph-animated])"
   );
 
-  paragraphElements.forEach((element) => {
+  console.log(
+    `🎨 Found ${paragraphElements.length} paragraph elements to check`
+  );
+
+  paragraphElements.forEach((element, index) => {
     if (element._paragraphAnimationTimeline) {
       const rect = element.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
       const triggerPoint = viewportHeight * 0.9; // Déclenchage plus tôt pour réactivité
       const isInViewport = rect.top < triggerPoint && rect.bottom > 0;
 
+      console.log(
+        `🎨 Paragraph ${index}: rect.top=${rect.top}, triggerPoint=${triggerPoint}, isInViewport=${isInViewport}`
+      );
+
       if (isInViewport) {
         console.log(
-          `🎨 Paragraph in viewport, triggering color animation:`,
-          element.tagName
+          `🎨 SCROLL TRIGGERED: Paragraph in viewport, triggering color animation:`,
+          element.tagName,
+          `Element:`,
+          element
         );
         element.setAttribute("data-paragraph-animated", "true");
         element._paragraphAnimationTimeline.play();
