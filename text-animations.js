@@ -5,47 +5,74 @@
 
 // Fonction principale d'initialisation
 window.initTextAnimations = function () {
+  console.log("🎭 initTextAnimations called");
+  
   // Vérifier que GSAP, ScrollTrigger et SplitText sont disponibles
+  console.log("🔍 Checking dependencies:", {
+    gsap: typeof gsap !== "undefined",
+    ScrollTrigger: typeof ScrollTrigger !== "undefined", 
+    SplitText: typeof SplitText !== "undefined"
+  });
+  
   if (
     typeof gsap === "undefined" ||
     typeof ScrollTrigger === "undefined" ||
     typeof SplitText === "undefined"
   ) {
+    console.log("⏳ Dependencies missing, retrying in 200ms...");
     setTimeout(() => {
       if (
         typeof gsap !== "undefined" &&
         typeof ScrollTrigger !== "undefined" &&
         typeof SplitText !== "undefined"
       ) {
+        console.log("✅ Dependencies loaded, retrying initTextAnimations");
         window.initTextAnimations();
       }
-    }, 100);
+    }, 200);
     return;
   }
 
-  // Nettoyer les anciennes instances ScrollTrigger pour éviter les conflits
-  if (window.textAnimationsScrollTriggers) {
-    window.textAnimationsScrollTriggers.forEach((trigger) => trigger.kill());
-    window.textAnimationsScrollTriggers = [];
-  } else {
+  // Nettoyer les anciennes instances pour éviter les conflits
+  if (window.textAnimationsCleanup) {
+    console.log("🧹 Cleaning up previous instances...");
+    window.textAnimationsCleanup();
+  }
+
+  // Initialiser le tableau des triggers s'il n'existe pas
+  if (!window.textAnimationsScrollTriggers) {
     window.textAnimationsScrollTriggers = [];
   }
 
   // Enregistrer les plugins
   gsap.registerPlugin(ScrollTrigger, SplitText);
+  console.log("✅ Plugins registered");
 
-  // Sélectionner tous les titres H1 et H2
-  const headings = document.querySelectorAll("h1, h2");
+  // Sélectionner tous les titres H1 et H2 qui n'ont pas déjà été traités
+  const headings = document.querySelectorAll(
+    "h1:not([data-split-text-processed]), h2:not([data-split-text-processed])"
+  );
+  console.log(`🔍 Found ${headings.length} headings to process:`, headings);
 
   if (headings.length === 0) {
+    console.log("❌ No headings found to animate");
     return;
   }
 
   headings.forEach((heading) => {
-    // Créer une instance SplitText pour séparer les mots
+    // Marquer comme traité pour éviter les doubles initialisations
+    heading.setAttribute("data-split-text-processed", "true");
+
+    // Nettoyer toute instance SplitText précédente sur cet élément
+    if (heading._splitTextInstance) {
+      heading._splitTextInstance.revert();
+      delete heading._splitTextInstance;
+    }
+
+    // Créer une nouvelle instance SplitText pour séparer les mots
     const splitText = new SplitText(heading, {
       type: "words",
-      wordsClass: "word-animation", // Classe CSS optionnelle
+      wordsClass: "word-animation",
     });
 
     // Récupérer les mots
@@ -62,13 +89,15 @@ window.initTextAnimations = function () {
       rotationX: -45,
     });
 
-    // Créer l'animation avec ScrollTrigger
+    // Créer l'animation avec ScrollTrigger - SIMPLIFIÉE
     const tl = gsap.timeline({
+      paused: true, // Commence en pause
       scrollTrigger: {
         trigger: heading,
         start: "top 85%", // Démarre quand le haut de l'élément atteint 85% de la viewport
         end: "bottom 15%",
-        toggleActions: "play none none reverse", // Joue à l'entrée, reverse au sortir
+        toggleActions: "play none none none", // Joue SEULEMENT à l'entrée, pas de reverse
+        once: true, // Ne se joue qu'une seule fois
         markers: false, // Définir à true pour debug
       },
     });
@@ -83,13 +112,15 @@ window.initTextAnimations = function () {
       stagger: 0.08, // Délai de 80ms entre chaque mot
     });
 
-    // Stocker la référence du trigger pour le cleanup
+    // Stocker les références pour le cleanup
     window.textAnimationsScrollTriggers.push(tl.scrollTrigger);
+    heading._splitTextInstance = splitText;
 
-    // Stocker la référence SplitText pour le cleanup
-    if (!heading._splitTextInstance) {
-      heading._splitTextInstance = splitText;
-    }
+    console.log(
+      `🎭 Text animation setup for: ${heading.tagName}`,
+      words.length,
+      "words"
+    );
   });
 };
 
