@@ -67,10 +67,20 @@ window.initTextAnimations = function () {
     });
   }
 
-  // Maintenant sélectionner tous les titres qui n'ont pas déjà été traités OU qui ont été nettoyés
-  const headings = document.querySelectorAll(
-    "h1:not([data-split-text-processed]), h2:not([data-split-text-processed])"
+  // Sélectionner uniquement les titres avec l'attribut data-text-animate (plus précis)
+  // Fallback: tous les H1 et H2 si l'attribut n'est pas utilisé
+  let headings = document.querySelectorAll(
+    "[data-text-animate]:not([data-split-text-processed])"
   );
+
+  // Si aucun attribut data-text-animate, utiliser H1/H2 (compatibilité)
+  if (headings.length === 0) {
+    headings = document.querySelectorAll(
+      "h1:not([data-split-text-processed]), h2:not([data-split-text-processed])"
+    );
+    console.log("⚠️ No data-text-animate found, using H1/H2 fallback");
+  }
+
   console.log(`🔍 Found ${headings.length} headings to process:`, headings);
 
   if (headings.length === 0) {
@@ -120,10 +130,19 @@ window.initTextAnimations = function () {
     });
     console.log("🎯 Initial state set for words");
 
-    // Détecter si c'est un H1 (probablement dans le hero)
-    const isH1InHero = heading.tagName === "H1";
+    // Détecter le type d'animation via les attributs Webflow
+    const animateType =
+      heading.getAttribute("data-text-animate-type") ||
+      (heading.tagName === "H1" ? "hero" : "scroll");
+    const animateDelay =
+      parseInt(heading.getAttribute("data-text-animate-delay")) ||
+      (animateType === "hero" ? 200 : 0);
 
-    if (isH1InHero) {
+    console.log(
+      `🎭 Animation type detected: ${animateType}, delay: ${animateDelay}ms`
+    );
+
+    if (animateType === "hero") {
       console.log("🎬 H1 detected - setting up immediate animation");
 
       // Pour les H1, animation immédiate avec un petit délai
@@ -139,11 +158,13 @@ window.initTextAnimations = function () {
           console.log("✅ H1 Animation completed for:", heading),
       });
 
-      // Démarrer l'animation après un petit délai pour laisser Barba finir
+      // Démarrer l'animation après le délai configuré
       setTimeout(() => {
-        console.log("🚀 Starting H1 animation immediately");
+        console.log(
+          `🚀 Starting ${animateType} animation after ${animateDelay}ms`
+        );
         tl.play();
-      }, 200);
+      }, animateDelay);
 
       heading._animationTimeline = tl;
     } else {
