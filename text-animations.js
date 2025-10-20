@@ -4,7 +4,7 @@
 // Animation des titres H1 et H2 avec SplitText - mots qui montent du bas
 
 // Version identifier pour debug
-const TEXT_ANIMATIONS_VERSION = "3.3";
+const TEXT_ANIMATIONS_VERSION = "3.4";
 console.log(`🎭 TEXT ANIMATIONS v${TEXT_ANIMATIONS_VERSION} - Starting...`);
 
 // ========================================
@@ -416,8 +416,8 @@ function checkElementsInViewport(forceCheck = false) {
     }
   });
 
-  // Vérifier aussi les animations de paragraphes SEULEMENT si l'utilisateur a vraiment scrollé
-  if (forceCheck && userHasScrolled) {
+  // Vérifier les animations de paragraphes à chaque scroll pour contrôle progressif
+  if (userHasScrolled) {
     checkParagraphAnimationsInViewport();
   }
 }
@@ -518,29 +518,19 @@ function initParagraphAnimations() {
         `🎨 Created ${animatedElements.length} animated elements for paragraph`
       );
 
-      // Forcer les éléments à garder display: inline au lieu de inline-block
+      // Éviter de forcer display: inline pour préserver le layout des liens
       gsap.set(animatedElements, {
         color: animationColor,
-        display: "inline",
-        position: "relative",
       });
 
-      // Créer une timeline pausée
+      // Stocker les éléments pour animation progressive
+      element._paragraphAnimatedElements = animatedElements;
+      element._paragraphOriginalColor = originalColor;
+      element._paragraphAnimationColor = animationColor;
+      element._paragraphAnimatedCount = 0;
+
+      // Créer une timeline vide pour compatibilité
       const tl = gsap.timeline({ paused: true });
-
-      // Animation de changement de couleur - plus rapide
-      tl.to(animatedElements, {
-        color: originalColor,
-        duration: 0.4,
-        ease: "power2.out",
-        stagger: 0.015, // Délai réduit entre chaque élément pour une animation plus rapide
-        onComplete: () => {
-          console.log(
-            `✅ Paragraph color animation completed for:`,
-            element.tagName
-          );
-        },
-      });
 
       // Stocker les références
       element._paragraphAnimationTimeline = tl;
@@ -552,14 +542,14 @@ function initParagraphAnimations() {
   });
 }
 
-// Fonction pour déclencher les animations de paragraphes dans le viewport
+// Fonction pour déclencher les animations de paragraphes selon le scroll
 function checkParagraphAnimationsInViewport() {
   console.log(
     `🎨 checkParagraphAnimationsInViewport called, userHasScrolled: ${userHasScrolled}`
   );
 
   const paragraphElements = document.querySelectorAll(
-    "[data-text-color-animate]:not([data-paragraph-animated])"
+    "[data-text-color-animate]"
   );
 
   console.log(
@@ -567,25 +557,53 @@ function checkParagraphAnimationsInViewport() {
   );
 
   paragraphElements.forEach((element, index) => {
-    if (element._paragraphAnimationTimeline) {
+    if (
+      element._paragraphAnimatedElements &&
+      element._paragraphAnimatedElements.length > 0
+    ) {
       const rect = element.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      const triggerPoint = viewportHeight * 0.9; // Déclenchage plus tôt pour réactivité
-      const isInViewport = rect.top < triggerPoint && rect.bottom > 0;
 
-      console.log(
-        `🎨 Paragraph ${index}: rect.top=${rect.top}, triggerPoint=${triggerPoint}, isInViewport=${isInViewport}`
+      // Calculer le progress du scroll sur l'élément
+      const startTrigger = rect.top - viewportHeight;
+      const endTrigger = rect.bottom;
+      const totalDistance = viewportHeight + (endTrigger - startTrigger);
+      const currentDistance = viewportHeight - rect.top;
+
+      // Progress de 0 à 1 basé sur la position de scroll
+      let scrollProgress = Math.max(
+        0,
+        Math.min(1, currentDistance / totalDistance)
       );
 
-      if (isInViewport) {
+      // Si l'élément est dans le viewport, animer progressivement
+      if (scrollProgress > 0 && rect.bottom > 0 && rect.top < viewportHeight) {
+        // Marquer comme en cours d'animation si pas déjà fait
+        if (!element.hasAttribute("data-paragraph-animated")) {
+          element.setAttribute("data-paragraph-animated", "true");
+          console.log(
+            `🎨 Starting scroll-controlled animation for paragraph ${index}`
+          );
+        }
+
+        // Calculer combien d'éléments doivent être animés selon le progress
+        const totalElements = element._paragraphAnimatedElements.length;
+        const elementsToAnimate = Math.floor(scrollProgress * totalElements);
+
         console.log(
-          `🎨 SCROLL TRIGGERED: Paragraph in viewport, triggering color animation:`,
-          element.tagName,
-          `Element:`,
-          element
+          `🎨 Paragraph ${index}: scrollProgress=${scrollProgress.toFixed(
+            2
+          )}, animating ${elementsToAnimate}/${totalElements} elements`
         );
-        element.setAttribute("data-paragraph-animated", "true");
-        element._paragraphAnimationTimeline.play();
+
+        // Animer les éléments progressivement
+        element._paragraphAnimatedElements.forEach((el, elIndex) => {
+          if (elIndex < elementsToAnimate) {
+            gsap.set(el, { color: element._paragraphOriginalColor });
+          } else {
+            gsap.set(el, { color: element._paragraphAnimationColor });
+          }
+        });
       }
     }
   });
