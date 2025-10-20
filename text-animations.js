@@ -13,25 +13,29 @@ console.log(`🎭 TEXT ANIMATIONS v${TEXT_ANIMATIONS_VERSION} - Starting...`);
 // Masquer immédiatement les titres Hero pour éviter le flash de visibilité
 function hideHeroTitlesImmediately() {
   console.log("🚫 Hiding hero titles immediately on script load");
-  const heroTitles = document.querySelectorAll('[data-text-animate-type="hero"]');
-  
+  const heroTitles = document.querySelectorAll(
+    '[data-text-animate-type="hero"]'
+  );
+
   if (heroTitles.length > 0) {
-    console.log(`🎯 Found ${heroTitles.length} hero titles to hide immediately`);
+    console.log(
+      `🎯 Found ${heroTitles.length} hero titles to hide immediately`
+    );
     heroTitles.forEach((title) => {
       // Masquer directement avec CSS pour une réactivité instantanée
-      title.style.opacity = '0';
-      title.style.visibility = 'hidden';
+      title.style.opacity = "0";
+      title.style.visibility = "hidden";
       console.log("🚫 Hero title hidden immediately:", title);
     });
-    
+
     // Attendre que GSAP soit disponible pour un masquage plus précis
     setTimeout(() => {
-      if (typeof gsap !== 'undefined') {
+      if (typeof gsap !== "undefined") {
         console.log("🎨 GSAP available, applying precise hiding");
         heroTitles.forEach((title) => {
           gsap.set(title, {
             opacity: 0,
-            visibility: 'hidden'
+            visibility: "hidden",
           });
         });
       }
@@ -189,7 +193,7 @@ window.initTextAnimations = function () {
       // CRUCIAL: Remettre la visibilité du titre principal maintenant que SplitText est prêt
       gsap.set(heading, {
         opacity: 1,
-        visibility: 'visible'
+        visibility: "visible",
       });
       console.log("👁️ Hero title visibility restored for animation");
 
@@ -415,7 +419,7 @@ setTimeout(() => {
         nextHeroTitles.forEach((title) => {
           gsap.set(title, {
             opacity: 0,
-            visibility: 'hidden'
+            visibility: "hidden",
           });
         });
       }
@@ -487,7 +491,7 @@ setTimeout(() => {
         heroTitles.forEach((title) => {
           gsap.set(title, {
             opacity: 0,
-            visibility: 'hidden'
+            visibility: "hidden",
           });
         });
       }
