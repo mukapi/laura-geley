@@ -4,7 +4,7 @@
 // Animation des titres H1 et H2 avec SplitText - mots qui montent du bas
 
 // Version identifier pour debug
-const TEXT_ANIMATIONS_VERSION = "3.0";
+const TEXT_ANIMATIONS_VERSION = "3.1";
 console.log(`🎭 TEXT ANIMATIONS v${TEXT_ANIMATIONS_VERSION} - Starting...`);
 
 // ========================================
@@ -392,7 +392,7 @@ if (document.readyState === "loading") {
 // Remplacer ScrollTrigger par une détection manuelle plus fiable
 let scrollEventAdded = false;
 
-function checkElementsInViewport() {
+function checkElementsInViewport(forceCheck = false) {
   const scrollElements = document.querySelectorAll(
     '[data-text-animate-type="scroll"]'
   );
@@ -415,25 +415,33 @@ function checkElementsInViewport() {
     }
   });
 
-  // Vérifier aussi les animations de paragraphes
-  checkParagraphAnimationsInViewport();
+  // Vérifier aussi les animations de paragraphes SEULEMENT lors du scroll réel
+  if (forceCheck) {
+    checkParagraphAnimationsInViewport();
+  }
 }
 
 // Fonction d'initialisation du système de détection (globale)
 window.initScrollDetection = function () {
   console.log("🎯 Initializing manual scroll detection system");
 
-  // Vérifier immédiatement les éléments visibles
-  setTimeout(checkElementsInViewport, 100);
+  // Vérifier immédiatement les éléments visibles (sans forcer les paragraphes)
+  setTimeout(() => checkElementsInViewport(false), 100);
 
   // Éviter d'ajouter plusieurs fois le même listener
   if (!scrollEventAdded) {
     // Écouter le scroll pour détecter les nouveaux éléments (avec throttling)
     let ticking = false;
+    let hasScrolled = false; // Flag pour détecter le premier scroll
+
     function handleScroll() {
       if (!ticking) {
         requestAnimationFrame(() => {
-          checkElementsInViewport();
+          // Au premier scroll, activer la vérification des paragraphes
+          if (!hasScrolled) {
+            hasScrolled = true;
+          }
+          checkElementsInViewport(hasScrolled);
           ticking = false;
         });
         ticking = true;
@@ -443,7 +451,7 @@ window.initScrollDetection = function () {
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener(
       "resize",
-      gsap.utils.debounce(checkElementsInViewport, 250)
+      gsap.utils.debounce(() => checkElementsInViewport(true), 250)
     );
     scrollEventAdded = true;
     console.log("📡 Scroll event listeners added");
@@ -485,28 +493,35 @@ function initParagraphAnimations() {
     try {
       let splitText;
       if (animateType === "chars") {
-        splitText = new SplitText(element, { type: "chars" });
+        splitText = new SplitText(element, {
+          type: "chars",
+          charsClass: "paragraph-char-animation",
+        });
       } else {
-        splitText = new SplitText(element, { type: "words" });
+        splitText = new SplitText(element, {
+          type: "words",
+          wordsClass: "paragraph-word-animation",
+        });
       }
 
       const animatedElements =
         animateType === "chars" ? splitText.chars : splitText.words;
 
-      // Définir la couleur initiale sur tous les éléments
+      // Forcer les éléments à garder display: inline au lieu de inline-block
       gsap.set(animatedElements, {
         color: animationColor,
+        display: "inline",
       });
 
       // Créer une timeline pausée
       const tl = gsap.timeline({ paused: true });
 
-      // Animation de changement de couleur
+      // Animation de changement de couleur - plus rapide
       tl.to(animatedElements, {
         color: originalColor,
-        duration: 0.6,
+        duration: 0.4,
         ease: "power2.out",
-        stagger: 0.03, // Délai entre chaque élément
+        stagger: 0.015, // Délai réduit entre chaque élément pour une animation plus rapide
         onComplete: () => {
           console.log(
             `✅ Paragraph color animation completed for:`,
@@ -535,7 +550,7 @@ function checkParagraphAnimationsInViewport() {
     if (element._paragraphAnimationTimeline) {
       const rect = element.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      const triggerPoint = viewportHeight * 0.8; // Déclenchage à 80% du viewport
+      const triggerPoint = viewportHeight * 0.9; // Déclenchage plus tôt pour réactivité
       const isInViewport = rect.top < triggerPoint && rect.bottom > 0;
 
       if (isInViewport) {
