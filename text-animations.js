@@ -547,35 +547,48 @@ setTimeout(() => {
                 );
 
                 scrollTriggerTimelines.forEach((heading, index) => {
-                  console.log(`🔍 Element ${index + 1}:`, heading.tagName, heading.className);
-                  
-                  if (heading._animationTimeline && heading._animationTimeline.scrollTrigger) {
+                  console.log(
+                    `🔍 Element ${index + 1}:`,
+                    heading.tagName,
+                    heading.className
+                  );
+
+                  if (
+                    heading._animationTimeline &&
+                    heading._animationTimeline.scrollTrigger
+                  ) {
                     const st = heading._animationTimeline.scrollTrigger;
                     console.log(`📊 ScrollTrigger info:`, {
-                      isActive: st ? st.isActive : 'no trigger',
-                      progress: st ? st.progress : 'no trigger',
-                      start: st ? st.start : 'no trigger',
-                      end: st ? st.end : 'no trigger'
+                      isActive: st ? st.isActive : "no trigger",
+                      progress: st ? st.progress : "no trigger",
+                      start: st ? st.start : "no trigger",
+                      end: st ? st.end : "no trigger",
                     });
-                    
+
                     // Vérifier si l'élément est dans le viewport avec une approche plus directe
                     const rect = heading.getBoundingClientRect();
                     const viewportHeight = window.innerHeight;
-                    const isInViewport = rect.top < viewportHeight && rect.bottom > 0;
-                    
-                    console.log(`👁️ Element ${heading.tagName} viewport check:`, {
-                      rectTop: rect.top,
-                      rectBottom: rect.bottom,
-                      viewportHeight: viewportHeight,
-                      isInViewport: isInViewport
-                    });
+                    const isInViewport =
+                      rect.top < viewportHeight && rect.bottom > 0;
+
+                    console.log(
+                      `👁️ Element ${heading.tagName} viewport check:`,
+                      {
+                        rectTop: rect.top,
+                        rectBottom: rect.bottom,
+                        viewportHeight: viewportHeight,
+                        isInViewport: isInViewport,
+                      }
+                    );
 
                     // Déclencher l'animation si l'élément est visible OU si le ScrollTrigger a un progress
                     if (isInViewport || (st && st.progress > 0)) {
                       console.log(
                         "🎯 Triggering animation for visible element:",
                         heading.tagName,
-                        isInViewport ? "in viewport" : `progress: ${st.progress}`
+                        isInViewport
+                          ? "in viewport"
+                          : `progress: ${st.progress}`
                       );
                       heading._animationTimeline.play();
                     }
