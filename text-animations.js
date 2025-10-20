@@ -5,33 +5,26 @@
 
 // Version identifier pour debug
 const TEXT_ANIMATIONS_VERSION = "3.8";
-console.log(`🎭 TEXT ANIMATIONS v${TEXT_ANIMATIONS_VERSION} - Starting...`);
 
 // ========================================
 // 🚨 MASQUAGE IMMÉDIAT DES TITRES HERO
 // ========================================
 // Masquer immédiatement les titres Hero pour éviter le flash de visibilité
 function hideHeroTitlesImmediately() {
-  console.log("🚫 Hiding hero titles immediately on script load");
   const heroTitles = document.querySelectorAll(
     '[data-text-animate-type="hero"]'
   );
 
   if (heroTitles.length > 0) {
-    console.log(
-      `🎯 Found ${heroTitles.length} hero titles to hide immediately`
-    );
     heroTitles.forEach((title) => {
       // Masquer directement avec CSS pour une réactivité instantanée
       title.style.opacity = "0";
       title.style.visibility = "hidden";
-      console.log("🚫 Hero title hidden immediately:", title);
     });
 
     // Attendre que GSAP soit disponible pour un masquage plus précis
     setTimeout(() => {
       if (typeof gsap !== "undefined") {
-        console.log("🎨 GSAP available, applying precise hiding");
         heroTitles.forEach((title) => {
           gsap.set(title, {
             opacity: 0,
@@ -40,8 +33,6 @@ function hideHeroTitlesImmediately() {
         });
       }
     }, 50);
-  } else {
-    console.log("⚠️ No hero titles found to hide");
   }
 }
 
@@ -50,28 +41,17 @@ hideHeroTitlesImmediately();
 
 // Fonction principale d'initialisation
 window.initTextAnimations = function () {
-  console.log("🎭 initTextAnimations called");
-
-  // Vérifier que GSAP, ScrollTrigger et SplitText sont disponibles
-  console.log("🔍 Checking dependencies:", {
-    gsap: typeof gsap !== "undefined",
-    ScrollTrigger: typeof ScrollTrigger !== "undefined",
-    SplitText: typeof SplitText !== "undefined",
-  });
-
   if (
     typeof gsap === "undefined" ||
     typeof ScrollTrigger === "undefined" ||
     typeof SplitText === "undefined"
   ) {
-    console.log("⏳ Dependencies missing, retrying in 200ms...");
     setTimeout(() => {
       if (
         typeof gsap !== "undefined" &&
         typeof ScrollTrigger !== "undefined" &&
         typeof SplitText !== "undefined"
       ) {
-        console.log("✅ Dependencies loaded, retrying initTextAnimations");
         window.initTextAnimations();
       }
     }, 200);
@@ -80,13 +60,11 @@ window.initTextAnimations = function () {
 
   // Nettoyer les anciennes instances pour éviter les conflits
   if (window.textAnimationsCleanup) {
-    console.log("🧹 Cleaning up previous instances...");
     window.textAnimationsCleanup();
   }
 
   // Enregistrer les plugins
   gsap.registerPlugin(ScrollTrigger, SplitText);
-  console.log("✅ Plugins registered");
 
   // CORRECTION: Sur un refresh, on doit nettoyer tous les éléments d'abord
   // Vérifier s'il y a des éléments avec l'attribut mais sans instance SplitText (état corrompu)
@@ -98,12 +76,8 @@ window.initTextAnimations = function () {
   );
 
   if (corruptedHeadings.length > 0) {
-    console.log(
-      `🔧 Found ${corruptedHeadings.length} corrupted headings, cleaning up...`
-    );
     corruptedHeadings.forEach((heading) => {
       heading.removeAttribute("data-split-text-processed");
-      console.log("🧹 Removed corrupted attribute from:", heading);
     });
   }
 
@@ -118,28 +92,18 @@ window.initTextAnimations = function () {
     headings = document.querySelectorAll(
       "h1:not([data-split-text-processed]), h2:not([data-split-text-processed])"
     );
-    console.log("⚠️ No data-text-animate found, using H1/H2 fallback");
   }
 
-  console.log(`🔍 Found ${headings.length} headings to process:`, headings);
-
   if (headings.length === 0) {
-    console.log("❌ No headings found to animate");
     return;
   }
 
   headings.forEach((heading, index) => {
-    console.log(
-      `🎬 Processing heading ${index + 1}/${headings.length}:`,
-      heading
-    );
-
     // Marquer comme traité pour éviter les doubles initialisations
     heading.setAttribute("data-split-text-processed", "true");
 
     // Nettoyer toute instance SplitText précédente sur cet élément
     if (heading._splitTextInstance) {
-      console.log("🧹 Reverting previous SplitText instance");
       heading._splitTextInstance.revert();
       delete heading._splitTextInstance;
     }
@@ -152,13 +116,8 @@ window.initTextAnimations = function () {
 
     // Récupérer les mots
     const words = splitText.words;
-    console.log(
-      `📝 SplitText created ${words.length} words for heading:`,
-      words
-    );
 
     if (words.length === 0) {
-      console.log("⚠️ No words found, skipping");
       return;
     }
 
@@ -168,7 +127,6 @@ window.initTextAnimations = function () {
       y: 30,
       rotationX: -45,
     });
-    console.log("🎯 Initial state set for words");
 
     // Détecter le type d'animation via les attributs Webflow
     const animateType =
@@ -178,19 +136,12 @@ window.initTextAnimations = function () {
       parseInt(heading.getAttribute("data-text-animate-delay")) ||
       (animateType === "hero" ? 200 : 0);
 
-    console.log(
-      `🎭 Animation type detected: ${animateType}, delay: ${animateDelay}ms`
-    );
-
     if (animateType === "hero") {
-      console.log("🎬 Hero title detected - setting up animation");
-
       // CRUCIAL: Remettre la visibilité du titre principal maintenant que SplitText est prêt
       gsap.set(heading, {
         opacity: 1,
         visibility: "visible",
       });
-      console.log("👁️ Hero title visibility restored for animation");
 
       // Pour les Hero, créer la timeline mais ne pas la jouer immédiatement
       const tl = gsap.timeline({ paused: true });
@@ -201,24 +152,18 @@ window.initTextAnimations = function () {
         duration: 0.8,
         ease: "power2.out",
         stagger: 0.08,
-        onComplete: () =>
-          console.log("✅ Hero Animation completed for:", heading),
       });
 
       // Stocker la timeline pour la déclencher depuis Barba
       heading._animationTimeline = tl;
       heading._animateType = animateType;
       heading._animateDelay = animateDelay;
-
-      console.log(`🎭 Hero animation ready, will be triggered by Barba hook`);
     } else {
-      console.log("🎬 Scroll title detected - using manual trigger approach");
-
       // Pour les autres titres, utiliser la même approche que les Heroes
       // Créer une timeline pausée qui sera déclenchée manuellement
       const tl = gsap.timeline({ paused: true });
 
-      // Animation des mots avec un délai échelonné (stagger)
+      // Animation des mots avec un délai échelonné (stagger) et easing
       tl.to(words, {
         opacity: 1,
         y: 0,
@@ -226,10 +171,6 @@ window.initTextAnimations = function () {
         duration: 0.8,
         ease: "power2.out",
         stagger: 0.08,
-        onStart: () =>
-          console.log("🎬 Animation started for:", heading.tagName),
-        onComplete: () =>
-          console.log("🎯 Animation finished for:", heading.tagName),
       });
 
       // Stocker la timeline pour déclenchement manuel (comme les Heroes)
@@ -237,28 +178,17 @@ window.initTextAnimations = function () {
       heading._animateType = animateType;
       heading._animateDelay = animateDelay;
       heading._hasAnimated = false; // Flag pour éviter les re-déclenchements
-
-      console.log(
-        `📌 Manual trigger timeline created for ${heading.tagName}, will be triggered on scroll`
-      );
     }
 
     // Stocker la référence SplitText
     heading._splitTextInstance = splitText;
-
-    console.log(
-      `🎭 Text animation setup for: ${heading.tagName} with ${words.length} words`
-    );
   });
 };
 
 // Fonction de nettoyage globale
 window.textAnimationsCleanup = () => {
-  console.log("🧹 textAnimationsCleanup called");
-
   // Réinitialiser les SplitText instances et animations
   const headings = document.querySelectorAll("h1, h2");
-  console.log(`🔄 Reverting SplitText for ${headings.length} headings`);
   headings.forEach((heading) => {
     // Tuer l'animation timeline si elle existe
     if (heading._animationTimeline) {
@@ -277,7 +207,6 @@ window.textAnimationsCleanup = () => {
   // Tuer toutes les animations GSAP en cours sur les mots
   const words = document.querySelectorAll(".word-animation");
   if (words.length > 0) {
-    console.log(`⚡ Killing animations for ${words.length} word elements`);
     gsap.killTweensOf(words);
   }
 
@@ -305,10 +234,6 @@ window.textAnimationsCleanup = () => {
 
 // Fonction d'initialisation avec nettoyage préalable pour les refreshes
 function initTextAnimationsWithCleanup() {
-  console.log(
-    "🔄 Initializing text animations with cleanup for refresh scenario"
-  );
-
   // Sur un refresh, nettoyer d'abord tous les attributs corrompus
   const allHeadings = document.querySelectorAll(
     "h1[data-split-text-processed], h2[data-split-text-processed]"
@@ -316,14 +241,12 @@ function initTextAnimationsWithCleanup() {
   allHeadings.forEach((heading) => {
     if (!heading._splitTextInstance && !heading._animationTimeline) {
       heading.removeAttribute("data-split-text-processed");
-      console.log("🧹 Cleaned corrupted heading:", heading);
     }
   });
 
   // Attendre un peu plus longtemps sur refresh pour s'assurer que tout est prêt
   setTimeout(() => {
     if (typeof window.initTextAnimations === "function") {
-      console.log("🚀 Starting initTextAnimations after refresh delay");
       window.initTextAnimations();
 
       // Initialiser les animations de paragraphes avec retry automatique
@@ -334,9 +257,6 @@ function initTextAnimationsWithCleanup() {
         const success = initParagraphAnimations();
         if (!success && retryCount < maxRetries) {
           retryCount++;
-          console.log(
-            `🔄 REFRESH: Retry ${retryCount}/${maxRetries} for paragraph elements`
-          );
           setTimeout(tryInitParagraphAnimations, 500 * retryCount);
         }
       }
@@ -345,14 +265,12 @@ function initTextAnimationsWithCleanup() {
 
       // CRUCIAL: Sur refresh, déclencher aussi les animations hero
       setTimeout(() => {
-        console.log("🔄 REFRESH: Triggering hero animations after init");
         const heroHeadings = document.querySelectorAll(
           `[data-text-animate-type="hero"]`
         );
         heroHeadings.forEach((heading) => {
           if (heading._animationTimeline && heading._animateType === "hero") {
             const delay = heading._animateDelay || 200;
-            console.log(`🚀 REFRESH: Starting hero animation after ${delay}ms`);
             setTimeout(() => {
               heading._animationTimeline.play();
             }, delay);
@@ -363,7 +281,6 @@ function initTextAnimationsWithCleanup() {
         setTimeout(() => {
           // Utiliser la fonction initScrollDetection si elle existe (après que Barba soit chargé)
           if (typeof window.initScrollDetection === "function") {
-            console.log("🔄 REFRESH: Initializing scroll detection system");
             window.initScrollDetection();
           }
         }, 200);
@@ -372,10 +289,13 @@ function initTextAnimationsWithCleanup() {
   }, 200); // Délai augmenté pour les refreshes
 }
 
+// Initialisation directe
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
       initTextAnimationsWithCleanup();
+
       // Initialiser aussi le système de détection de scroll pour les cas sans Barba
       setTimeout(() => {
         if (typeof window.initScrollDetection === "function") {
@@ -387,6 +307,7 @@ if (document.readyState === "loading") {
 } else {
   setTimeout(() => {
     initTextAnimationsWithCleanup();
+
     // Initialiser aussi le système de détection de scroll pour les cas sans Barba
     setTimeout(() => {
       if (typeof window.initScrollDetection === "function") {
@@ -421,10 +342,6 @@ function checkElementsInViewport(forceCheck = false) {
       const isInViewport = rect.top < triggerPoint && rect.bottom > 0;
 
       if (isInViewport) {
-        console.log(
-          `🎯 Scroll element in viewport, triggering animation:`,
-          heading.tagName
-        );
         heading._hasAnimated = true;
         heading._animationTimeline.play();
       }
@@ -444,8 +361,6 @@ function checkElementsInViewport(forceCheck = false) {
 
 // Fonction d'initialisation du système de détection (globale)
 window.initScrollDetection = function () {
-  console.log("🎯 Initializing manual scroll detection system");
-
   // Vérifier immédiatement les éléments visibles (sans forcer les paragraphes)
   setTimeout(() => checkElementsInViewport(false), 100);
 
@@ -472,7 +387,6 @@ window.initScrollDetection = function () {
       gsap.utils.debounce(() => checkElementsInViewport(userHasScrolled), 250)
     );
     scrollEventAdded = true;
-    console.log("📡 Scroll event listeners added");
   }
 };
 
@@ -481,37 +395,11 @@ window.initScrollDetection = function () {
 // ========================================
 // Animation des paragraphes avec changement de couleur mot par mot ou lettre par lettre
 function initParagraphAnimations() {
-  console.log("🎨 Initializing paragraph color animations");
-
   const paragraphElements = document.querySelectorAll(
     "[data-text-color-animate]"
   );
 
-  console.log(
-    `🔍 DEBUG: Found ${paragraphElements.length} elements with [data-text-color-animate]`
-  );
-  console.log("🔍 DEBUG: Elements found:", paragraphElements);
-
   if (paragraphElements.length === 0) {
-    console.log("⚠️ No paragraph elements with data-text-color-animate found");
-    // Debug: vérifier s'il y a des éléments p avec des attributs
-    const allP = document.querySelectorAll("p");
-    console.log(`🔍 DEBUG: Found ${allP.length} total <p> elements on page`);
-    allP.forEach((p, index) => {
-      console.log(`🔍 DEBUG: <p> ${index}:`, {
-        id: p.id,
-        className: p.className,
-        attributes: Array.from(p.attributes).map(
-          (attr) => `${attr.name}="${attr.value}"`
-        ),
-        hasDataTextColorAnimate: p.hasAttribute("data-text-color-animate"),
-        hasDataTextColorAnimateType: p.hasAttribute(
-          "data-text-color-animate-type"
-        ),
-      });
-    });
-
-    // Retourner false pour indiquer qu'aucun élément n'a été trouvé
     return false;
   }
 
@@ -530,21 +418,11 @@ function processParagraphElements(paragraphElements) {
       element.getAttribute("data-text-color-animate-type") || "words"; // 'words' ou 'chars'
     const originalColor =
       element.style.color || getComputedStyle(element).color;
-    const animationColor =
+    const targetColor =
       element.getAttribute("data-text-color-animate") || "#999999";
-
-    console.log(
-      `🎨 Processing paragraph element:`,
-      element.tagName,
-      `Type: ${animateType}`
-    );
 
     try {
       let splitText;
-      const splitOptions = {
-        absolute: false,
-        position: "relative",
-      };
 
       if (animateType === "chars") {
         splitText = new SplitText(element, {
@@ -565,19 +443,22 @@ function processParagraphElements(paragraphElements) {
       const animatedElements =
         animateType === "chars" ? splitText.chars : splitText.words;
 
-      console.log(
-        `🎨 Created ${animatedElements.length} animated elements for paragraph`
-      );
-
+      // CORRECTION: Initialiser avec la couleur originale (Webflow) - la couleur cible sera appliquée via scroll
       gsap.set(animatedElements, {
-        color: animationColor,
+        color: originalColor,
       });
 
       // Stocker les éléments pour animation progressive
       element._paragraphAnimatedElements = animatedElements;
       element._paragraphOriginalColor = originalColor;
-      element._paragraphAnimationColor = animationColor;
+      element._paragraphTargetColor = targetColor;
       element._paragraphAnimatedCount = 0;
+      element._lastAnimatedCount = -1; // Pour éviter les animations redondantes
+
+      // Initialiser l'état d'animation pour chaque élément
+      animatedElements.forEach((el) => {
+        el._isAnimated = false;
+      });
 
       // Créer une timeline vide pour compatibilité
       const tl = gsap.timeline({ paused: true });
@@ -598,29 +479,9 @@ function processParagraphElements(paragraphElements) {
 
 // Fonction pour déclencher les animations de paragraphes selon le scroll
 function checkParagraphAnimationsInViewport() {
-  console.log(
-    `🎨 checkParagraphAnimationsInViewport called, userHasScrolled: ${userHasScrolled}`
-  );
-
   const paragraphElements = document.querySelectorAll(
     "[data-text-color-animate]"
   );
-
-  console.log(
-    `🎨 Found ${paragraphElements.length} paragraph elements to check`
-  );
-
-  // Debug: vérifier si les éléments ont été initialisés
-  if (paragraphElements.length > 0) {
-    paragraphElements.forEach((element, index) => {
-      console.log(`🔍 DEBUG Element ${index}:`, {
-        id: element.id,
-        hasAnimatedElements: !!element._paragraphAnimatedElements,
-        animatedElementsLength: element._paragraphAnimatedElements?.length,
-        isProcessed: !!element._paragraphAnimationProcessed,
-      });
-    });
-  }
 
   paragraphElements.forEach((element, index) => {
     if (
@@ -630,53 +491,101 @@ function checkParagraphAnimationsInViewport() {
       const rect = element.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
 
-      // Calculer le progress du scroll sur l'élément - terminer plus tôt
-      const startTrigger = rect.top - viewportHeight;
-      const endTrigger = rect.bottom;
-      const totalDistance = viewportHeight + (endTrigger - startTrigger);
-      const currentDistance = viewportHeight - rect.top;
+      // Calculer le progress du scroll sur l'élément - SIMPLIFIÉ
+      // L'animation commence quand l'élément entre dans le viewport à 80%
+      const animationTriggerPoint = viewportHeight * 0.8;
 
-      // Progress de 0 à 1 basé sur la position de scroll
-      let scrollProgress = Math.max(
-        0,
-        Math.min(1, currentDistance / totalDistance)
-      );
+      let scrollProgress = 0;
 
-      // Terminer l'animation beaucoup plus tôt - multiplier par 2.5 pour finir à 40% du scroll
-      scrollProgress = Math.min(1, scrollProgress * 2.5);
+      // Si l'élément entre dans la zone d'animation
+      if (rect.top < animationTriggerPoint && rect.bottom > 0) {
+        // DIAGNOSTIC : Ajouter des logs pour comprendre le problème
+        const distanceFromTriggerPoint = Math.max(
+          0,
+          animationTriggerPoint - rect.top
+        );
+
+        // SOLUTION : Distancer l'animation plus pour qu'elle progresse vraiment mot par mot
+        // Utiliser une distance plus longue pour une progression plus fine
+        const animationDuration = Math.min(600, viewportHeight * 0.8); // Distance plus longue
+
+        // Progress qui commence vraiment à 0 et progresse lentement
+        scrollProgress = Math.min(
+          1,
+          distanceFromTriggerPoint / animationDuration
+        );
+
+        // CORRECTION : Ne pas limiter le progress à 30% !
+        // Laissez le progress aller jusqu'à 1 pour que l'animation se termine complètement
+      }
 
       // Si l'élément est dans le viewport, animer progressivement
+      // Commencer l'animation dès que scrollProgress > 0 (même très petit)
       if (scrollProgress > 0 && rect.bottom > 0 && rect.top < viewportHeight) {
         // Marquer comme en cours d'animation si pas déjà fait
         if (!element.hasAttribute("data-paragraph-animated")) {
           element.setAttribute("data-paragraph-animated", "true");
-          console.log(
-            `🎨 Starting scroll-controlled animation for paragraph ${index}`
-          );
         }
 
         // Calculer combien d'éléments doivent être animés selon le progress
         const totalElements = element._paragraphAnimatedElements.length;
-        const elementsToAnimate = Math.floor(scrollProgress * totalElements);
 
-        console.log(
-          `🎨 Paragraph ${index}: scrollProgress=${scrollProgress.toFixed(
-            2
-          )}, animating ${elementsToAnimate}/${totalElements} elements`
-        );
+        // PROBLÈME IDENTIFIÉ : Le scrollProgress est trop élevé dès le début !
+        // SOLUTION : Utiliser une progression plus lente et plus précise
+        let elementsToAnimate = 0;
 
-        // Animer les éléments progressivement
-        element._paragraphAnimatedElements.forEach((el, elIndex) => {
-          if (elIndex < elementsToAnimate) {
-            gsap.set(el, {
-              color: element._paragraphOriginalColor,
-            });
-          } else {
-            gsap.set(el, {
-              color: element._paragraphAnimationColor,
-            });
+        // Si scrollProgress est très petit (< 0.01), animer seulement le premier mot
+        if (scrollProgress > 0 && scrollProgress < 0.01 && totalElements > 0) {
+          elementsToAnimate = 1;
+        } else {
+          // Sinon, utiliser un calcul plus conservateur
+          elementsToAnimate = Math.floor(scrollProgress * totalElements);
+
+          // Forcer au moins 1 mot si scrollProgress > 0.001
+          if (
+            scrollProgress > 0.001 &&
+            elementsToAnimate === 0 &&
+            totalElements > 0
+          ) {
+            elementsToAnimate = 1;
           }
-        });
+        }
+
+        // Ne pas dépasser le nombre total d'éléments
+        elementsToAnimate = Math.min(elementsToAnimate, totalElements);
+
+        // Éviter les animations redondantes qui causent le clignotement
+        if (element._lastAnimatedCount !== elementsToAnimate) {
+          const previousAnimatedCount = element._lastAnimatedCount || 0;
+          element._lastAnimatedCount = elementsToAnimate;
+
+          // CORRECTION: Animer de la couleur originale (Webflow) vers la couleur cible (attribut)
+          // avec easing pour un remplissage fluide au scroll - optimisé pour éviter le clignotement
+          element._paragraphAnimatedElements.forEach((el, elIndex) => {
+            if (elIndex < elementsToAnimate) {
+              // Les éléments qui entrent dans l'animation (nouveau ou déjà animé)
+              if (elIndex >= previousAnimatedCount || !el._isAnimated) {
+                // Animation avec easing pour les nouveaux éléments
+                gsap.to(el, {
+                  color: element._paragraphTargetColor,
+                  duration: 0.3,
+                  ease: "power2.out",
+                });
+                el._isAnimated = true;
+              }
+            } else {
+              // Les éléments qui sortent de l'animation (scroll vers le haut)
+              if (el._isAnimated) {
+                gsap.to(el, {
+                  color: element._paragraphOriginalColor,
+                  duration: 0.3,
+                  ease: "power2.out",
+                });
+                el._isAnimated = false;
+              }
+            }
+          });
+        }
       }
     }
   });
@@ -685,12 +594,8 @@ function checkParagraphAnimationsInViewport() {
 // Auto-détection et connexion à Barba.js selon le pattern validé
 setTimeout(() => {
   if (typeof barba !== "undefined") {
-    console.log("🔄 text-animations.js - Barba detected, setting up hooks");
-
     // Hook beforeLeave : Nettoyer avant de quitter la page ET cacher les hero
     barba.hooks.beforeLeave((data) => {
-      console.log("🚪 Barba beforeLeave - cleaning text animations");
-
       // IMPORTANT: Cacher immédiatement les titres hero de la nouvelle page
       const nextHeroTitles = data.next.container.querySelectorAll(
         `[data-text-animate-type="hero"]`
@@ -701,7 +606,6 @@ setTimeout(() => {
 
       // Masquer les titres hero au niveau principal
       if (nextHeroTitles.length > 0) {
-        console.log("🚫 Hiding hero titles IMMEDIATELY before transition");
         nextHeroTitles.forEach((title) => {
           gsap.set(title, {
             opacity: 0,
@@ -711,7 +615,6 @@ setTimeout(() => {
       }
 
       if (nextHeroWords.length > 0) {
-        console.log("🚫 Hiding hero words IMMEDIATELY before transition");
         gsap.set(nextHeroWords, {
           opacity: 0,
           y: 30,
@@ -726,29 +629,21 @@ setTimeout(() => {
 
     // Hook afterLeave : Nettoyer après avoir quitté la page
     barba.hooks.afterLeave((data) => {
-      console.log("🚪 Barba afterLeave - killing word animations");
       // Nettoyer les animations GSAP en cours
       const words = document.querySelectorAll(".word-animation");
       if (words.length > 0) {
-        console.log(
-          `⚡ Killing animations for ${words.length} words in afterLeave`
-        );
         gsap.killTweensOf(words);
       }
     });
 
     // Fonction pour déclencher les animations hero
     const triggerHeroAnimations = () => {
-      console.log("🎯 Triggering hero animations after Barba transition");
       const heroHeadings = document.querySelectorAll(
         `[data-text-animate-type="hero"]`
       );
       heroHeadings.forEach((heading) => {
         if (heading._animationTimeline && heading._animateType === "hero") {
           const delay = heading._animateDelay || 200;
-          console.log(
-            `🚀 Starting hero animation for: ${heading.tagName} after ${delay}ms`
-          );
           setTimeout(() => {
             heading._animationTimeline.play();
           }, delay);
@@ -758,8 +653,6 @@ setTimeout(() => {
 
     // Hook beforeEnter : Préparer la nouvelle page
     barba.hooks.beforeEnter((data) => {
-      console.log("🚪 Barba beforeEnter - preparing text animations");
-
       // CIBLER SPÉCIFIQUEMENT les titres hero pour les masquer immédiatement
       const heroTitles = data.next.container.querySelectorAll(
         `[data-text-animate-type="hero"]`
@@ -771,9 +664,6 @@ setTimeout(() => {
 
       // Masquer les titres hero au niveau du conteneur principal
       if (heroTitles.length > 0) {
-        console.log(
-          `🚫 Hiding ${heroTitles.length} hero titles during transition`
-        );
         heroTitles.forEach((title) => {
           gsap.set(title, {
             opacity: 0,
@@ -783,9 +673,6 @@ setTimeout(() => {
       }
 
       if (heroWords.length > 0) {
-        console.log(
-          `🎯 Forcing hero words to stay hidden during transition: ${heroWords.length} words`
-        );
         gsap.set(heroWords, {
           opacity: 0,
           y: 30,
@@ -794,7 +681,6 @@ setTimeout(() => {
       }
 
       if (allWords.length > 0) {
-        console.log(`🎯 Setting initial state for ${allWords.length} words`);
         gsap.set(allWords, {
           opacity: 0,
           y: 30,
@@ -805,11 +691,8 @@ setTimeout(() => {
 
     // Hook afterEnter : Réinitialiser après l'entrée (PRINCIPAL)
     barba.hooks.afterEnter((data) => {
-      console.log("🚪 Barba afterEnter - initializing text animations");
-
       setTimeout(() => {
         if (typeof window.initTextAnimations === "function") {
-          console.log("🎬 Calling initTextAnimations after Barba transition");
           window.initTextAnimations();
 
           // Initialiser les animations de paragraphes avec retry automatique
@@ -820,9 +703,6 @@ setTimeout(() => {
             const success = initParagraphAnimations();
             if (!success && retryCount < maxRetries) {
               retryCount++;
-              console.log(
-                `🔄 BARBA: Retry ${retryCount}/${maxRetries} for paragraph elements after transition`
-              );
               setTimeout(tryInitParagraphAnimationsBarba, 300 * retryCount);
             }
           }
