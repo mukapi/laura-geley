@@ -48,7 +48,26 @@ window.initTextAnimations = function () {
   gsap.registerPlugin(ScrollTrigger, SplitText);
   console.log("✅ Plugins registered");
 
-  // Sélectionner tous les titres H1 et H2 qui n'ont pas déjà été traités
+  // CORRECTION: Sur un refresh, on doit nettoyer tous les éléments d'abord
+  // Vérifier s'il y a des éléments avec l'attribut mais sans instance SplitText (état corrompu)
+  const allHeadings = document.querySelectorAll("h1, h2");
+  const corruptedHeadings = Array.from(allHeadings).filter(
+    (heading) =>
+      heading.hasAttribute("data-split-text-processed") &&
+      !heading._splitTextInstance
+  );
+
+  if (corruptedHeadings.length > 0) {
+    console.log(
+      `🔧 Found ${corruptedHeadings.length} corrupted headings, cleaning up...`
+    );
+    corruptedHeadings.forEach((heading) => {
+      heading.removeAttribute("data-split-text-processed");
+      console.log("🧹 Removed corrupted attribute from:", heading);
+    });
+  }
+
+  // Maintenant sélectionner tous les titres qui n'ont pas déjà été traités OU qui ont été nettoyés
   const headings = document.querySelectorAll(
     "h1:not([data-split-text-processed]), h2:not([data-split-text-processed])"
   );
@@ -60,8 +79,11 @@ window.initTextAnimations = function () {
   }
 
   headings.forEach((heading, index) => {
-    console.log(`🎬 Processing heading ${index + 1}/${headings.length}:`, heading);
-    
+    console.log(
+      `🎬 Processing heading ${index + 1}/${headings.length}:`,
+      heading
+    );
+
     // Marquer comme traité pour éviter les doubles initialisations
     heading.setAttribute("data-split-text-processed", "true");
 
@@ -80,7 +102,10 @@ window.initTextAnimations = function () {
 
     // Récupérer les mots
     const words = splitText.words;
-    console.log(`📝 SplitText created ${words.length} words for heading:`, words);
+    console.log(
+      `📝 SplitText created ${words.length} words for heading:`,
+      words
+    );
 
     if (words.length === 0) {
       console.log("⚠️ No words found, skipping");
@@ -124,17 +149,21 @@ window.initTextAnimations = function () {
     window.textAnimationsScrollTriggers.push(tl.scrollTrigger);
     heading._splitTextInstance = splitText;
 
-    console.log(`🎭 Text animation setup for: ${heading.tagName} with ${words.length} words`);
+    console.log(
+      `🎭 Text animation setup for: ${heading.tagName} with ${words.length} words`
+    );
   });
 };
 
 // Fonction de nettoyage globale
 window.textAnimationsCleanup = () => {
   console.log("🧹 textAnimationsCleanup called");
-  
+
   // Tuer tous les ScrollTriggers
   if (window.textAnimationsScrollTriggers) {
-    console.log(`🗑️ Killing ${window.textAnimationsScrollTriggers.length} ScrollTriggers`);
+    console.log(
+      `🗑️ Killing ${window.textAnimationsScrollTriggers.length} ScrollTriggers`
+    );
     window.textAnimationsScrollTriggers.forEach((trigger) => trigger.kill());
     window.textAnimationsScrollTriggers = [];
   }
@@ -163,19 +192,38 @@ window.textAnimationsCleanup = () => {
 // 🔄 INITIALISATION AUTOMATIQUE
 // ========================================
 
+// Fonction d'initialisation avec nettoyage préalable pour les refreshes
+function initTextAnimationsWithCleanup() {
+  console.log(
+    "🔄 Initializing text animations with cleanup for refresh scenario"
+  );
+
+  // Sur un refresh, nettoyer d'abord tous les attributs corrompus
+  const allHeadings = document.querySelectorAll(
+    "h1[data-split-text-processed], h2[data-split-text-processed]"
+  );
+  allHeadings.forEach((heading) => {
+    if (!heading._splitTextInstance) {
+      heading.removeAttribute("data-split-text-processed");
+      console.log("🧹 Cleaned corrupted heading:", heading);
+    }
+  });
+
+  // Puis initialiser normalement
+  if (typeof window.initTextAnimations === "function") {
+    window.initTextAnimations();
+  }
+}
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
-      if (typeof window.initTextAnimations === "function") {
-        window.initTextAnimations();
-      }
+      initTextAnimationsWithCleanup();
     }, 200);
   });
 } else {
   setTimeout(() => {
-    if (typeof window.initTextAnimations === "function") {
-      window.initTextAnimations();
-    }
+    initTextAnimationsWithCleanup();
   }, 200);
 }
 
@@ -202,7 +250,9 @@ setTimeout(() => {
       // Nettoyer les animations GSAP en cours
       const words = document.querySelectorAll(".word-animation");
       if (words.length > 0) {
-        console.log(`⚡ Killing animations for ${words.length} words in afterLeave`);
+        console.log(
+          `⚡ Killing animations for ${words.length} words in afterLeave`
+        );
         gsap.killTweensOf(words);
       }
     });
