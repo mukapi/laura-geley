@@ -130,24 +130,31 @@ window.initTextAnimations = function () {
 
 // Fonction de nettoyage globale
 window.textAnimationsCleanup = () => {
+  console.log("🧹 textAnimationsCleanup called");
+  
   // Tuer tous les ScrollTriggers
   if (window.textAnimationsScrollTriggers) {
+    console.log(`🗑️ Killing ${window.textAnimationsScrollTriggers.length} ScrollTriggers`);
     window.textAnimationsScrollTriggers.forEach((trigger) => trigger.kill());
     window.textAnimationsScrollTriggers = [];
   }
 
   // Réinitialiser les SplitText instances
   const headings = document.querySelectorAll("h1, h2");
+  console.log(`🔄 Reverting SplitText for ${headings.length} headings`);
   headings.forEach((heading) => {
     if (heading._splitTextInstance) {
       heading._splitTextInstance.revert();
       delete heading._splitTextInstance;
+      // Retirer l'attribut pour permettre la réinitialisation
+      heading.removeAttribute("data-split-text-processed");
     }
   });
 
   // Tuer toutes les animations GSAP en cours sur les mots
   const words = document.querySelectorAll(".word-animation");
   if (words.length > 0) {
+    console.log(`⚡ Killing animations for ${words.length} word elements`);
     gsap.killTweensOf(words);
   }
 };
@@ -183,6 +190,7 @@ setTimeout(() => {
 
     // Hook beforeLeave : Nettoyer avant de quitter la page
     barba.hooks.beforeLeave((data) => {
+      console.log("🚪 Barba beforeLeave - cleaning text animations");
       if (window.textAnimationsCleanup) {
         window.textAnimationsCleanup();
       }
@@ -190,18 +198,22 @@ setTimeout(() => {
 
     // Hook afterLeave : Nettoyer après avoir quitté la page
     barba.hooks.afterLeave((data) => {
+      console.log("🚪 Barba afterLeave - killing word animations");
       // Nettoyer les animations GSAP en cours
       const words = document.querySelectorAll(".word-animation");
       if (words.length > 0) {
+        console.log(`⚡ Killing animations for ${words.length} words in afterLeave`);
         gsap.killTweensOf(words);
       }
     });
 
     // Hook beforeEnter : Préparer la nouvelle page
     barba.hooks.beforeEnter((data) => {
+      console.log("🚪 Barba beforeEnter - preparing text animations");
       // S'assurer que les mots sont cachés au début
       const words = document.querySelectorAll(".word-animation");
       if (words.length > 0) {
+        console.log(`🎯 Setting initial state for ${words.length} words`);
         gsap.set(words, {
           opacity: 0,
           y: 30,
@@ -212,11 +224,13 @@ setTimeout(() => {
 
     // Hook afterEnter : Réinitialiser après l'entrée (PRINCIPAL)
     barba.hooks.afterEnter((data) => {
+      console.log("🚪 Barba afterEnter - initializing text animations");
       setTimeout(() => {
         if (typeof window.initTextAnimations === "function") {
+          console.log("🎬 Calling initTextAnimations after Barba transition");
           window.initTextAnimations();
         }
-      }, 100);
+      }, 300); // Augmenté à 300ms pour laisser le temps au DOM
     });
   }
 }, 500);
