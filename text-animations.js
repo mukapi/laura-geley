@@ -120,33 +120,67 @@ window.initTextAnimations = function () {
     });
     console.log("🎯 Initial state set for words");
 
-    // Créer l'animation avec ScrollTrigger - SIMPLIFIÉE
-    const tl = gsap.timeline({
-      paused: true, // Commence en pause
-      scrollTrigger: {
-        trigger: heading,
-        start: "top 85%", // Démarre quand le haut de l'élément atteint 85% de la viewport
-        end: "bottom 15%",
-        toggleActions: "play none none none", // Joue SEULEMENT à l'entrée, pas de reverse
-        once: true, // Ne se joue qu'une seule fois
-        markers: false, // Définir à true pour debug
-        onEnter: () => console.log("🚀 ScrollTrigger activated for:", heading),
-        onComplete: () => console.log("✅ Animation completed for:", heading),
-      },
-    });
+    // Détecter si c'est un H1 (probablement dans le hero)
+    const isH1InHero = heading.tagName === "H1";
 
-    // Animation des mots avec un délai échelonné (stagger)
-    tl.to(words, {
-      opacity: 1,
-      y: 0,
-      rotationX: 0,
-      duration: 0.8,
-      ease: "power2.out",
-      stagger: 0.08, // Délai de 80ms entre chaque mot
-    });
+    if (isH1InHero) {
+      console.log("🎬 H1 detected - setting up immediate animation");
 
-    // Stocker les références pour le cleanup
-    window.textAnimationsScrollTriggers.push(tl.scrollTrigger);
+      // Pour les H1, animation immédiate avec un petit délai
+      const tl = gsap.timeline({ paused: true });
+      tl.to(words, {
+        opacity: 1,
+        y: 0,
+        rotationX: 0,
+        duration: 0.8,
+        ease: "power2.out",
+        stagger: 0.08,
+        onComplete: () =>
+          console.log("✅ H1 Animation completed for:", heading),
+      });
+
+      // Démarrer l'animation après un petit délai pour laisser Barba finir
+      setTimeout(() => {
+        console.log("🚀 Starting H1 animation immediately");
+        tl.play();
+      }, 200);
+
+      heading._animationTimeline = tl;
+    } else {
+      console.log("🎬 Non-H1 detected - using ScrollTrigger");
+
+      // Pour les autres titres, utiliser ScrollTrigger normal
+      const tl = gsap.timeline({
+        paused: true,
+        scrollTrigger: {
+          trigger: heading,
+          start: "top 85%",
+          end: "bottom 15%",
+          toggleActions: "play none none none",
+          once: true,
+          markers: false,
+          onEnter: () =>
+            console.log("🚀 ScrollTrigger activated for:", heading),
+          onComplete: () => console.log("✅ Animation completed for:", heading),
+        },
+      });
+
+      // Animation des mots avec un délai échelonné (stagger)
+      tl.to(words, {
+        opacity: 1,
+        y: 0,
+        rotationX: 0,
+        duration: 0.8,
+        ease: "power2.out",
+        stagger: 0.08,
+      });
+
+      // Stocker les références pour le cleanup
+      window.textAnimationsScrollTriggers.push(tl.scrollTrigger);
+      heading._animationTimeline = tl;
+    }
+
+    // Stocker la référence SplitText
     heading._splitTextInstance = splitText;
 
     console.log(
@@ -168,10 +202,16 @@ window.textAnimationsCleanup = () => {
     window.textAnimationsScrollTriggers = [];
   }
 
-  // Réinitialiser les SplitText instances
+  // Réinitialiser les SplitText instances et animations
   const headings = document.querySelectorAll("h1, h2");
   console.log(`🔄 Reverting SplitText for ${headings.length} headings`);
   headings.forEach((heading) => {
+    // Tuer l'animation timeline si elle existe
+    if (heading._animationTimeline) {
+      heading._animationTimeline.kill();
+      delete heading._animationTimeline;
+    }
+
     if (heading._splitTextInstance) {
       heading._splitTextInstance.revert();
       delete heading._splitTextInstance;
@@ -203,16 +243,19 @@ function initTextAnimationsWithCleanup() {
     "h1[data-split-text-processed], h2[data-split-text-processed]"
   );
   allHeadings.forEach((heading) => {
-    if (!heading._splitTextInstance) {
+    if (!heading._splitTextInstance && !heading._animationTimeline) {
       heading.removeAttribute("data-split-text-processed");
       console.log("🧹 Cleaned corrupted heading:", heading);
     }
   });
 
-  // Puis initialiser normalement
-  if (typeof window.initTextAnimations === "function") {
-    window.initTextAnimations();
-  }
+  // Attendre un peu plus longtemps sur refresh pour s'assurer que tout est prêt
+  setTimeout(() => {
+    if (typeof window.initTextAnimations === "function") {
+      console.log("🚀 Starting initTextAnimations after refresh delay");
+      window.initTextAnimations();
+    }
+  }, 100); // Délai supplémentaire pour les refreshes
 }
 
 if (document.readyState === "loading") {
