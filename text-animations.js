@@ -4,7 +4,7 @@
 // Animation des titres H1 et H2 avec SplitText - mots qui montent du bas
 
 // Version identifier pour debug
-const TEXT_ANIMATIONS_VERSION = "2.5";
+const TEXT_ANIMATIONS_VERSION = "3.0";
 console.log(`🎭 TEXT ANIMATIONS v${TEXT_ANIMATIONS_VERSION} - Starting...`);
 
 // ========================================
@@ -82,11 +82,6 @@ window.initTextAnimations = function () {
   if (window.textAnimationsCleanup) {
     console.log("🧹 Cleaning up previous instances...");
     window.textAnimationsCleanup();
-  }
-
-  // Initialiser le tableau des triggers s'il n'existe pas
-  if (!window.textAnimationsScrollTriggers) {
-    window.textAnimationsScrollTriggers = [];
   }
 
   // Enregistrer les plugins
@@ -217,49 +212,11 @@ window.initTextAnimations = function () {
 
       console.log(`🎭 Hero animation ready, will be triggered by Barba hook`);
     } else {
-      console.log("🎬 Non-H1 detected - using ScrollTrigger");
+      console.log("🎬 Scroll title detected - using manual trigger approach");
 
-      // Pour les autres titres, utiliser ScrollTrigger normal
-      const tl = gsap.timeline({
-        paused: true,
-        scrollTrigger: {
-          trigger: heading,
-          start: "top 85%",
-          end: "bottom 15%",
-          toggleActions: "play none none none",
-          once: true,
-          markers: false, // Définir à true pour debug visuel
-          onEnter: () => {
-            console.log(
-              "🚀 ScrollTrigger activated for:",
-              heading.tagName,
-              heading.className
-            );
-          },
-          onUpdate: (self) => {
-            console.log(
-              "📊 ScrollTrigger progress:",
-              self.progress.toFixed(2),
-              "for",
-              heading.tagName
-            );
-          },
-          onComplete: () => {
-            console.log(
-              "✅ ScrollTrigger animation completed for:",
-              heading.tagName
-            );
-          },
-          onToggle: (self) => {
-            console.log(
-              "🔄 ScrollTrigger toggled:",
-              self.isActive,
-              "for",
-              heading.tagName
-            );
-          },
-        },
-      });
+      // Pour les autres titres, utiliser la même approche que les Heroes
+      // Créer une timeline pausée qui sera déclenchée manuellement
+      const tl = gsap.timeline({ paused: true });
 
       // Animation des mots avec un délai échelonné (stagger)
       tl.to(words, {
@@ -275,13 +232,14 @@ window.initTextAnimations = function () {
           console.log("🎯 Animation finished for:", heading.tagName),
       });
 
-      // Stocker les références pour le cleanup
-      window.textAnimationsScrollTriggers.push(tl.scrollTrigger);
+      // Stocker la timeline pour déclenchement manuel (comme les Heroes)
       heading._animationTimeline = tl;
+      heading._animateType = animateType;
+      heading._animateDelay = animateDelay;
+      heading._hasAnimated = false; // Flag pour éviter les re-déclenchements
 
       console.log(
-        `📌 ScrollTrigger created for ${heading.tagName}, trigger element:`,
-        heading
+        `📌 Manual trigger timeline created for ${heading.tagName}, will be triggered on scroll`
       );
     }
 
@@ -297,15 +255,6 @@ window.initTextAnimations = function () {
 // Fonction de nettoyage globale
 window.textAnimationsCleanup = () => {
   console.log("🧹 textAnimationsCleanup called");
-
-  // Tuer tous les ScrollTriggers
-  if (window.textAnimationsScrollTriggers) {
-    console.log(
-      `🗑️ Killing ${window.textAnimationsScrollTriggers.length} ScrollTriggers`
-    );
-    window.textAnimationsScrollTriggers.forEach((trigger) => trigger.kill());
-    window.textAnimationsScrollTriggers = [];
-  }
 
   // Réinitialiser les SplitText instances et animations
   const headings = document.querySelectorAll("h1, h2");
@@ -331,6 +280,23 @@ window.textAnimationsCleanup = () => {
     console.log(`⚡ Killing animations for ${words.length} word elements`);
     gsap.killTweensOf(words);
   }
+
+  // Nettoyer les animations de paragraphes
+  const paragraphElements = document.querySelectorAll(
+    "[data-text-color-animate]"
+  );
+  paragraphElements.forEach((element) => {
+    if (element._paragraphAnimationTimeline) {
+      element._paragraphAnimationTimeline.kill();
+      delete element._paragraphAnimationTimeline;
+    }
+    if (element._paragraphSplitTextInstance) {
+      element._paragraphSplitTextInstance.revert();
+      delete element._paragraphSplitTextInstance;
+    }
+    element.removeAttribute("data-paragraph-animated");
+    delete element._paragraphAnimationProcessed;
+  });
 };
 
 // ========================================
@@ -360,6 +326,9 @@ function initTextAnimationsWithCleanup() {
       console.log("🚀 Starting initTextAnimations after refresh delay");
       window.initTextAnimations();
 
+      // Initialiser les animations de paragraphes
+      initParagraphAnimations();
+
       // CRUCIAL: Sur refresh, déclencher aussi les animations hero
       setTimeout(() => {
         console.log("🔄 REFRESH: Triggering hero animations after init");
@@ -375,6 +344,15 @@ function initTextAnimationsWithCleanup() {
             }, delay);
           }
         });
+
+        // CRUCIAL: Sur refresh, initialiser aussi le système de détection de scroll
+        setTimeout(() => {
+          // Utiliser la fonction initScrollDetection si elle existe (après que Barba soit chargé)
+          if (typeof window.initScrollDetection === "function") {
+            console.log("🔄 REFRESH: Initializing scroll detection system");
+            window.initScrollDetection();
+          }
+        }, 200);
       }, 150); // Délai pour laisser SplitText se préparer
     }
   }, 200); // Délai augmenté pour les refreshes
@@ -384,17 +362,193 @@ if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
       initTextAnimationsWithCleanup();
+      // Initialiser aussi le système de détection de scroll pour les cas sans Barba
+      setTimeout(() => {
+        if (typeof window.initScrollDetection === "function") {
+          window.initScrollDetection();
+        }
+      }, 400);
     }, 200);
   });
 } else {
   setTimeout(() => {
     initTextAnimationsWithCleanup();
+    // Initialiser aussi le système de détection de scroll pour les cas sans Barba
+    setTimeout(() => {
+      if (typeof window.initScrollDetection === "function") {
+        window.initScrollDetection();
+      }
+    }, 400);
   }, 200);
 }
 
 // ========================================
 // 🎪 COMPATIBILITÉ BARBA.JS (SYSTÈME UNIFIÉ)
 // ========================================
+
+// ========================================
+// 🎯 SYSTÈME DE DÉTECTION DE SCROLL MANUEL (GLOBAL)
+// ========================================
+// Remplacer ScrollTrigger par une détection manuelle plus fiable
+let scrollEventAdded = false;
+
+function checkElementsInViewport() {
+  const scrollElements = document.querySelectorAll(
+    '[data-text-animate-type="scroll"]'
+  );
+
+  scrollElements.forEach((heading) => {
+    if (heading._animationTimeline && !heading._hasAnimated) {
+      const rect = heading.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const triggerPoint = viewportHeight * 0.85; // Déclenchage à 85% du viewport
+      const isInViewport = rect.top < triggerPoint && rect.bottom > 0;
+
+      if (isInViewport) {
+        console.log(
+          `🎯 Scroll element in viewport, triggering animation:`,
+          heading.tagName
+        );
+        heading._hasAnimated = true;
+        heading._animationTimeline.play();
+      }
+    }
+  });
+
+  // Vérifier aussi les animations de paragraphes
+  checkParagraphAnimationsInViewport();
+}
+
+// Fonction d'initialisation du système de détection (globale)
+window.initScrollDetection = function () {
+  console.log("🎯 Initializing manual scroll detection system");
+
+  // Vérifier immédiatement les éléments visibles
+  setTimeout(checkElementsInViewport, 100);
+
+  // Éviter d'ajouter plusieurs fois le même listener
+  if (!scrollEventAdded) {
+    // Écouter le scroll pour détecter les nouveaux éléments (avec throttling)
+    let ticking = false;
+    function handleScroll() {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          checkElementsInViewport();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener(
+      "resize",
+      gsap.utils.debounce(checkElementsInViewport, 250)
+    );
+    scrollEventAdded = true;
+    console.log("📡 Scroll event listeners added");
+  }
+};
+
+// ========================================
+// 🎨 ANIMATIONS DE PARAGRAPHES (CHANGEMENT DE COULEUR)
+// ========================================
+// Animation des paragraphes avec changement de couleur mot par mot ou lettre par lettre
+function initParagraphAnimations() {
+  console.log("🎨 Initializing paragraph color animations");
+
+  const paragraphElements = document.querySelectorAll(
+    "[data-text-color-animate]"
+  );
+
+  if (paragraphElements.length === 0) {
+    console.log("⚠️ No paragraph elements with data-text-color-animate found");
+    return;
+  }
+
+  paragraphElements.forEach((element) => {
+    if (element._paragraphAnimationProcessed) return; // Éviter les doublons
+
+    const animateType =
+      element.getAttribute("data-text-color-animate-type") || "words"; // 'words' ou 'chars'
+    const originalColor =
+      element.style.color || getComputedStyle(element).color;
+    const animationColor =
+      element.getAttribute("data-text-color-animate") || "#999999";
+
+    console.log(
+      `🎨 Processing paragraph element:`,
+      element.tagName,
+      `Type: ${animateType}`
+    );
+
+    try {
+      let splitText;
+      if (animateType === "chars") {
+        splitText = new SplitText(element, { type: "chars" });
+      } else {
+        splitText = new SplitText(element, { type: "words" });
+      }
+
+      const animatedElements =
+        animateType === "chars" ? splitText.chars : splitText.words;
+
+      // Définir la couleur initiale sur tous les éléments
+      gsap.set(animatedElements, {
+        color: animationColor,
+      });
+
+      // Créer une timeline pausée
+      const tl = gsap.timeline({ paused: true });
+
+      // Animation de changement de couleur
+      tl.to(animatedElements, {
+        color: originalColor,
+        duration: 0.6,
+        ease: "power2.out",
+        stagger: 0.03, // Délai entre chaque élément
+        onComplete: () => {
+          console.log(
+            `✅ Paragraph color animation completed for:`,
+            element.tagName
+          );
+        },
+      });
+
+      // Stocker les références
+      element._paragraphAnimationTimeline = tl;
+      element._paragraphSplitTextInstance = splitText;
+      element._paragraphAnimationProcessed = true;
+    } catch (error) {
+      console.error("❌ Error creating paragraph animation:", error);
+    }
+  });
+}
+
+// Fonction pour déclencher les animations de paragraphes dans le viewport
+function checkParagraphAnimationsInViewport() {
+  const paragraphElements = document.querySelectorAll(
+    "[data-text-color-animate]:not([data-paragraph-animated])"
+  );
+
+  paragraphElements.forEach((element) => {
+    if (element._paragraphAnimationTimeline) {
+      const rect = element.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const triggerPoint = viewportHeight * 0.8; // Déclenchage à 80% du viewport
+      const isInViewport = rect.top < triggerPoint && rect.bottom > 0;
+
+      if (isInViewport) {
+        console.log(
+          `🎨 Paragraph in viewport, triggering color animation:`,
+          element.tagName
+        );
+        element.setAttribute("data-paragraph-animated", "true");
+        element._paragraphAnimationTimeline.play();
+      }
+    }
+  });
+}
 
 // Auto-détection et connexion à Barba.js selon le pattern validé
 setTimeout(() => {
@@ -526,94 +680,16 @@ setTimeout(() => {
           console.log("🎬 Calling initTextAnimations after Barba transition");
           window.initTextAnimations();
 
+          // Initialiser les animations de paragraphes
+          initParagraphAnimations();
+
           // Déclencher les animations hero APRÈS l'initialisation
           setTimeout(() => {
             triggerHeroAnimations();
 
-            // CRUCIAL: Refresh ScrollTriggers pour détecter les éléments dans le viewport
-            if (typeof ScrollTrigger !== "undefined") {
-              console.log(
-                "🔄 Refreshing ScrollTriggers after Barba transition"
-              );
-              ScrollTrigger.refresh();
-
-              // Vérifier et déclencher manuellement les animations pour les éléments déjà visibles
-              setTimeout(() => {
-                const scrollTriggerTimelines = document.querySelectorAll(
-                  '[data-text-animate-type="scroll"]'
-                );
-                console.log(
-                  `🔍 Checking ${scrollTriggerTimelines.length} scroll elements already in viewport`
-                );
-
-                scrollTriggerTimelines.forEach((heading, index) => {
-                  console.log(
-                    `🔍 Element ${index + 1}:`,
-                    heading.tagName,
-                    heading.className
-                  );
-
-                  // DIAGNOSTIC: Vérifier l'état de l'animation timeline
-                  console.log(`🔧 Animation timeline debug:`, {
-                    hasAnimationTimeline: !!heading._animationTimeline,
-                    timelineState: heading._animationTimeline
-                      ? heading._animationTimeline.progress()
-                      : "no timeline",
-                    hasScrollTrigger: heading._animationTimeline
-                      ? !!heading._animationTimeline.scrollTrigger
-                      : "no timeline",
-                  });
-
-                  if (heading._animationTimeline) {
-                    // Vérifier si l'élément est dans le viewport
-                    const rect = heading.getBoundingClientRect();
-                    const viewportHeight = window.innerHeight;
-                    const isInViewport =
-                      rect.top < viewportHeight && rect.bottom > 0;
-
-                    console.log(
-                      `👁️ Element ${heading.tagName} viewport check:`,
-                      {
-                        rectTop: rect.top,
-                        rectBottom: rect.bottom,
-                        viewportHeight: viewportHeight,
-                        isInViewport: isInViewport,
-                      }
-                    );
-
-                    // Déclencher l'animation si l'élément est visible
-                    if (isInViewport) {
-                      console.log(
-                        "🎯 Triggering animation for visible element:",
-                        heading.tagName,
-                        "in viewport"
-                      );
-
-                      // Vérifier l'état du ScrollTrigger après refresh
-                      const st = heading._animationTimeline.scrollTrigger;
-                      if (st) {
-                        console.log(`📊 Post-refresh ScrollTrigger:`, {
-                          isActive: st.isActive,
-                          progress: st.progress,
-                        });
-                      }
-
-                      heading._animationTimeline.play();
-                    } else {
-                      console.log(
-                        "⏸️ Element not in viewport:",
-                        heading.tagName,
-                        "skipping manual trigger"
-                      );
-                    }
-                  } else {
-                    console.log(
-                      "❌ No animation timeline found for:",
-                      heading.tagName
-                    );
-                  }
-                });
-              }, 100);
+            // Initialiser le système de détection de scroll pour les titres "scroll"
+            if (typeof window.initScrollDetection === "function") {
+              window.initScrollDetection();
             }
           }, 50); // Petit délai pour s'assurer que tout est prêt
         }
