@@ -670,14 +670,14 @@ function checkParagraphAnimationsInViewport() {
         // Animer les éléments progressivement
         element._paragraphAnimatedElements.forEach((el, elIndex) => {
           if (elIndex < elementsToAnimate) {
-            gsap.set(el, { 
+            gsap.set(el, {
               color: element._paragraphOriginalColor,
-              display: "inline" // Maintenir inline pour les liens
+              display: "inline", // Maintenir inline pour les liens
             });
           } else {
-            gsap.set(el, { 
+            gsap.set(el, {
               color: element._paragraphAnimationColor,
-              display: "inline" // Maintenir inline pour les liens
+              display: "inline", // Maintenir inline pour les liens
             });
           }
         });
