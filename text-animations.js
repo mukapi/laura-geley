@@ -4,7 +4,7 @@
 // Animation des titres H1 et H2 avec SplitText - mots qui montent du bas
 
 // Version identifier pour debug
-const TEXT_ANIMATIONS_VERSION = "3.5";
+const TEXT_ANIMATIONS_VERSION = "3.7";
 console.log(`🎭 TEXT ANIMATIONS v${TEXT_ANIMATIONS_VERSION} - Starting...`);
 
 // ========================================
@@ -326,14 +326,22 @@ function initTextAnimationsWithCleanup() {
       console.log("🚀 Starting initTextAnimations after refresh delay");
       window.initTextAnimations();
 
-      // Initialiser les animations de paragraphes
-      initParagraphAnimations();
-      
-      // Re-vérifier les paragraphes après un délai plus long pour s'assurer que tout est chargé
-      setTimeout(() => {
-        console.log("🔄 REFRESH: Re-checking paragraph elements after delay");
-        initParagraphAnimations();
-      }, 500);
+      // Initialiser les animations de paragraphes avec retry automatique
+      let retryCount = 0;
+      const maxRetries = 5;
+
+      function tryInitParagraphAnimations() {
+        const success = initParagraphAnimations();
+        if (!success && retryCount < maxRetries) {
+          retryCount++;
+          console.log(
+            `🔄 REFRESH: Retry ${retryCount}/${maxRetries} for paragraph elements`
+          );
+          setTimeout(tryInitParagraphAnimations, 500 * retryCount);
+        }
+      }
+
+      tryInitParagraphAnimations();
 
       // CRUCIAL: Sur refresh, déclencher aussi les animations hero
       setTimeout(() => {
@@ -426,7 +434,8 @@ function checkElementsInViewport(forceCheck = false) {
   // Vérifier les animations de paragraphes à chaque scroll pour contrôle progressif (avec throttle)
   if (userHasScrolled) {
     const now = Date.now();
-    if (now - lastParagraphCheck > 16) { // Throttle à ~60fps
+    if (now - lastParagraphCheck > 16) {
+      // Throttle à ~60fps
       lastParagraphCheck = now;
       checkParagraphAnimationsInViewport();
     }
@@ -478,23 +487,41 @@ function initParagraphAnimations() {
     "[data-text-color-animate]"
   );
 
-  console.log(`🔍 DEBUG: Found ${paragraphElements.length} elements with [data-text-color-animate]`);
+  console.log(
+    `🔍 DEBUG: Found ${paragraphElements.length} elements with [data-text-color-animate]`
+  );
   console.log("🔍 DEBUG: Elements found:", paragraphElements);
 
   if (paragraphElements.length === 0) {
     console.log("⚠️ No paragraph elements with data-text-color-animate found");
     // Debug: vérifier s'il y a des éléments p avec des attributs
-    const allP = document.querySelectorAll('p');
+    const allP = document.querySelectorAll("p");
     console.log(`🔍 DEBUG: Found ${allP.length} total <p> elements on page`);
     allP.forEach((p, index) => {
       console.log(`🔍 DEBUG: <p> ${index}:`, {
         id: p.id,
-        attributes: Array.from(p.attributes).map(attr => `${attr.name}="${attr.value}"`),
-        hasDataTextColorAnimate: p.hasAttribute('data-text-color-animate')
+        className: p.className,
+        attributes: Array.from(p.attributes).map(
+          (attr) => `${attr.name}="${attr.value}"`
+        ),
+        hasDataTextColorAnimate: p.hasAttribute("data-text-color-animate"),
+        hasDataTextColorAnimateType: p.hasAttribute(
+          "data-text-color-animate-type"
+        ),
       });
     });
-    return;
+
+    // Retourner false pour indiquer qu'aucun élément n'a été trouvé
+    return false;
   }
+
+  // Retourner true si des éléments ont été trouvés
+  const processedCount = processParagraphElements(paragraphElements);
+  return processedCount > 0;
+}
+
+function processParagraphElements(paragraphElements) {
+  let processedCount = 0;
 
   paragraphElements.forEach((element) => {
     if (element._paragraphAnimationProcessed) return; // Éviter les doublons
@@ -542,9 +569,10 @@ function initParagraphAnimations() {
         `🎨 Created ${animatedElements.length} animated elements for paragraph`
       );
 
-      // Éviter de forcer display: inline pour préserver le layout des liens
+      // Forcer display: inline pour éviter les problèmes avec les liens
       gsap.set(animatedElements, {
         color: animationColor,
+        display: "inline", // Force inline pour les liens
       });
 
       // Stocker les éléments pour animation progressive
@@ -560,10 +588,14 @@ function initParagraphAnimations() {
       element._paragraphAnimationTimeline = tl;
       element._paragraphSplitTextInstance = splitText;
       element._paragraphAnimationProcessed = true;
+
+      processedCount++;
     } catch (error) {
       console.error("❌ Error creating paragraph animation:", error);
     }
   });
+
+  return processedCount;
 }
 
 // Fonction pour déclencher les animations de paragraphes selon le scroll
@@ -587,7 +619,7 @@ function checkParagraphAnimationsInViewport() {
         id: element.id,
         hasAnimatedElements: !!element._paragraphAnimatedElements,
         animatedElementsLength: element._paragraphAnimatedElements?.length,
-        isProcessed: !!element._paragraphAnimationProcessed
+        isProcessed: !!element._paragraphAnimationProcessed,
       });
     });
   }
@@ -600,7 +632,7 @@ function checkParagraphAnimationsInViewport() {
       const rect = element.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
 
-      // Calculer le progress du scroll sur l'élément
+      // Calculer le progress du scroll sur l'élément - terminer plus tôt
       const startTrigger = rect.top - viewportHeight;
       const endTrigger = rect.bottom;
       const totalDistance = viewportHeight + (endTrigger - startTrigger);
@@ -611,6 +643,9 @@ function checkParagraphAnimationsInViewport() {
         0,
         Math.min(1, currentDistance / totalDistance)
       );
+
+      // Terminer l'animation plus tôt - multiplier par 1.5 pour finir à 67% du scroll
+      scrollProgress = Math.min(1, scrollProgress * 1.5);
 
       // Si l'élément est dans le viewport, animer progressivement
       if (scrollProgress > 0 && rect.bottom > 0 && rect.top < viewportHeight) {
@@ -635,9 +670,15 @@ function checkParagraphAnimationsInViewport() {
         // Animer les éléments progressivement
         element._paragraphAnimatedElements.forEach((el, elIndex) => {
           if (elIndex < elementsToAnimate) {
-            gsap.set(el, { color: element._paragraphOriginalColor });
+            gsap.set(el, { 
+              color: element._paragraphOriginalColor,
+              display: "inline" // Maintenir inline pour les liens
+            });
           } else {
-            gsap.set(el, { color: element._paragraphAnimationColor });
+            gsap.set(el, { 
+              color: element._paragraphAnimationColor,
+              display: "inline" // Maintenir inline pour les liens
+            });
           }
         });
       }
@@ -775,14 +816,22 @@ setTimeout(() => {
           console.log("🎬 Calling initTextAnimations after Barba transition");
           window.initTextAnimations();
 
-          // Initialiser les animations de paragraphes
-          initParagraphAnimations();
-          
-          // Re-vérifier les paragraphes après transition Barba
-          setTimeout(() => {
-            console.log("🔄 BARBA: Re-checking paragraph elements after transition");
-            initParagraphAnimations();
-          }, 200);
+          // Initialiser les animations de paragraphes avec retry automatique
+          let retryCount = 0;
+          const maxRetries = 5;
+
+          function tryInitParagraphAnimationsBarba() {
+            const success = initParagraphAnimations();
+            if (!success && retryCount < maxRetries) {
+              retryCount++;
+              console.log(
+                `🔄 BARBA: Retry ${retryCount}/${maxRetries} for paragraph elements after transition`
+              );
+              setTimeout(tryInitParagraphAnimationsBarba, 300 * retryCount);
+            }
+          }
+
+          tryInitParagraphAnimationsBarba();
 
           // Déclencher les animations hero APRÈS l'initialisation
           setTimeout(() => {
