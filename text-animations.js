@@ -4,7 +4,7 @@
 // Animation des titres H1 et H2 avec SplitText - mots qui montent du bas
 
 // Version identifier pour debug
-const TEXT_ANIMATIONS_VERSION = "3.7";
+const TEXT_ANIMATIONS_VERSION = "3.8";
 console.log(`🎭 TEXT ANIMATIONS v${TEXT_ANIMATIONS_VERSION} - Starting...`);
 
 // ========================================
@@ -569,10 +569,8 @@ function processParagraphElements(paragraphElements) {
         `🎨 Created ${animatedElements.length} animated elements for paragraph`
       );
 
-      // Forcer display: inline pour éviter les problèmes avec les liens
       gsap.set(animatedElements, {
         color: animationColor,
-        display: "inline", // Force inline pour les liens
       });
 
       // Stocker les éléments pour animation progressive
@@ -644,8 +642,8 @@ function checkParagraphAnimationsInViewport() {
         Math.min(1, currentDistance / totalDistance)
       );
 
-      // Terminer l'animation plus tôt - multiplier par 1.5 pour finir à 67% du scroll
-      scrollProgress = Math.min(1, scrollProgress * 1.5);
+      // Terminer l'animation beaucoup plus tôt - multiplier par 2.5 pour finir à 40% du scroll
+      scrollProgress = Math.min(1, scrollProgress * 2.5);
 
       // Si l'élément est dans le viewport, animer progressivement
       if (scrollProgress > 0 && rect.bottom > 0 && rect.top < viewportHeight) {
@@ -672,12 +670,10 @@ function checkParagraphAnimationsInViewport() {
           if (elIndex < elementsToAnimate) {
             gsap.set(el, {
               color: element._paragraphOriginalColor,
-              display: "inline", // Maintenir inline pour les liens
             });
           } else {
             gsap.set(el, {
               color: element._paragraphAnimationColor,
-              display: "inline", // Maintenir inline pour les liens
             });
           }
         });
