@@ -4,7 +4,7 @@
 // Animation des titres H1 et H2 avec SplitText - mots qui montent du bas
 
 // Version identifier pour debug
-const TEXT_ANIMATIONS_VERSION = "2.2";
+const TEXT_ANIMATIONS_VERSION = "2.3";
 console.log(`🎭 TEXT ANIMATIONS v${TEXT_ANIMATIONS_VERSION} - Starting...`);
 
 // ========================================
@@ -529,6 +529,42 @@ setTimeout(() => {
           // Déclencher les animations hero APRÈS l'initialisation
           setTimeout(() => {
             triggerHeroAnimations();
+
+            // CRUCIAL: Refresh ScrollTriggers pour détecter les éléments dans le viewport
+            if (typeof ScrollTrigger !== "undefined") {
+              console.log(
+                "🔄 Refreshing ScrollTriggers after Barba transition"
+              );
+              ScrollTrigger.refresh();
+
+              // Vérifier et déclencher manuellement les animations pour les éléments déjà visibles
+              setTimeout(() => {
+                const scrollTriggerTimelines = document.querySelectorAll(
+                  '[data-text-animate-type="scroll"]'
+                );
+                console.log(
+                  `🔍 Checking ${scrollTriggerTimelines.length} scroll elements already in viewport`
+                );
+
+                scrollTriggerTimelines.forEach((heading) => {
+                  if (
+                    heading._animationTimeline &&
+                    heading._animationTimeline.scrollTrigger
+                  ) {
+                    const st = heading._animationTimeline.scrollTrigger;
+                    if (st && st.isActive && st.progress > 0) {
+                      console.log(
+                        "🎯 Element already in viewport, triggering animation manually:",
+                        heading.tagName,
+                        "progress:",
+                        st.progress
+                      );
+                      heading._animationTimeline.play();
+                    }
+                  }
+                });
+              }, 100);
+            }
           }, 50); // Petit délai pour s'assurer que tout est prêt
         }
       }, 100);
