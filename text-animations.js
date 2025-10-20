@@ -6,14 +6,14 @@
 // Fonction principale d'initialisation
 window.initTextAnimations = function () {
   console.log("🎭 initTextAnimations called");
-  
+
   // Vérifier que GSAP, ScrollTrigger et SplitText sont disponibles
   console.log("🔍 Checking dependencies:", {
     gsap: typeof gsap !== "undefined",
-    ScrollTrigger: typeof ScrollTrigger !== "undefined", 
-    SplitText: typeof SplitText !== "undefined"
+    ScrollTrigger: typeof ScrollTrigger !== "undefined",
+    SplitText: typeof SplitText !== "undefined",
   });
-  
+
   if (
     typeof gsap === "undefined" ||
     typeof ScrollTrigger === "undefined" ||
@@ -59,12 +59,15 @@ window.initTextAnimations = function () {
     return;
   }
 
-  headings.forEach((heading) => {
+  headings.forEach((heading, index) => {
+    console.log(`🎬 Processing heading ${index + 1}/${headings.length}:`, heading);
+    
     // Marquer comme traité pour éviter les doubles initialisations
     heading.setAttribute("data-split-text-processed", "true");
 
     // Nettoyer toute instance SplitText précédente sur cet élément
     if (heading._splitTextInstance) {
+      console.log("🧹 Reverting previous SplitText instance");
       heading._splitTextInstance.revert();
       delete heading._splitTextInstance;
     }
@@ -77,8 +80,10 @@ window.initTextAnimations = function () {
 
     // Récupérer les mots
     const words = splitText.words;
+    console.log(`📝 SplitText created ${words.length} words for heading:`, words);
 
     if (words.length === 0) {
+      console.log("⚠️ No words found, skipping");
       return;
     }
 
@@ -88,6 +93,7 @@ window.initTextAnimations = function () {
       y: 30,
       rotationX: -45,
     });
+    console.log("🎯 Initial state set for words");
 
     // Créer l'animation avec ScrollTrigger - SIMPLIFIÉE
     const tl = gsap.timeline({
@@ -99,6 +105,8 @@ window.initTextAnimations = function () {
         toggleActions: "play none none none", // Joue SEULEMENT à l'entrée, pas de reverse
         once: true, // Ne se joue qu'une seule fois
         markers: false, // Définir à true pour debug
+        onEnter: () => console.log("🚀 ScrollTrigger activated for:", heading),
+        onComplete: () => console.log("✅ Animation completed for:", heading),
       },
     });
 
@@ -116,11 +124,7 @@ window.initTextAnimations = function () {
     window.textAnimationsScrollTriggers.push(tl.scrollTrigger);
     heading._splitTextInstance = splitText;
 
-    console.log(
-      `🎭 Text animation setup for: ${heading.tagName}`,
-      words.length,
-      "words"
-    );
+    console.log(`🎭 Text animation setup for: ${heading.tagName} with ${words.length} words`);
   });
 };
 
