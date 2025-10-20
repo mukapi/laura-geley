@@ -145,7 +145,7 @@ window.initTextAnimations = function () {
     if (animateType === "hero") {
       console.log("🎬 H1 detected - setting up immediate animation");
 
-      // Pour les H1, animation immédiate avec un petit délai
+      // Pour les H1, créer la timeline mais ne pas la jouer immédiatement
       const tl = gsap.timeline({ paused: true });
       tl.to(words, {
         opacity: 1,
@@ -158,15 +158,12 @@ window.initTextAnimations = function () {
           console.log("✅ H1 Animation completed for:", heading),
       });
 
-      // Démarrer l'animation après le délai configuré
-      setTimeout(() => {
-        console.log(
-          `🚀 Starting ${animateType} animation after ${animateDelay}ms`
-        );
-        tl.play();
-      }, animateDelay);
-
+      // Stocker la timeline pour la déclencher depuis Barba
       heading._animationTimeline = tl;
+      heading._animateType = animateType;
+      heading._animateDelay = animateDelay;
+
+      console.log(`🎭 Hero animation ready, will be triggered by Barba hook`);
     } else {
       console.log("🎬 Non-H1 detected - using ScrollTrigger");
 
@@ -321,14 +318,49 @@ setTimeout(() => {
       }
     });
 
+    // Fonction pour déclencher les animations hero
+    const triggerHeroAnimations = () => {
+      console.log("🎯 Triggering hero animations after Barba transition");
+      const heroHeadings = document.querySelectorAll(
+        `[data-text-animate-type="hero"]`
+      );
+      heroHeadings.forEach((heading) => {
+        if (heading._animationTimeline && heading._animateType === "hero") {
+          const delay = heading._animateDelay || 200;
+          console.log(
+            `🚀 Starting hero animation for: ${heading.tagName} after ${delay}ms`
+          );
+          setTimeout(() => {
+            heading._animationTimeline.play();
+          }, delay);
+        }
+      });
+    };
+
     // Hook beforeEnter : Préparer la nouvelle page
     barba.hooks.beforeEnter((data) => {
       console.log("🚪 Barba beforeEnter - preparing text animations");
-      // S'assurer que les mots sont cachés au début
-      const words = document.querySelectorAll(".word-animation");
-      if (words.length > 0) {
-        console.log(`🎯 Setting initial state for ${words.length} words`);
-        gsap.set(words, {
+
+      // CIBLER SPÉCIFIQUEMENT les éléments hero pour les cacher pendant la transition
+      const heroWords = data.next.container.querySelectorAll(
+        `[data-text-animate-type="hero"] .word-animation`
+      );
+      const allWords = data.next.container.querySelectorAll(".word-animation");
+
+      if (heroWords.length > 0) {
+        console.log(
+          `🎯 Forcing hero words to stay hidden during transition: ${heroWords.length} words`
+        );
+        gsap.set(heroWords, {
+          opacity: 0,
+          y: 30,
+          rotationX: -45,
+        });
+      }
+
+      if (allWords.length > 0) {
+        console.log(`🎯 Setting initial state for ${allWords.length} words`);
+        gsap.set(allWords, {
           opacity: 0,
           y: 30,
           rotationX: -45,
@@ -339,12 +371,18 @@ setTimeout(() => {
     // Hook afterEnter : Réinitialiser après l'entrée (PRINCIPAL)
     barba.hooks.afterEnter((data) => {
       console.log("🚪 Barba afterEnter - initializing text animations");
+
       setTimeout(() => {
         if (typeof window.initTextAnimations === "function") {
           console.log("🎬 Calling initTextAnimations after Barba transition");
           window.initTextAnimations();
+
+          // Déclencher les animations hero APRÈS l'initialisation
+          setTimeout(() => {
+            triggerHeroAnimations();
+          }, 50); // Petit délai pour s'assurer que tout est prêt
         }
-      }, 300); // Augmenté à 300ms pour laisser le temps au DOM
+      }, 100);
     });
   }
 }, 500);
