@@ -4,7 +4,7 @@
 // Animation des titres H1 et H2 avec SplitText - mots qui montent du bas
 
 // Version identifier pour debug
-const TEXT_ANIMATIONS_VERSION = "2.4";
+const TEXT_ANIMATIONS_VERSION = "2.5";
 console.log(`🎭 TEXT ANIMATIONS v${TEXT_ANIMATIONS_VERSION} - Starting...`);
 
 // ========================================
@@ -553,19 +553,19 @@ setTimeout(() => {
                     heading.className
                   );
 
-                  if (
-                    heading._animationTimeline &&
-                    heading._animationTimeline.scrollTrigger
-                  ) {
-                    const st = heading._animationTimeline.scrollTrigger;
-                    console.log(`📊 ScrollTrigger info:`, {
-                      isActive: st ? st.isActive : "no trigger",
-                      progress: st ? st.progress : "no trigger",
-                      start: st ? st.start : "no trigger",
-                      end: st ? st.end : "no trigger",
-                    });
+                  // DIAGNOSTIC: Vérifier l'état de l'animation timeline
+                  console.log(`🔧 Animation timeline debug:`, {
+                    hasAnimationTimeline: !!heading._animationTimeline,
+                    timelineState: heading._animationTimeline
+                      ? heading._animationTimeline.progress()
+                      : "no timeline",
+                    hasScrollTrigger: heading._animationTimeline
+                      ? !!heading._animationTimeline.scrollTrigger
+                      : "no timeline",
+                  });
 
-                    // Vérifier si l'élément est dans le viewport avec une approche plus directe
+                  if (heading._animationTimeline) {
+                    // Vérifier si l'élément est dans le viewport
                     const rect = heading.getBoundingClientRect();
                     const viewportHeight = window.innerHeight;
                     const isInViewport =
@@ -581,17 +581,36 @@ setTimeout(() => {
                       }
                     );
 
-                    // Déclencher l'animation si l'élément est visible OU si le ScrollTrigger a un progress
-                    if (isInViewport || (st && st.progress > 0)) {
+                    // Déclencher l'animation si l'élément est visible
+                    if (isInViewport) {
                       console.log(
                         "🎯 Triggering animation for visible element:",
                         heading.tagName,
-                        isInViewport
-                          ? "in viewport"
-                          : `progress: ${st.progress}`
+                        "in viewport"
                       );
+
+                      // Vérifier l'état du ScrollTrigger après refresh
+                      const st = heading._animationTimeline.scrollTrigger;
+                      if (st) {
+                        console.log(`📊 Post-refresh ScrollTrigger:`, {
+                          isActive: st.isActive,
+                          progress: st.progress,
+                        });
+                      }
+
                       heading._animationTimeline.play();
+                    } else {
+                      console.log(
+                        "⏸️ Element not in viewport:",
+                        heading.tagName,
+                        "skipping manual trigger"
+                      );
                     }
+                  } else {
+                    console.log(
+                      "❌ No animation timeline found for:",
+                      heading.tagName
+                    );
                   }
                 });
               }, 100);
