@@ -1,7 +1,11 @@
 // ========================================
-// 🎭 TEXT ANIMATIONS - COMPATIBLE BARBA.JS
+// 🎭 TEXT ANIMATIONS - COMPATIBLE BARBA.JS v2.1
 // ========================================
 // Animation des titres H1 et H2 avec SplitText - mots qui montent du bas
+
+// Version identifier pour debug
+const TEXT_ANIMATIONS_VERSION = "2.1";
+console.log(`🎭 TEXT ANIMATIONS v${TEXT_ANIMATIONS_VERSION} - Starting...`);
 
 // Fonction principale d'initialisation
 window.initTextAnimations = function () {
