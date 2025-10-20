@@ -180,10 +180,36 @@ window.initTextAnimations = function () {
           end: "bottom 15%",
           toggleActions: "play none none none",
           once: true,
-          markers: false,
-          onEnter: () =>
-            console.log("🚀 ScrollTrigger activated for:", heading),
-          onComplete: () => console.log("✅ Animation completed for:", heading),
+          markers: false, // Définir à true pour debug visuel
+          onEnter: () => {
+            console.log(
+              "🚀 ScrollTrigger activated for:",
+              heading.tagName,
+              heading.className
+            );
+          },
+          onUpdate: (self) => {
+            console.log(
+              "📊 ScrollTrigger progress:",
+              self.progress.toFixed(2),
+              "for",
+              heading.tagName
+            );
+          },
+          onComplete: () => {
+            console.log(
+              "✅ ScrollTrigger animation completed for:",
+              heading.tagName
+            );
+          },
+          onToggle: (self) => {
+            console.log(
+              "🔄 ScrollTrigger toggled:",
+              self.isActive,
+              "for",
+              heading.tagName
+            );
+          },
         },
       });
 
@@ -195,11 +221,20 @@ window.initTextAnimations = function () {
         duration: 0.8,
         ease: "power2.out",
         stagger: 0.08,
+        onStart: () =>
+          console.log("🎬 Animation started for:", heading.tagName),
+        onComplete: () =>
+          console.log("🎯 Animation finished for:", heading.tagName),
       });
 
       // Stocker les références pour le cleanup
       window.textAnimationsScrollTriggers.push(tl.scrollTrigger);
       heading._animationTimeline = tl;
+
+      console.log(
+        `📌 ScrollTrigger created for ${heading.tagName}, trigger element:`,
+        heading
+      );
     }
 
     // Stocker la référence SplitText
@@ -276,8 +311,25 @@ function initTextAnimationsWithCleanup() {
     if (typeof window.initTextAnimations === "function") {
       console.log("🚀 Starting initTextAnimations after refresh delay");
       window.initTextAnimations();
+
+      // CRUCIAL: Sur refresh, déclencher aussi les animations hero
+      setTimeout(() => {
+        console.log("🔄 REFRESH: Triggering hero animations after init");
+        const heroHeadings = document.querySelectorAll(
+          `[data-text-animate-type="hero"]`
+        );
+        heroHeadings.forEach((heading) => {
+          if (heading._animationTimeline && heading._animateType === "hero") {
+            const delay = heading._animateDelay || 200;
+            console.log(`🚀 REFRESH: Starting hero animation after ${delay}ms`);
+            setTimeout(() => {
+              heading._animationTimeline.play();
+            }, delay);
+          }
+        });
+      }, 150); // Délai pour laisser SplitText se préparer
     }
-  }, 100); // Délai supplémentaire pour les refreshes
+  }, 200); // Délai augmenté pour les refreshes
 }
 
 if (document.readyState === "loading") {
@@ -301,9 +353,23 @@ setTimeout(() => {
   if (typeof barba !== "undefined") {
     console.log("🔄 text-animations.js - Barba detected, setting up hooks");
 
-    // Hook beforeLeave : Nettoyer avant de quitter la page
+    // Hook beforeLeave : Nettoyer avant de quitter la page ET cacher les hero
     barba.hooks.beforeLeave((data) => {
       console.log("🚪 Barba beforeLeave - cleaning text animations");
+
+      // IMPORTANT: Cacher immédiatement les hero de la nouvelle page
+      const nextHeroWords = data.next.container.querySelectorAll(
+        `[data-text-animate-type="hero"] .word-animation`
+      );
+      if (nextHeroWords.length > 0) {
+        console.log("🚫 Hiding hero words IMMEDIATELY before transition");
+        gsap.set(nextHeroWords, {
+          opacity: 0,
+          y: 30,
+          rotationX: -45,
+        });
+      }
+
       if (window.textAnimationsCleanup) {
         window.textAnimationsCleanup();
       }
