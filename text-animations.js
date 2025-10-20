@@ -4,8 +4,45 @@
 // Animation des titres H1 et H2 avec SplitText - mots qui montent du bas
 
 // Version identifier pour debug
-const TEXT_ANIMATIONS_VERSION = "2.1";
+const TEXT_ANIMATIONS_VERSION = "2.2";
 console.log(`🎭 TEXT ANIMATIONS v${TEXT_ANIMATIONS_VERSION} - Starting...`);
+
+// ========================================
+// 🚨 MASQUAGE IMMÉDIAT DES TITRES HERO
+// ========================================
+// Masquer immédiatement les titres Hero pour éviter le flash de visibilité
+function hideHeroTitlesImmediately() {
+  console.log("🚫 Hiding hero titles immediately on script load");
+  const heroTitles = document.querySelectorAll('[data-text-animate-type="hero"]');
+  
+  if (heroTitles.length > 0) {
+    console.log(`🎯 Found ${heroTitles.length} hero titles to hide immediately`);
+    heroTitles.forEach((title) => {
+      // Masquer directement avec CSS pour une réactivité instantanée
+      title.style.opacity = '0';
+      title.style.visibility = 'hidden';
+      console.log("🚫 Hero title hidden immediately:", title);
+    });
+    
+    // Attendre que GSAP soit disponible pour un masquage plus précis
+    setTimeout(() => {
+      if (typeof gsap !== 'undefined') {
+        console.log("🎨 GSAP available, applying precise hiding");
+        heroTitles.forEach((title) => {
+          gsap.set(title, {
+            opacity: 0,
+            visibility: 'hidden'
+          });
+        });
+      }
+    }, 50);
+  } else {
+    console.log("⚠️ No hero titles found to hide");
+  }
+}
+
+// Exécuter le masquage immédiatement
+hideHeroTitlesImmediately();
 
 // Fonction principale d'initialisation
 window.initTextAnimations = function () {
@@ -147,9 +184,16 @@ window.initTextAnimations = function () {
     );
 
     if (animateType === "hero") {
-      console.log("🎬 H1 detected - setting up immediate animation");
+      console.log("🎬 Hero title detected - setting up animation");
 
-      // Pour les H1, créer la timeline mais ne pas la jouer immédiatement
+      // CRUCIAL: Remettre la visibilité du titre principal maintenant que SplitText est prêt
+      gsap.set(heading, {
+        opacity: 1,
+        visibility: 'visible'
+      });
+      console.log("👁️ Hero title visibility restored for animation");
+
+      // Pour les Hero, créer la timeline mais ne pas la jouer immédiatement
       const tl = gsap.timeline({ paused: true });
       tl.to(words, {
         opacity: 1,
@@ -159,7 +203,7 @@ window.initTextAnimations = function () {
         ease: "power2.out",
         stagger: 0.08,
         onComplete: () =>
-          console.log("✅ H1 Animation completed for:", heading),
+          console.log("✅ Hero Animation completed for:", heading),
       });
 
       // Stocker la timeline pour la déclencher depuis Barba
@@ -357,10 +401,25 @@ setTimeout(() => {
     barba.hooks.beforeLeave((data) => {
       console.log("🚪 Barba beforeLeave - cleaning text animations");
 
-      // IMPORTANT: Cacher immédiatement les hero de la nouvelle page
+      // IMPORTANT: Cacher immédiatement les titres hero de la nouvelle page
+      const nextHeroTitles = data.next.container.querySelectorAll(
+        `[data-text-animate-type="hero"]`
+      );
       const nextHeroWords = data.next.container.querySelectorAll(
         `[data-text-animate-type="hero"] .word-animation`
       );
+
+      // Masquer les titres hero au niveau principal
+      if (nextHeroTitles.length > 0) {
+        console.log("🚫 Hiding hero titles IMMEDIATELY before transition");
+        nextHeroTitles.forEach((title) => {
+          gsap.set(title, {
+            opacity: 0,
+            visibility: 'hidden'
+          });
+        });
+      }
+
       if (nextHeroWords.length > 0) {
         console.log("🚫 Hiding hero words IMMEDIATELY before transition");
         gsap.set(nextHeroWords, {
@@ -411,11 +470,27 @@ setTimeout(() => {
     barba.hooks.beforeEnter((data) => {
       console.log("🚪 Barba beforeEnter - preparing text animations");
 
-      // CIBLER SPÉCIFIQUEMENT les éléments hero pour les cacher pendant la transition
+      // CIBLER SPÉCIFIQUEMENT les titres hero pour les masquer immédiatement
+      const heroTitles = data.next.container.querySelectorAll(
+        `[data-text-animate-type="hero"]`
+      );
       const heroWords = data.next.container.querySelectorAll(
         `[data-text-animate-type="hero"] .word-animation`
       );
       const allWords = data.next.container.querySelectorAll(".word-animation");
+
+      // Masquer les titres hero au niveau du conteneur principal
+      if (heroTitles.length > 0) {
+        console.log(
+          `🚫 Hiding ${heroTitles.length} hero titles during transition`
+        );
+        heroTitles.forEach((title) => {
+          gsap.set(title, {
+            opacity: 0,
+            visibility: 'hidden'
+          });
+        });
+      }
 
       if (heroWords.length > 0) {
         console.log(
