@@ -7,11 +7,18 @@
     // 1. CONFIGURATION BARBA
     // ========================================
 
-    // Overlay de transition (z-index 9998 pour être sous la navbar)
+    // Overlay de transition
     const overlay = document.createElement("div");
     overlay.style.cssText = `
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background-color: #ff641e; z-index: 9998; opacity: 0; pointer-events: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #ff641e;
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none;
     `;
     document.body.appendChild(overlay);
 
@@ -90,24 +97,33 @@
           async leave(data) {
             stopLenis();
 
-            const overlayPromise = new Promise((resolve) => {
+            const navbar = document.querySelector(".nav_wrap");
+
+            return new Promise((resolve) => {
+              // Ajouter classe pour désactiver mix-blend-mode
+              if (navbar) {
+                navbar.classList.add("is-blend-mode");
+              }
+
+              // S'assurer que l'overlay est visible avant l'animation
+              overlay.style.display = "block";
               gsap.to(overlay, {
                 opacity: 1,
                 duration: 0.3,
+                ease: "power2.out",
                 onComplete: resolve,
               });
             });
-            return overlayPromise;
           },
 
           beforeEnter(data) {
             window.scrollTo(0, 0);
-            data.next.container.style.setProperty(
-              "visibility",
-              "visible",
-              "important"
-            );
-            data.next.container.style.setProperty("opacity", "0", "important");
+
+            // Ajouter classe à la nouvelle navbar
+            const newNavbar = data.next.container.querySelector(".nav_wrap");
+            if (newNavbar) {
+              newNavbar.classList.add("is-blend-mode");
+            }
           },
 
           async enter(data) {
@@ -122,31 +138,44 @@
               "important"
             );
 
-            const fadeInPromise = new Promise((resolve) => {
-              const tl = gsap.timeline({ onComplete: resolve });
-              tl.to(
-                overlay,
-                { opacity: 0, duration: 0.4, ease: "power2.out" },
-                0
-              ).to(
-                data.next.container,
-                {
-                  opacity: 1,
-                  duration: 0.5,
-                  ease: "power2.out",
-                  onUpdate: function () {
-                    data.next.container.style.setProperty(
-                      "opacity",
-                      gsap.getProperty(data.next.container, "opacity"),
-                      "important"
-                    );
-                  },
+            // Animation simple de transition
+            await new Promise((resolve) => {
+              // Faire apparaître le contenu de la nouvelle page
+              gsap.to(data.next.container, {
+                opacity: 1,
+                duration: 0.5,
+                ease: "power2.out",
+                onUpdate: function () {
+                  data.next.container.style.setProperty(
+                    "opacity",
+                    gsap.getProperty(data.next.container, "opacity"),
+                    "important"
+                  );
                 },
-                0.1
-              );
+              });
+
+              // Faire disparaître l'overlay et le masquer complètement
+              gsap.to(overlay, {
+                opacity: 0,
+                duration: 0.4,
+                ease: "power2.out",
+                onComplete: () => {
+                  // S'assurer que l'overlay est vraiment invisible
+                  overlay.style.display = "none";
+
+                  // Retirer classe is-blend-mode directement ici pour timing parfait
+                  const navbar = document.querySelector(".nav_wrap");
+                  if (navbar) {
+                    navbar.classList.remove("is-blend-mode");
+                  }
+
+                  resolve();
+                },
+              });
             });
 
-            await fadeInPromise;
+            // Transition terminée
+
             startLenis();
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
@@ -302,5 +331,20 @@
     barba.hooks.before((data) => {
       stopLenis();
     });
+
+    // Ajouter la classe is-blend-mode au refresh de la page - multiple checks
+    function addBlendModeClass() {
+      const navbar = document.querySelector(".nav_wrap");
+      if (navbar && !navbar.classList.contains("is-blend-mode")) {
+        navbar.classList.add("is-blend-mode");
+      }
+    }
+
+    // Check immédiat si navbar existe
+    addBlendModeClass();
+    // Re-check après 100ms au cas où
+    setTimeout(addBlendModeClass, 100);
+    // Re-check après 300ms au cas où
+    setTimeout(addBlendModeClass, 300);
   });
 })();
