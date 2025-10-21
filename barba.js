@@ -90,12 +90,6 @@
           async leave(data) {
             stopLenis();
 
-            // Cacher la navbar avec opacity
-            const navbar = document.querySelector(".nav_wrap");
-            if (navbar) {
-              navbar.style.setProperty("opacity", "0", "important");
-            }
-
             const overlayPromise = new Promise((resolve) => {
               gsap.to(overlay, {
                 opacity: 1,
@@ -114,12 +108,6 @@
               "important"
             );
             data.next.container.style.setProperty("opacity", "0", "important");
-
-            // Cacher la navbar de la nouvelle page immédiatement
-            const newNavbar = data.next.container.querySelector(".nav_wrap");
-            if (newNavbar) {
-              newNavbar.style.setProperty("opacity", "0", "important");
-            }
           },
 
           async enter(data) {
@@ -160,26 +148,6 @@
 
             await fadeInPromise;
             startLenis();
-
-            // Réapparition rapide de la navbar
-            const navbar = data.next.container.querySelector(".nav_wrap");
-            if (navbar) {
-              await new Promise((resolve) => {
-                gsap.to(navbar, {
-                  opacity: 1,
-                  duration: 0.2,
-                  ease: "power2.out",
-                  onUpdate: function () {
-                    navbar.style.setProperty(
-                      "opacity",
-                      gsap.getProperty(navbar, "opacity"),
-                      "important"
-                    );
-                  },
-                  onComplete: resolve,
-                });
-              });
-            }
 
             // 🔥 Forcer plusieurs resize de Lenis après la transition
             setTimeout(() => {
